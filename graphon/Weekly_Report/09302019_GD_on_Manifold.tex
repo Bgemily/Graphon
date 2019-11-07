@@ -1,0 +1,162 @@
+\documentclass[12pt]{article}%
+\usepackage{amsfonts}
+\usepackage{fancyhdr}
+\usepackage{comment}
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=2.2cm, right=2.2cm]%
+{geometry}
+\usepackage{times}
+\usepackage{amsmath}
+\usepackage{changepage}
+\usepackage{amssymb}
+\usepackage{graphicx}%
+\setcounter{MaxMatrixCols}{30}
+\newtheorem{theorem}{Theorem}
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newenvironment{proof}[1][Proof]{\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+
+\begin{document}
+
+\noindent\today
+
+\section{GD on Manifold}
+\subsection{Understanding the algorithm}
+\noindent
+Denote by $O_n$ the collection of $n$-dimensional orthogonal matrices.
+Let $G_{n, p}$ denotes the Grassmann manifold 
+$G_{n, p}=O_{n} /\left(O_{p} \times O_{n-p}\right)$
+--- the collection of $p$-dimensional linear subspaces of the $n$-dimensional space. More specifically, a point in $G_{n, p}$ is an equivalent class 
+$$
+[Q]=\left\{Q\left(\begin{array}{cc}{Q_{p}} & {0} \\ {0} & {Q_{n-p}}\end{array}\right) : Q_{p} \in O_{p}, Q_{n-p} \in O_{n-p}\right\}.
+$$
+\\
+According to \cite{Edelman1998}, for $Y\in O_n$, the tangent directions at $Y$ has the form
+$$
+\Delta = YA+(I-YY^\top)C,
+$$ 
+where $A$ is $p\times p$ skew-symmetric, $C$ is $p\times p$ arbitrary.\\
+To obtain the tangent space of the quotient space, we need to decompose the tangent space of $O_n$ into two complementary subspaces: vertical space and horizontal space. 
+The vertical space consists of directions along which the matrix does not move in the quotient space; the horizontal space is defined to be orthogonal to the vertical space. Specifically, for Grassmann manifold, the vertical space at a point $[Q]$ is the set of matrices of the form
+$$
+\Phi=Q\left(\begin{array}{cc}{A} & {0} \\ {0} & {C}\end{array}\right),
+$$
+where $A$ is $p\times p$ skew-symmetric and $C$ is $(n-p)\times (n-p)$ skew-symmetric. The horizontal space at a point $[Q]$ is the set of matrices of the form
+$$
+\Delta=Q\left(\begin{array}{ll}{0} & {-B^{\top}} \\ {B} & {\ \ 0}\end{array}\right).
+$$
+The above horizontal space gives the tangents to the Grassmann manifold.\\
+\\
+Having the tangent space, we could now consider the geodesics. The orthogonal group geodesic
+$$
+Q(t)=Q(0) \exp t\left(\begin{array}{cc}{0} & {-B^{\top}} \\ {B} & {0}\end{array}\right)\qquad [DEFINITION?]
+$$
+has horizontal tangent
+$$
+\dot{Q}(t)=Q(t)\left(\begin{array}{cc}{0} & {-B^{\top}} \\ {B} & {0}\end{array}\right)
+$$
+at every point along the curve $Q(t)$; therefore, they are geodesics on the Grassmann manifold as well.\\
+\begin{theorem}[Theorem 2.3 in \cite{Edelman1998}]
+If $Y(t)=Y(0)\exp \left\{ t \left(\begin{array}{cc}0 & -B^\top \\ B & 0\end{array}\right) \right\}I_{n,p}$, with $Y(0)=Y, \dot Y(0)=H$, then
+$$
+Y(t)=\left(\begin{array}{ll}{Y V} & {U}\end{array}\right)\left(\begin{array}{l}{\cos \Sigma t} \\ {\sin \Sigma t}\end{array}\right) V^{T},\qquad [PROOF?]
+$$
+where $H=U\Sigma V^\top$ is the compact singular value decomposition of $H$.
+\end{theorem}
+This theorem provides a useful method for computing the geodesic given the initial gradient. \\
+Before deriving the gradient, we need to introduce the canonical metric on the Grassmann manifold.\\
+Suppose 
+\begin{align*}
+\Delta_i = Q \left( \begin{array}{cc}0 & -B_i^\top \\ B_i & 0\end{array} \right) , \qquad i=1,2.
+\end{align*}
+The canonical metric on the Grassmann manifold is defined [FOR SOME REASON] as
+$$
+g_{c}\left(\Delta_{1}, \Delta_{2}\right)=\operatorname{tr} B_{1}^{T} B_{2}.
+$$
+It is shown that this metric is essentially equivalent to the Euclidean metric (up to multiplication by 1/2).\\
+\\
+Now we derive the gradient on the Grassmann manifold.
+The gradient of $F$ at a point $[Y]$ is defined to be the tangent vector $\nabla F$ such that
+$$
+\operatorname{tr} (F_{Y}^{T} \Delta)\equiv g_e(F_Y, \Delta)=g_{c}(\nabla F, \Delta) \equiv \operatorname{tr}(\nabla F^{T} \Delta)
+$$
+for any tangent vectors at $Y$, where $\left(F_{Y}\right)_{i j}=\frac{\partial F}{\partial Y_{i j}}$. The solution of the above equation turns out to be
+$$
+\nabla F=F_{Y}-Y Y^{T} F_{Y}.
+$$
+\bibliographystyle{abbrv}
+\bibliography{GD_on_Manifold_ref}
+
+\subsection{Algorithm (from last report)}
+Unlike previous methods, here we try to use SVD to estimate the complete matrix. That is, minimize the loss function as follows
+$$
+\operatorname{minimize} F(X, Y)\qquad \text{s.t. }\ X \in G_{n_1, p}, Y \in G_{n_2, p},
+$$
+where
+$$
+F(X,Y) :=\frac{1}{2}\min _{{S} \in \mathbb{R}^{r \times r}}\left\|\mathcal{P}_{\Omega}\left({M}^*-{XS} {Y}^{T}\right)\right\|_{\mathrm{F}}^{2}.
+$$
+Taking gradients over the Grassmann manifold (Keshavan, R. H., Montanari, A., \& Oh, S. (2009). Matrix Completion from a Few Entries. Retrieved from http://arxiv.org/abs/0901.3150) yields
+$$
+\begin{array}{l}
+{\nabla F_{X}(X, Y)=\left(I-X X^{T}\right) P_{\Omega}\left(X S Y^{T}-M\right) Y S^{T}}, \\ {\nabla F_{Y}(X, Y)=\left(I-YY^{T}\right) P_{\Omega}\left(X S Y^{T}-M\right)^{T} X S}.
+\end{array}
+$$
+Let $-\nabla F_{X}(X, Y) = U_tD_tV_t^T$ be its compact SVD, then the geodesic on the manifold along the gradient direction is given by
+$$
+X_{t}(\eta_t)=\left[{X}_{t} {{V}}_{t} \cos \left({{D}}_{t} \eta_t\right)+{{U}}_{t} \sin \left({{D}}_{t} \eta_t\right)\right] {{V}}_{t}^{T}.
+$$
+A similar expression holds for $Y(t)$.
+
+\section{ADMM may not be suitable}
+This algorithm is always applied to solve the problem
+$$
+\min_x f(x) +g(x)
+$$
+by solving its equivalent problem
+$$
+\min_{x, y}f(x)+g(y), \qquad \text{subject to } x=y.
+$$
+That is, ADMM integrates the augmented Lagrangian method and the partial update method.\\
+If the objective function is not separable in $x$ and $y$, such as in the matrix completion problem, ADMM is almost equivalent to AltMin.\\
+One possible way using ADMM is to solve
+$$
+\min_{X, Y, Z} \frac{1}{2}\|XY-Z\|_F^2+\Lambda \bullet \mathcal{P}_\Omega(Z-M)+\frac{\alpha}{2}\|\mathcal{P}_\Omega(Z-M)\|_F^2,
+$$
+but the projector is still a problem when updating $Z$.
+
+\section{Presenting the results}
+To figure out why GD on manifold does not perform well:
+\begin{itemize}
+\item Show the results of the optimization over $S$
+\item Show the results when fixing the learning rate
+\item Show the results when using other possible definition of $\cos(A)$
+\end{itemize}
+To present the matrix and compare $M^*$ and $\hat M$:
+\begin{itemize}
+\item use image() for low-dimensional matrix
+\item generate the ground truth whose image shows a meaningful pattern (e.g. a zebra) [HOW TO MAKE IT RANDOM WHILE MEANINGFUL?]
+\end{itemize}
+\end{document}

@@ -1,0 +1,390 @@
+---
+title: "Simulation"
+output: pdf_document
+---
+
+September 19, 2019
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Generating the Incomplete Matrix
+Suppose $L^*\in R^{n_1\times r}, R^*\in R^{n_2\times r}, r\leq \min(n_1,n_2).$
+
+Generate $L^*$ and $R^*$ from the standard Normal distribution, then $M^*$ is calculated as $M^*=L^*R^{*T}\in  R^{n_1\times n_2}.$
+
+The missing indices are randomly selected from $[n_1]\times[n_2]$ with probability $0.1$, the corresponding entries are then set to zero. Denoting the observed entries with $\Omega$, 
+our observation is $M_{obs}$ with $$[M_{obs}]_{ij}=\begin{cases}M^*_{ij},\quad (i,j)\in \Omega,\\ 0,\qquad \mathrm{otherwise}.\end{cases}$$
+
+Setting $n_1=10, n_2=10, r=5$ and following the above procedure, $M_{obs}$ is generated and displayed as following.
+```{r cars}
+# L: n1*r, R: n2*r, M: n1*n2
+n1 = 10; r = 5; n2 = 10
+missfrac = 0.1
+
+set.seed(1983)
+L_true = matrix(rnorm(n1*r), n1, r)
+set.seed(831)
+R_true = matrix(rnorm(n2*r), n2, r)
+M_true = L_true %*% t(R_true)
+
+
+Projector = function(M_complete, miss_id = imiss){
+  M_miss = M_complete
+  M_miss[miss_id] = 0
+  return(M_miss)
+}
+
+
+set.seed(19)
+imiss = sample(seq(n1*n2), n1*n2*missfrac, replace = F)
+M_obs = Projector(M_true, imiss)
+
+M_obs
+```
+
+# Vanilla GD
+Our objective is to solve for
+$$\arg\min_{L\in \mathbb R^{n_1\times r},R\in \mathbb R^{n_2\times r}}\frac{1}{2}\|\mathcal P_{\Omega}(LR^T-M_{obs})\|_F^2\triangleq f(L,R).
+$$
+Vanilla gradient descent algorithm gives the following update rule
+\begin{align*}
+&L_{t+1} = L_t - \eta \nabla_Lf(L_t,R_t) = L_t - \eta\ \mathcal P_{\Omega}(L_tR_t^T-M)R_t , \\
+&R_{t+1} = R_t - \eta \nabla_R f(L_t, R_t) = R_t - \eta\ \mathcal P_{\Omega}(L_tR_t^T-M)^TL_t.
+\end{align*}
+Suppose matrix $\frac{1}{p}M_{obs}$ has svd $\frac{1}{p}M_{obs}=UDV^T$, where $p$ is the observing probability. The suggested spectral initialization (Chi et al., 2018) is
+\begin{align*}
+L_0 = UD^\frac{1}{2},\\
+R_0 = VD^\frac{1}{2}.
+\end{align*}
+
+```{r}
+# Initialization ----------------------------------------------------------
+
+library(rsvd)
+LR_decomp = function(M)
+{
+  D = diag(rsvd(M, r)$d); U = rsvd(M, r)$u; V = rsvd(M, r)$v #### Note: assume r is given.
+  L0 = U %*% sqrt(D)
+  R0 = V %*% sqrt(D)
+  return(list(L0=L0, R0=R0))
+}
+
+```
+
+
+```{r}
+# Vanilla GD --------------------------------------------------------------
+
+VanillaGD = function(M, L0, R0, lr, MaxIter)
+{
+  Lt = L0; Rt = R0;
+  for (t in 1:MaxIter) {
+    L = Lt - lr * Projector(Lt%*%t(Rt)-M) %*% Rt
+    R = Rt - lr * t(Projector(Lt%*%t(Rt)-M)) %*% Lt
+    Lt = L
+    Rt = R
+  }
+  return(list(Lt = Lt, Rt = Rt))
+}
+
+L0 = LR_decomp(M_obs/(1-missfrac))$L0; R0 = LR_decomp(M_obs/(1-missfrac))$R0 
+LR_est = VanillaGD(M_obs, L0, R0, 0.01, 10000)
+L_est = LR_est$Lt; R_est = LR_est$Rt
+
+norm(Projector(L_est%*%t(R_est)-M_obs), 'f')/norm(M_obs, 'f')
+norm((L_est%*%t(R_est)-M_true), 'f')/norm(M_true, 'f')
+```
+
+```{r}
+L_true
+L0
+L_est
+abs((L_est%*%t(R_est)-M_true)/M_true)
+```
+
+If we increase the number of missing values to 30\%, GD is not able to recover the true matrix. The relative loss 
+$\frac{\|\mathcal P_\Omega(LR^T-M_{obs})\|_F}{\|M_{obs}\|_F}$
+and
+$\frac{\|(LR^T-M^*)\|_F}{\|M^*\|_F}$
+are as following
+
+
+```{r, echo=FALSE}
+# Generate Data -----------------------------------------------------------
+
+# L: n1*r, R: n2*r, M: n1*n2
+n1 = 10; r = 5; n2 = 10
+missfrac = 0.3
+
+set.seed(1983)
+L_true = matrix(rnorm(n1*r), n1, r)
+set.seed(831)
+R_true = matrix(rnorm(n2*r), n2, r)
+M_true = L_true %*% t(R_true)
+
+
+Projector = function(M_complete, miss_id = imiss)
+{
+  M_miss = M_complete
+  M_miss[miss_id] = 0
+  return(M_miss)
+}
+
+
+set.seed(19)
+imiss = sample(seq(n1*n2), n1*n2*missfrac, replace = F)
+M_obs = Projector(M_true, imiss)
+
+
+
+# Initialization ----------------------------------------------------------
+
+library(rsvd)
+LR_decomp = function(M)
+{
+  D = diag(rsvd(M, r)$d); U = rsvd(M, r)$u; V = rsvd(M, r)$v #### Note: assume r is given.
+  L0 = U %*% sqrt(D)
+  R0 = V %*% sqrt(D)
+  return(list(L0=L0, R0=R0))
+}
+
+
+# Vanilla GD --------------------------------------------------------------
+
+VanillaGD = function(M, L0, R0, lr, MaxIter)
+{
+  Lt = L0; Rt = R0;
+  for (t in 1:MaxIter) {
+    L = Lt - lr * Projector(Lt%*%t(Rt)-M) %*% Rt
+    R = Rt - lr * t(Projector(Lt%*%t(Rt)-M)) %*% Lt
+    Lt = L
+    Rt = R
+  }
+  return(list(Lt = Lt, Rt = Rt))
+}
+
+L0 = LR_decomp(M_obs/(1-missfrac))$L0; R0 = LR_decomp(M_obs/(1-missfrac))$R0 
+LR_est = VanillaGD(M_obs, L0, R0, 0.001, 100000)
+L_est = LR_est$Lt; R_est = LR_est$Rt
+
+norm(Projector(L_est%*%t(R_est)-M_obs), 'f')/norm(M_obs, 'f')
+norm((L_est%*%t(R_est)-M_true), 'f')/norm(M_true, 'f')
+
+# abs((L_est%*%t(R_est)-M_true)/M_true)
+
+```
+
+
+
+# Regularized GD
+Regularized objective function is
+\begin{align*}
+f_{reg}(L,R)&=\frac{1}{2}\|\mathcal P_{\Omega}(LR^T-M)\|_F^2+G(L,R),
+\\
+G(L,R)& = \rho \sum_{i=1}^{n_1} G_0(\frac{3\|L^{(i)}\|^2}{2\beta_1^2})+\rho\sum_{j=1}^{n_2}G_0(\frac{3\|R^{(j)}\|^2}{2\beta_2^2})+\rho\ G_0(\frac{3\|L\|_F^2}{2\beta_T^2})+\rho\ G_0(\frac{3\|R\|_F^2}{2\beta_T^2}),
+\end{align*}
+where
+\begin{align*}
+&G_0(z)=\mathbf 1(z>1)(z-1)^2,\\
+&\beta_T = \sqrt{C_Tr\Sigma_{max}}, \Sigma_{max} \text{ is the maximum singular value of } M^*, \\
+&\beta_1 = \beta_T\sqrt{\frac{3\mu r}{n_1}}, (\text{suppose } M^* \text{ is }\mu\text{-incoherent}), \\
+&\beta_2 = \beta_T\sqrt{\frac{3\mu r}{n_2}}, \\
+&\rho = 8p\delta_0^2, \delta_0 = \frac{\delta}{6}, \delta = \frac{\Sigma_{min}}{C_dr^{1.5}\kappa}, \kappa = \frac{\Sigma_{max}}{\Sigma_{min}}.
+\end{align*}
+Where $C_T, C_d$ are absolute constants.
+Since $M^*$ is unknown, it is suggested to estimate $\Sigma_{max}$ and $\mu$ by
+$$
+\Sigma_{max} \approx C_1\sqrt{\frac{\|\mathcal P_\Omega(M)\|_F^2}{p^r}} , \qquad \mu\approx C_2\frac{\sqrt{n_1n_2}}{r\Sigma_{max}}\max_{(i,j)\in\Omega}|M_{ij}|,
+$$
+where $C_1,C_2$ are absolute constants.
+
+## Row-scaled Spectral Initialization
+* Obtain $L_0, R_0$ by SVD (same as vanilla GD).
+* Scale the rows of $L_0$  and $R_0$ to make them incoherent (i.e. bounded row-norm), that is
+$$
+\|L_0\|_{2,\infty}\leq \sqrt{\frac{2}{3}}\beta_1
+$$
+$$
+\|R_0\|_{2,\infty}\leq \sqrt{\frac{2}{3}}\beta_2
+$$
+
+
+
+
+```{r, echo=FALSE}
+# L: n1*r, R: n2*r, M: n1*n2
+n1 = 10; r = 5; n2 = 10
+missfrac = 0.1
+
+set.seed(1983)
+L_true = matrix(rnorm(n1*r), n1, r)
+set.seed(831)
+R_true = matrix(rnorm(n2*r), n2, r)
+M_true = L_true %*% t(R_true)
+
+
+Projector = function(M_complete, miss_id = imiss)
+{
+  M_miss = M_complete
+  M_miss[miss_id] = 0
+  return(M_miss)
+}
+
+
+set.seed(19)
+imiss = sample(seq(n1*n2), n1*n2*missfrac, replace = F)
+M_obs = Projector(M_true, imiss)
+
+```
+
+```{r}
+# Regularized GD ----------------------------------------------------------
+
+RowScalSpecInit = function(M, r, beta1, beta2, p) ## beta1,2: target row norm bounds. p: observe probability.
+{
+  rsvd = rsvd(M/p, r)
+  D = diag(rsvd$d); U = rsvd$u; V = rsvd$v #### Note: assume r is given.
+  L0 = U %*% sqrt(D)
+  R0 = V %*% sqrt(D)
+  for (i in 1:dim(M)[1]) {
+    if (norm(L0[i,], '2') > sqrt(2/3)*beta1) {
+      L0[i,] = L0[i,]/norm(L0[i,], '2')*sqrt(2/3)*beta1
+    }
+  }
+  for (i in 1:dim(M)[2]) {
+    if (norm(R0[i,], '2') > sqrt(2/3)*beta2) {
+      R0[i,] = R0[i,]/norm(R0[i,], '2')*sqrt(2/3)*beta2
+    }
+  }
+  return(list(L0=L0, R0=R0))
+}
+
+
+G0Derivative = function(z) I(z>1)*2*(z-1)
+
+
+ReguGD = function(M, L0, R0, rho, beta1, beta2, betaT, lr, MaxIter){
+  Lt = L0; Rt = R0;
+  for (i in 1:MaxIter) {
+    L = Lt - lr * (Projector(Lt%*%t(Rt)-M)%*%Rt + 
+                     rho*(3/beta1^2*Lt)*G0Derivative(3/(2*beta1^2)*apply(Lt, 1, function(x) norm(x, '2')^2)) + 
+                     rho*(3/betaT^2*Lt)*G0Derivative(3/(2*betaT^2)*norm(Lt, 'f')^2))
+    R = Rt - lr * (t(Projector(Lt%*%t(Rt)-M))%*%Lt + 
+                     rho*(3/beta2^2*Rt)*G0Derivative(3/(2*beta2^2)*apply(Rt, 1, function(x) norm(x, '2')^2)) + 
+                     rho*(3/betaT^2*Rt)*G0Derivative(3/(2*betaT^2)*norm(Rt, 'f')^2))
+    Lt = L
+    Rt = R
+  }
+  return(list(Lt=Lt, Rt=Rt))
+}
+
+Ct = 5
+Cd = 6500
+C1 = 0.4
+C2 = 1
+MaxSingVal = max(rsvd(M_obs/(1-missfrac), r)$d) ### = C1 * sqrt(norm(M_obs, 'f')^2/(1-missfrac)^r)
+mu = C2 * sqrt(n1*n2) / (r*MaxSingVal) * max(abs(M_obs))
+MinSingVal = min(rsvd(M_obs/(1-missfrac), r)$d)
+kappa = MaxSingVal / MinSingVal
+delta = MinSingVal/(Cd*r^1.5*kappa)
+delta0 = delta / 6
+betaT = sqrt(Ct*r*MaxSingVal)
+beta1 = betaT * sqrt(3*mu*r/n1)
+beta2 = betaT * sqrt(3*mu*r/n2)
+rho = 8 * (1-missfrac) * delta0^2
+
+
+LR_init =  RowScalSpecInit(M_obs, r, beta1, beta2, 1-missfrac)
+L0 = LR_init$L0; R0 = LR_init$R0
+LR_est_regu = ReguGD(M_obs, L0, R0, rho, beta1, beta2, betaT, 0.01, 10000)
+L_est_reg = LR_est_regu$Lt; R_est_reg = LR_est_regu$Rt
+
+norm(Projector(L_est_reg%*%t(R_est_reg)-M_obs), 'f')/norm(M_obs, 'f')
+norm(L_est_reg%*%t(R_est_reg)-M_true, 'f')/norm(M_true, 'f')
+
+```
+
+
+# Projected GD
+The key part is to project $L$ and $R$ onto the set of incoherent matrices in each step, that is,
+\begin{align*}
+&L_{t+1} = \mathcal P_\mathcal C (L_t - \eta \nabla_Lf(L_t,R_t)) , \\
+&R_{t+1} = \mathcal P_\mathcal C (R_t - \eta \nabla_R f(L_t, R_t)),
+\end{align*}
+where
+$$
+\mathcal C = \left\{ X\in\mathbb R^{n\times r}\Big| \|X\|_{2,\infty}\leq \sqrt{\frac{c\mu r}{n}}\|X_0\| \right\}.
+$$
+```{r}
+# Projected GD ------------------------------------------------------------
+
+IncohProj = function(X, X0, c, mu){
+  n = dim(X)[1]; r  = dim(X)[2]
+  for (i in 1:n) {
+    if (norm(X[i,], '2') > sqrt(c*mu*r/n)*norm(X0, '2')) {
+      X[i,] = X[i,] / norm(X[i,], '2') * sqrt(c*mu*r/n) * norm(X0, '2')
+    }
+  }
+  return(X)
+}
+
+
+ProjectedGD = function(M, L0, R0, c, mu, lr, MaxIter)
+{
+  Lt = L0; Rt = R0;
+  for (t in 1:MaxIter) {
+    L = Lt - lr * Projector(Lt%*%t(Rt)-M) %*% Rt
+    L = IncohProj(L, L0, c, mu)
+    R = Rt - lr * t(Projector(Lt%*%t(Rt)-M)) %*% Lt
+    R = IncohProj(R, R0, c, mu)
+    Lt = L
+    Rt = R
+  }
+  return(list(Lt = Lt, Rt = Rt))
+}
+
+
+c = 2
+mu = .5
+lr = 0.01
+MaxIter = 10000
+
+
+L0 = LR_decomp(M_obs/(1-missfrac))$L0; R0 = LR_decomp(M_obs/(1-missfrac))$R0 
+LR_est_proj = ProjectedGD(M_obs, L0, R0, c, mu, lr, MaxIter)
+L_est_proj = LR_est_proj$Lt; R_est_proj = LR_est_proj$Rt
+
+norm(Projector(L_est_proj%*%t(R_est_proj)-M_obs), 'f')/norm(M_obs, 'f')
+norm((L_est_proj%*%t(R_est_proj)-M_true), 'f')/norm(M_true, 'f')
+
+```
+
+# GD on Manifold
+Unlike previous methods, here we try to use SVD to estimate the complete matrix. That is, minimize the loss function as follows
+$$
+\operatorname{minimize} F(L, R)\qquad \text{s.t. }\ L \in \mathcal{G}\left(n_{1}, r\right), R \in \mathcal{G}(n_2, r),
+$$
+where
+$$
+F(\boldsymbol{L}) :=\min _{\boldsymbol{R} \in \mathbb{R}^{\mathrm{n}}_{2} \times r}\left\|\mathcal{P}_{\Omega}\left(\boldsymbol{M}^*-\boldsymbol{L} \boldsymbol{R}^{\top}\right)\right\|_{\mathrm{F}}^{2}
+$$
+
+$$
+X^T\mathcal P_{\Omega}(XSY^T)Y = X^T\mathcal P_{\Omega}(M)Y
+$$
+
+$$
+L^T\mathcal P_{\Omega}(M) = L^T\mathcal P_{\Omega}(LR^T)
+$$
+
+## Initialization
+
+
+
+# AltMin
+
+
+# ADMM
+
