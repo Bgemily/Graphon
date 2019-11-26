@@ -1,0 +1,699 @@
+%  This is the file with proofs
+% The root file is DSBM_AOS_March25_2018.tex
+
+
+% \section{Proofs}
+% \label{sec:proofs}
+%\setcounter{equation}{0}
+
+% \subsection{Proofs of the upper bounds for the risk}
+%\label{sec:upper}
+\subsection{Proof of Theorem \ref{th:oracle}}
+
+%  \noindent
+% {\bf Proof of Theorem \ref{th:oracle}. } 
+%
+Since $(\hbd, \hbC, \hm, \hJ)$ are solutions of optimization problem \fr{opt_problem},
+for any $m$, $J$, $\bC$  and $\bd$ one has
+\be \label{main_ineq}
+\|\ba - \hbC \hbW^T\, \hbd_{(\hJ)}\|^2 + \Pen(|\hJ|,\hm) \leq \|\ba - \bC \bW^T \bd_{(J)} \|^2 + \Pen(|J|,m),
+\ee 
+% where $\bd_{(J)}$ is the modification of vector 
+% $\bd$ where all elements $\bd_j$ with $j \notin J$ are set to zero.
+For any $m$, $J$, $\bC$  and $\bd$, it follows from \fr{true_model} that 
+\begin{align*} 
+& \|\ba -   \bC \bW^T  \bd_{(J)}\|^2  = \|(\ba - \bCs \bWs^T \bds) +  (\bCs \bWs^T \bds -  \bC \bW^T \bd_{(J)})\|^2 \\
+& =   \|\bxi\|^2 + \|\bC \bW^T \bd_{(J)} - \bCs \bWs^T \bds\|^2 + 2 \bxi^T (\bCs \bWs^T \bds -  \bC \bW^T \bd_{(J)}).
+\end{align*}
+Hence, plugging the last identity into the inequality \fr{main_ineq}, derive that
+for any $m$, $J$, $\bC$  and $\bd$
+\begin{align} \label{main_ineq1}
+\|\hbC \hbW^T \hbd_{(\hJ)} - \bCs \bWs^T \bds\|^2 & \leq \|\bC \bW^T \bd_{(J)} - \bCs \bWs^T \bds\|^2 \\
+& +    \Del + \Pen(|J|,m) - \Pen(|\hJ|,\hm). \nonumber 
+\end{align}
+%
+Here $\Del   = 2 |\bxi^T (\hbC \hbW^T \hbd_{(\hJ)} - \bC \bW^T \bd_{(J)})| \leq  \Del_1 + \Del_2 + \Del_3$ with 
+\begin{align}
+ % \Del & = 2 |\bxi^T (\hbC \hbW^T \hbd_{(\hJ)} - \bC \bW^T \bd_{(J)})| \leq  \Del_1 + \Del_2 + \Del_3, \label{Del_sum}\\
+  \Del_1 & = 2 |\bxi^T (\bCs \bWs^T \bds - \bC \bW^T \bd_{(J)})|, \nonumber \\
+  \Del_2  & = 2 |\bxi^T (\bI_{NL} - \hPhJ) \bCs \bWs^T \bds|, \quad 
+  \Del_3   = 2  \bxi^T \hPhJ\, \bxi,  \label{Del123}
+\end{align}
+% \be \label{Del_sum}
+% \Del   = 2 |\bxi^T (\hbC \hbW^T \hbd_{(\hJ)} - \bC \bW^T \bd_{(J)})| \leq  \Del_1 + \Del_2 + \Del_3,
+% \ee
+since, due to \fr{projection} and \fr{hbd_solution}, one has  $\hbC \hbW^T \hbd_{(\hJ)} = \hPhJ\, \ba$ 
+where $\ba$ is given by \fr{true_model}. Now, we need to find upper bounds for each of the terms in \fr{Del123}.
+ 
+
+
+By Lemma \ref{lem:bern_err} with $\al =1/2$ and any   $t>0$, one has
+\be \label{Del1er}
+\PP \lfi \Del_1 -  0.5\, \| \bCs \bWs^T \bds - \bC \bW^T \bd_{(J)} \|^2 \leq 4 t  \rfi \geq 1 - 2 e^{-t}.
+\ee
+% 
+Note that  
+\begin{align*}
+\|\hbC \hbW^T \hbd_{(\hJ)} - \bCs \bWs^T \bds\|^2 & = 
+\|\hPhJ\, \bxi\|^2 + \| (\bI_{NL} - \hPhJ)  \bCs \bWs^T \bds\|^2 \\
+& \geq  \| (\bI_{NL} - \hPhJ)  \bCs \bWs^T \bds\|^2.
+\end{align*}
+Therefore,  applying an union bound over $m=1, \cdots, n$, $\bC \in \calC(m,n,L)$ 
+and $J$ with $|J| = 1, \cdots, ML,$ we derive that for    any $x >0$ 
+\begin{align*} 
+&  \PP \lfi \Del_2 -  0.5\, \|\hbC \hbW^T \hbd_{(\hJ)} - \bCs \bWs^T \bds\|^2 < 4x \rfi   \\  
+ \geq & \PP \lfi \Del_2 -    0.5\,\| (\bI_{NL} - \hPhJ)  \bCs \bWs^T \bds\|^2 < 4x \rfi    \\
+ \geq & 1 - \sum_{m=1}^n\ \sum_{\bC \in \calC(m,n,L)}\ \sum_{j =1}^{ML} \ \sum_{|J|=j} 
+\PP \lfi 2 |\bxi^T (\bI_{NL} - \hPhJ) \bC  \bW^T \bds|   \right. \\
+- & \left.  0.5\,\| (\bI_{NL} - \hPhJ)  \bC  \bW^T \bds\|^2 < 4x \rfi. 
+\end{align*}
+Denote
+\be \label{RDel}
+R(m,J,L) =   \log(|\calC(m,n,L)|) + |J| \log\lkr  m^2 L e\,|J|^{-1} \rkr +  2 \log(m |J|). 
+\ee
+%
+Then, taking into account that the number of sets $J$ with $|J|=j$ is
+$$
+{ ML \choose j} \leq \lkr \frac{M L e}{j}\rkr^j \leq \lkr \frac{m^2 L e}{j}\rkr^j
+$$
+and applying  Lemma \ref{lem:bern_err} with $\al =1/2$ and $x = t + R(m,J,L)$, derive
+\bes
+\PP \lfi \Del_2 - 0.5\, \|\hbC \hbW^T \hbd_{(\hJ)} - \bCs \bWs^T \bds\|^2 - 4 R(\hm,\hJ,L)
+\leq 4t  \rfi \geq 1 -  2 e^{-t} \, \sum_{m=1}^n\  \sum_{j =1}^{ML} m^{-2} j^{-2}.
+\ees
+Since $\sum_{j=1}^\infty  j^{-2} = \pi^2/6 < \sqrt{3}$, the last inequality yields
+\be \label{Del2er}
+\PP \lfi \Del_2 - 0.5\, \|\hbC \hbW^T \hbd_{(\hJ)} - \bCs \bWs^T \bds\|^2 - 4 R(\hm,\hJ,L)
+\leq 4t  \rfi \geq 1 - 6 e^{-t}.
+\ee
+% 
+Finally, in order to obtain an upper bound for $\Del_3$, apply Lemma \ref{corr:quadr_err}
+with $\bA =  \hPhJ$  and again use the union upper bound over $m=1, \cdots, n$, $\bC \in \calC(m,n,L)$ 
+and $J$ with $|J| = 1, \cdots, ML$ similarly to the way it was done for $\Del_2$. 
+Since for any projection matrix $\PJ$, one has $\|\PJ\|_{op}=1$ and
+$\| \PJ\|^2  = |J|$, obtain that for any $t>0$  
+\be \label{Del3er}
+\PP \lfi \Del_3 - |\hJ| - \frac{3}{2} R(\hm,\hJ,L)
+\leq \frac{3t}{2} \rfi \geq 1 -  e^{-t},
+\ee
+where $R(m,J,L)$ is defined in \fr{RDel}.
+% 
+Combining \fr{main_ineq1}--\fr{Del3er} and recalling that $\hbte = \hbC \hbW^T \hbd_{(\hJ)}$ and $\btes = \bCs \bWs^T \bds$, 
+obtain  that, with probability at least $1 - 9 e^{-t}$, one has
+\be \label{in_eq}
+% \PP \lfi \|\hbte - \btes\|^2 \leq   \min_{\stackrel{m,J,\bq}{\bC \in \calC(m,n,L)}} 
+% \lkv  3\, \| \bC \bW^T \bd_{(J)} - \btes \|^2  +  2\, \Pen(|J|,m)  \rkv + 19\,  t \rfi \geq 1 - 9 e^{-t} 
+% \PP \lfi \|\hbte - \btes\|^2 \leq   \min_{\stackrel{m,J,\bq}{\bC \in \calC(m,n,L)}} 
+% \lkv  3\, \| \bC \bW^T \bd_{(J)} - \btes \|^2  +   11  R(m,J,L)  + 2|J|  \rkv + 19\,  t \rfi \geq 1 - 9 e^{-t}. 
+\|\hbte - \btes\|^2 \leq   \min_{\stackrel{m,J,\bq}{\bC \in \calC(m,n,L)}} 
+\lfi  3  \| \bC \bW^T \bd_{(J)} - \btes \|^2  +   11  R(m,J,L)  + 2|J|  \rfi + 19t. 
+\ee 
+ In order to complete the proof of \fr{oracle_prob}, observe that 
+$2 \log(|J|) \leq 2|J|$ and $\log(|\calC(m,n,L)|\geq  2 \log m$ by \fr{clust_assump}.
+Therefore, one has
+\be \label{pen_cond}
+ 11  R(m,J,L)  + 2|J| \leq 2 \Pen(|J|,m),
+ \ee
+and \fr{oracle_prob} follows from \fr{in_eq}, \fr{pen_cond} and the second inequality in \fr{symrel}.
+ 
+Finally, inequality \fr{oracle_expec} can  be proved by noting that for any random variable $\zeta$ one has
+$\EE \zeta \leq \int_0^\infty \PP(\zeta >z) dz$ and using it with $\zeta = \|\hbLam - \bLams\|^2$.
+ 
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsection{ Proofs of Lemma~\ref{lem:balanced},   Theorem~\ref{th:upper_smooth_DSBM} and Corollary~\ref{cor:upper_smooth_DSBM}}
+This section contains proofs of Lemma~\ref{lem:balanced},   Theorem~\ref{th:upper_smooth_DSBM} 
+and Corollary~\ref{cor:upper_smooth_DSBM}.
+\\
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+
+
+\noindent
+{\bf Proof of Lemma \ref{lem:balanced}.\ }
+% The upper bound in \fr{eq:balanced} is trivial. 
+% To prove the lower bound in \fr{eq:balanced},
+Since
+$|\calZ_{\bal} (m,n,n_0,L,1,1)| \leq |\calZ_{\bal} (m,n,n_0,L,\aleph_1,\aleph_2)|$,
+ it is sufficient to prove \fr{card_balanced} for $\aleph_1 = \aleph_2=1$. 
+%
+Note that 
+\bes 
+\log|\calZ_{\bal} (m,n,n_0,L,1,1)| \geq  \log(n!) - m \log [(n/m)!] + (L-1) \log{n \choose n_0}
+\ees
+since there are ${n \choose n_0}$ ways to select $n_0$ nodes out of $n$ but there are more than 
+one way to put them back. Applying Lemma \ref{lem:cardinality} with $\ga =1$ obtain that
+$\log(n!) - m \log [(n/m)!] \geq n \log(m)/4$. In addition,
+\bes
+\log{n \choose n_0} > n_0 \log \lkr \frac{n}{n_0}\rkr = \frac{n_0}{4} \log \lkr \frac{n^4}{n_0^4}\rkr
+\geq \frac{n_0}{4} \log \lkr \frac{mne}{n_0}\rkr
+\ees
+provided $n^4/n_0^4 \geq (mne)/n_0$ which holds under conditions of the lemma due to $m \leq n$.
+\\
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+
+
+\noindent
+{\bf Proof of Theorem~\ref{th:upper_smooth_DSBM}. }
+Let  $\ms$ be the true number of classes,  $\Ms = \ms(\ms +1)/2$.
+Let $\bC = \bCs$ be the true clustering matrix and $(\bCs)^T \bCs = (\bSs)^2$ where $(\bSs)^2$ is the diagonal 
+matrix with the number of nodes in respective pairs of classes on the diagonal. 
+Let $\bQs$ be the true matrix of probabilities of connections for pairs of classes, $\bDs = \bQs \bH$, $\bds = \vect(\bDs)$,
+$\btes = \bCs (\bWs)^T \bds$ and $\bWs = \bH \otimes \bI_{\Ms}$. 
+We need to find an upper bound for  $\| \bCs  (\bWs)^T \bds_{(J)} - \btes \|^2$ in \fr{oracle_prob}. 
+Let $\bQs_{(J)}$ be such that 
+\bes
+ \vect(\bQs_{(J)}) =  \bqs_{(J)} = (\bWs)^T \bds_{(J)} =  (\bWs)^T (\bWs \bqs)_{(J)}. %, \bU = \bC^T \bS^{-1}.
+\ees
+Then, by direct calculations, one obtains  
+\begin{align*}
+\| \bCs  (\bWs)^T \bds_{(J)} - \btes \|^2 & = \lkv \bqs_{(J)}  - (\bSs)^{-2} \bCs \btes\rkv^T  (\bSs)^2  \lkv \bqs_{(J)} - (\bSs)^{-2} \bCs \btes\rkv \\
+& +  \|\btes\|^2 - \|(\bSs)^{-1} (\bCs)^T \btes \|^2.
+\end{align*}
+Since  $\|(\bSs)^{-1} (\bCs)^T \btes\| = \|\btes\|$ and $(\bSs)^{-2} \bCs \btes = \bqs = \vect(\bQs) = \vect(\bDs \bH)$,
+% where $\bQs$ and $\bDs$  are the true values of matrices $\bQ$ and $\bD$. 
+% Moreover, $\tilbq_J  = \bW^T \bd_{(J)} = \vect(\bQ_J)$.
+obtain 
+\begin{align*}
+\| \bCs  (\bWs)^T \bds_{(J)} - \btes \|^2 & =  \|\bSs (\bQs_{(J)} - \bQs)\|^2 \\
+& \leq  \sum_{k=1}^{\Ms} \max_{l}  N_{k}^{(l)}\ \sum_{l=1}^L \lkv (\bQs_{(J)})_{k,l} - \bQs_{k,l} \rkv^2\\
+& \leq \aleph_2^2 \lkr \frac{n}{\ms} \rkr^2 \, \sum_{k=1}^{\Ms} \|\bQs_{(J)})_{k,*} - \bQs_{k,*}\|^2 
+\end{align*}
+Here, $k$ is the index corresponding to a pair of classes $(k_1, k_2)$,   $N_{k_1, k_2}^{(l)}$ is 
+defined in formula \fr{eq:Nkl} and the second inequality follows from assumption \fr{balanced}.
+In order to complete the proof, note that 
+\begin{align*}  
+% \sum_{k=1}^{\Ms} \|\bQ_{(J)})_{k,*} - \bQs_{k,*}\|^2 & = 
+\sum_{k=1}^{\Ms} \|\bQs_{(J)})_{k,*} - \bQs_{k,*}\|^2 & = \sum_{k=1}^{\Ms}   \|\bDs_{(J_k)})_{k,*} - \bDs_{k,*}\|^2 
+% \\ &   
+= \sum_{k=1}^{\Ms}   \sum_{l \notin J_k} (\bDs_{k,l})^2.   
+\end{align*} 
+Therefore, \fr{oracle_prob} implies \fr{oracle_prob_specific}. 
+\\
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\noindent
+{\bf Proof of Corollary~\ref{cor:upper_smooth_DSBM}.}
+Observe that it follows from \fr{bias_coef_cond} that one can choose 
+$J_k = \{l:\ 1 \leq l \leq L_0\}$ where $L_0 \leq L$. Then, 
+\fr{eq:J_union} yields that $|J| = L_0 \Ms$.
+Moreover, due to assumption \fr{bias_coef_cond}, obtain 
+\bes 
+\sum_{k=1}^{\Ms}\, \sum_{l \notin J_k} (\bDs_{k,l})^2 \leq K_0 \Ms L_0^{-2 \nu_0}.
+\ees
+Note also that if $L_0 = L$, then there is no bias and the sum in \fr{oracle_prob_specific} is identical zero. 
+Then, \fr{oracle_prob_specific} becomes
+\begin{align*}   
+ \|\hbLam - \bLams\|^2  & \leq \min \lfi \Del(n,L,\ms),\ 22 \Ms L   \rfi\\
+& + 44 \lkv n \log (\ms)  + 
+   n_0 L  \,\log\lkr \frac{\ms ne}{n_0}\rkr \rkv + 38\, t,
+\end{align*}
+where
+\bes % \label{eq:Del_expression}
+\Del(n,L,\ms) = \min_{0 \leq L_0 <L} \lfi 6  {K}_0  \aleph_2^2  n^2\, L_0^{-2 \nu_0} 
++ 22 (\ms)^2 L_0 \log\lkr \frac{25\,L}{L_0}\rkr \rfi
+\ees 
+In order to obtain \fr{oracle_prob_smooth}, minimize the right-hand side of the last expression 
+with respect to $L_0<L$ and note that, if $L_0 <L$, then
+$\log(L_0) \asymp \log (L) \asymp \log(n/\ms)$.   
+
+
+
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\subsection{ Proofs of Theorems~\ref{th:DSBM_lower_bounds} and \ref{th:smooth_DSBM_lower_bounds}}
+%\label{sec:lower}
+
+
+This section contains the proofs of the lower bounds for the error.
+The lower bounds in both, Theorem \ref{th:DSBM_lower_bounds} and Theorem~\ref{th:smooth_DSBM_lower_bounds},
+consist  of two parts, the clustering error and the nonparametric estimation error.
+We shall consider those terms separately.
+\\  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\noindent
+{\bf Proof of Theorem \ref{th:DSBM_lower_bounds}. }
+Although the upper bounds for the risk in Corollary~\ref{cor:upper_DSBM}
+are derived for the case of general clustering matrices, due to the fact that the balanced model clustering complexity
+is the same as complexity of general clustering, we derive the lower bounds for the clustering error for the case 
+when $\bC \in  \calZ_{\bal} (m,n,n_0,L,\aleph_1, \aleph_2)$. Moreover, since the case of $\aleph_1 = \aleph_2 =1$
+is the most restrictive, we prove the clustering error for this case.
+\\
+ 
+
+\underline{\bf The clustering error. } 
+Without loss of generality, assume that   $\ga m$ and $\ga n$ are integers.  
+Assume that connectivity tensor $\bG$ does not change with $l$, so   $\bG_{*,*,l} = \bV$ is an $m\times m$ symmetric matrix.
+Let $\bV$ be block diagonal and  such that the diagonal blocks are equal to zero
+and the non-diagonal blocks are equal to $\bF$ and $\bF^T$, respectively, so that
+$\bV_{k_1,k_2} =0$ if $1 \leq k_1,k_2 \leq (1-\ga)m$ or 
+$(1-\ga)m+1 \leq k_1,k_2 \leq m$ and  
+$\bV_{k_1,(1-\ga)m +k_2}  = \bF_{k_1,k_2}$ if  $k_1 = 1 ,\cdots (1-\ga)m$, $k_2= (1-\ga)m+1, \cdots,   m$. 
+Since components of vectors $\bG_{k_1, k_2, *}$ are constant for any $k_1$, $k_2$, then,
+due to condition \fr{H_assump}, each of the vectors $\bH \bF_{k_1, k_2}$ has only one non-zero component, 
+so that  the set $J$ has at most $\ga(1-\ga)m^2 < s$ nonzero elements.
+
+
+
+Consider a collection of binary vectors $\bom \in \{0,1\}^{(1-\ga)m}$.
+By Varshamov-Gilbert Lemma (see Tsybakov (2009)), there exists a subset $\Xi$ of those vectors 
+such that for any $\bom, \bom' \in \Xi$ one has 
+$\|\bom - \bom'\|_H = \|\bom - \bom'\|^2 \geq (1 - \ga)m/8 \geq m/16$
+and $|\Xi| \geq \exp((1-\ga)m/8)$. 
+Assume, without loss of generality, that $m$ is large enough, so that 
+$\exp((1-\ga)m/8) \geq \ga m$, otherwise, choose a smaller value of $\ga$ 
+(inequality $\exp((1-\ga)m/8) \geq \ga m$ is always valid for $\ga \leq 1/9$).
+Choose $\ga m$ vectors $\bom$ in $\Xi$, enumerate them as $\bom^{(1)}, \cdots, \bom^{(\ga m)}$
+and use them to form columns of matrix $\bF$ as follows:
+\be \label{Fmatr}
+\bF_{*,j} = 0.5\, \bone + \al \bom^{(j)}, \quad j=1, \cdots, \ga m.
+\ee
+Then, for any $j, j' = 1, \cdots, \ga m$, obtain
+\be \label{dist1}
+\|\bF_{*,j} - \bF_{*,j'}\|^2 \geq \al^2   m/16,
+\ee
+where $\al$ is a positive constant that will be defined later.
+%
+%
+Note that for every $l$ and $k$ one has 
+\be \label{inequalities}
+l\, \log\lkr \frac{k}{l}\rkr \leq \log {k \choose l} \leq l\, \log\lkr \frac{k e}{l}\rkr, \quad 
+\log(k!) = k \log k - k + \frac{1}{2} \log(2\pi k) + o(1),
+\ee
+where the $o(1)$ term is smaller than 1. Therefore, it follows from the first formula in \fr{card_clust} that
+\be \label{log_card}
+n \log m + n_0(L-1)\, \log \lkr \frac{m n}{n_0} \rkr \leq 
+\log|\calZ (m,n,n_0,L)| \leq  
+n \log m + n_0(L-1)\, \log \lkr \frac{m n e}{n_0} \rkr  
+\ee
+The term $n \log m$ in \fr{log_card} is due to the initial clustering while the term 
+$n_0(L-1)\, \log \lkr  m n/n_0  \rkr$ is due to temporal changes in the clusters' memberships.
+
+
+In what follows, we shall utilize clustering functions $z^{(l)}: [n] \to [m]$
+corresponding to clustering matrices $\bC^{(l)}$  such that  $z^{(l)} (j) = k$ 
+iff at the moment $t_l$ node $j$ belongs to class $\Om_k$, $k=1, \cdots, m$. 
+% Denote a set of such clustering matrices at time $t_l$ by $\calZ_l (m,n,n_0)$ and the 
+% overall collection   by $\calZ (m,n,n_0,L)$.   Note that $\calZ_1 (m,n,n_0)$ does not depend on   $n_0$,
+% so that   $\calZ_1 (m,n,n_0)  \equiv  \calZ_1 (m,n)$.
+ \\
+
+ 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+{\bf Clustering error due to initial clustering. } 
+First consider the case when initial clustering error dominates. 
+If $m=2$ or $m$ takes a small value, the proof is almost identical to the proof in Section 3.3 of  Gao \etal (2015).
+Hence, we shall skip this part and consider the case when $m$ is large enough,
+so that $\ga m \geq 2$.
+ 
+Following  Gao \etal  (2015), we consider   clustering matrices and clustering functions 
+independent of $l$, so that $z^{(l)}\equiv z$.
+% \bes
+% z^{(l)}\equiv z, \quad \calZ (m,n) = \calZ_1 (m,n)  
+% \ees 
+Consider a sub-collection of clustering matrices $\calF(m,n,\ga) \subset \calM(m,n)$
+such that they cluster the first $n(1-\ga)$ nodes into the first $m(1-\ga)$ classes uniformly and sequentially,
+$n/m$ nodes in each class, i.e., the first $n/m$ nodes are placed into class  $\Om_1$, 
+the second $n/m$ nodes into class  $\Om_2$, and so on.
+%
+The remaining $\ga n$ nodes are clustered into the remaining $\ga m$ classes, $n/m$  nodes into each class.
+Then, by Lemma \ref{lem:cardinality}, 
+$$
+\log |\calF(m,n,\ga)| = \log \lkr (\ga n)!\Big/ \lkv (n/m)!\rkv^{\ga m} \rkr \geq  \ga n  \log(\ga m)/4.
+$$  
+Now, apply Lemma~\ref{lem:packing} with $\ga n$ and $\ga m$, respectively, instead of $n$ and $m$ and 
+$r = \ga n/32$. Derive  that there exists a 
+subset $\calS(m,n,\ga)$ of the set $\calF(m,n,\ga)$ such that, for any $\bC, \bC' \in \calS(m,n,\ga)$, one has 
+$2 \lfi \#j:\  z(j) \neq z'(j)\rfi = \| \bC  - \bC' \|_H   \geq \ga n/32$. Also,  by \fr{AA3}, 
+\be    \label{cardSnm}
+\log |\calS(m,n,\ga)| \geq \frac{\ga n}{4} \log (\ga m)  -   \frac{\ga n\,  \log (32 m \ga  e)}{32}  \geq
+ \frac{\ga n}{16} \log (\ga m).
+\ee 
+%
+% 
+Let $\bLam$ and $\bLam'$ be the tensors of probabilities 
+corresponding to,  respectively, clustering matrices 
+$\bC, \bC' \in \calS(m,n,\ga)$ with related clustering functions
+$z$ and $z'$. Then, by \fr{dist1},
+due to the fact that the first $n(1-\ga)$ nodes are clustered uniformly and 
+sequentially,   obtain
+\begin{align*}
+& \| \bLam - \bLam'\|^2 
+  =   2 L \, \sum_{i=1}^{n(1-\ga)}\, \sum_{j = n(1-\ga)+1}^n (\bF_{z(i),z(j)} -  \bF_{z'(i),z'(j)})^2  \\
+%
+&  =    \frac{2 L n}{m} \, \sum_{k=1}^{m(1-\ga)}\, \sum_{j = n(1-\ga) + 1}^n (\bF_{k,z(j)} -  \bF_{k,z'(j)})^2 \\
+%
+& =     \frac{2 L n}{m} \,   \sum_{j = n(1-\ga) + 1}^n \|\bF_{*,z(j)} -  \bF_{*,z'(j)}\|^2  
+%
+  \geq  \frac{2 L n}{m} \,   \frac{\al^2\, m}{16} \ \lfi \#j:\  z(j) \neq z'(j)\rfi,   
+\end{align*}
+so that 
+\be \label{d1}
+\| \bLam - \bLam'\|^2  \geq 2^{-9}\, L n^2 \al^2 \ga.
+\ee
+On the other hand, if $\al \leq 1/4$, then, by Lemma~\ref{lem:Gao2015},
+obtain that the Kullback divergence is bounded above 
+\be \label{kul1}
+K (\PP_{\bLam}, \PP_{\bLam'}) \leq 8\, \| \bLam - \bLam'\|^2  \leq
+16 \al^2 n^2 L  \ga.
+\ee 
+Set $\al^2 = C_\al \, \log (\ga m)/nL$ % where $C_\al$ is an absolute constant
+ and apply Theorem 2.5 of Tsybakov (2009).
+Due to \fr{cardSnm} and \fr{kul1}, if $C_\al$ is a small enough absolute constant,  
+$$
+16 \al^2 n^2 L \ga = 16 C_\al \, \log (\ga m) n < (1/8)\, (\ga n/16)\, \log (\ga m) \leq (1/8)\,  \log |\calS(m,n,\ga)| 
+$$
+and conditions of   Theorem 2.5 are satisfied. 
+Since  
+$L n^2 \al^2 \ga = C_\al  n\,\ga \log (\ga m)$ and $\log (\ga m) \geq C(\ga) \log m$ for some constant $C(\ga)$ dependent on $\ga$ only, 
+derive  
+\be \label{lower_DSBM1}
+\inf_{\hbLam} \sup_{\stackrel{\bG \in \calG_{m,L,s}}{\bC \in \calS(m,n,\ga)}}
+\PP_{\bLam} \lfi \frac{\|\hbLam - \bLams\|^2}{n^2\,L} \geq   \frac{C(\ga)\, \log m}{n L}
+\rfi \geq 1/4.
+\ee
+ 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ 
+ 
+
+{\bf Clustering error due to  changes in the memberships. }
+Now, we consider the case when the clustering error which is due to the temporal changes in memberships dominates
+the error of initial clustering. Use the same construction for $\bG$ and $\bF$ as before. 
+Consider the following collection of clustering matrices $\calF = \prod_{l=1}^L \calF_l$ where $\calF_l$ is defined as follows.
+When $l$ is odd, $\calF_l$ contains only one matrix that clusters nodes uniformly and sequentially, i.e., 
+the first $n/m$ nodes go to class $\Om_1$, the second  $n/m$ nodes go to class $\Om_2$
+and the last $n/m$ nodes go to class $\Om_m$. If $l$ is even, $\calF_l =  \calP(m,n,n_0,\ga)$ where $\calP(m,n,n_0,\ga)$ 
+is the set of clustering matrices  that corresponds to a perturbation of the uniform sequential 
+clustering with at most $n_0$ nodes moved to different classes 
+in the manner described below. Let $k_0$ be an integer such that
+\be \label{k0}
+k_0 \leq n_0/(\ga m) < k_0 +1.
+\ee
+If $k_0 =0$, then $n_0 < \ga m$ and we choose $n_0$ clusters out of the last $\ga m$ clusters,
+remove one element from each of those clusters and then put those $n_0$ elements back  
+in such a manner that every element goes to a different cluster and 
+no elements goes back to its own cluster. If $k_0 \geq 1$, we remove $k_0$ elements from each of the 
+last $\ga m$ clusters and then put each of those $k_0$-tuples back, one tuple per cluster, 
+so that none of the tuple goes back to its own cluster.
+Then, $\log |\calF| = [L/2] \log|\calP(m,n,n_0, \ga)|$ where $[L/2] \geq (L-1)/2$ is the largest integer not exceeding $L/2$ and 
+\bes % \label{F_card}
+\log|\calP(m,n,n_0, \ga)| = \lfi
+\begin{array}{ll}
+\log {\ga m \choose n_0} + n_0 \log(n/m) + \log[(n_0-1)!], & \mbox{if}\quad k_0 =0;\\
+\ga m \log {n/m \choose k_0} + \log[(\ga m -1)!], & \mbox{if}\quad k_0 \geq 1.
+\end{array} \right.
+\ees
+If $n_0 < \ga m$, so that $k_0 =0$,  then, by \fr{inequalities}, obtain that
+$\log|\calP(m,n,n_0, \ga)| \geq n_0 \log(\ga m/n_0) + n_0 \log(n/m) = n_0 \log(\ga n/n_0)$.
+If $n_0 \geq \ga m$ and $k_0 \geq 1$, then,  
+by \fr{inequalities}, obtain
+$\log|\calP(m,n,n_0, \ga)| \geq \ga   m k_0\,  \log(n/(m k_0))$.
+Since $k_0 +1 \leq 2 k_0$, obtain that $k_0 \geq n_0/(2 m \ga)$. Hence, for any $k_0 \geq 0$ 
+\be \label{calF_card}
+\log |\calP(m,n,n_0, \ga)| \geq \frac{n_0}{2} \, \log \lkr \ga n/n_0  \rkr.
+\ee
+%
+%
+For every even value of $l$, apply Lemma \ref{lem:packing} with $\ga n$ and $\ga m$, 
+respectively, instead of $n$ and $m$ and $r = n_0/40$ obtaining that there exists a 
+subset $\calS_l (m,n,n_0,\ga)$ of the set $\calP(m,n,n_0, \ga)$ such that, for any 
+$\bC^{(l)}, \bC'^{(l)} \in  \calS_l (m,n,n_0,\ga)$, one has 
+\be \label{d_l}
+  \| \bC^{(l)}  - \bC'^{(l)} \|_H   \geq  n_0/40, \quad  l=2k,\ k=1, \cdots, [L/2].
+\ee 
+By \fr{calF_card} and Lemma~\ref{lem:packing}, for every even $l$, one has 
+\begin{align*}
+\log |\calS_l (m,n,n_0,\ga)| \geq    \frac{n_0}{2}\, \log\lkr \frac{\ga n}{n_0}\rkr -   
+\frac{n_0}{40}\, \log \lkr \frac{80 n e m \ga^2}{n_0}\rkr \geq \frac{n_0}{40}\,  \log \lkr \frac{n e m}{n_0}\rkr
+\end{align*}
+since, due to $n_0 \leq   4/3\, \ga n\,m^{-1/9}$ and $(80 e^2)^{1/18} \leq 0.75$, one has 
+$(\ga n/n_0)^{20} \ge (80 e^2)\, [m\, (\ga n /n_0)]^2$, so that 
+$$
+20\, \log(\ga n/n_0) \ge  \log(80 n^2 m^2 e^2 \ga^2/n_0^2) = \log(n e m/n_0) +
+ \log (80 n e m \ga^2/n_0). 
+$$   
+% if $\ga n/n_0  \geq m^{1/9} (80 e^2)^{1/18} \leq 0.75\, m^{1/10}$. 
+For odd values of $l$, let $\calS_l (m,n,n_0,\ga)$ contain just one clustering matrix corresponding to the 
+uniform sequential clustering. 
+%
+%
+Now, consider the set $\calS  (m,n,n_0,\ga,L) = \prod_{l=1}^{L} \calS_l (m,n,n_0,\ga)$ with   
+\be  \label{cardSnmL}
+% \calS  (m,n,n_0,\ga,L) = \prod_{l=1}^{L} \calS_l (m,n,n_0,\ga) \ \mbox{with} \ 
+\log|\calS  (m,n,n_0,\ga,L)| \geq  \frac{(L-1)n_0}{80}\, \log \lkr \frac{n e m}{n_0}\rkr.
+\ee 
+Let $\bC = (\bC^{(1)}, \bC^{(2)},\cdots,\bC^{(L)})$ and $\bC' = (\bC'^{(1)}, \bC'^{(2)},\cdots,\bC'^{(L)})$  
+be two sets of clustering matrices with $\bC^{(l)}, \bC'^{(l)} \in  \calS_l (m,n,n_0,\ga)$ and let $z = (z_1, \cdots, z_L)$ and 
+ $z' = (z'_1, \cdots, z'_L)$  be the corresponding clustering functions.
+Let $\bLam$ and $\bLam'$ be the tensors of probabilities 
+corresponding to sets of clustering matrices $\bC, \bC' \in \calS  (m,n,n_0,\ga,L)$. 
+% and related clustering functions $z$ and $z'$. 
+%
+Then, similarly to the previous case, using \fr{dist1}, derive
+\begin{align*}
+& \| \bLam - \bLam'\|^2 
+  =   2 \sum_{l=1}^{[L/2]} \, \sum_{i=1}^{n(1-\ga)}\, \sum_{j = n(1-\ga)+1}^n (\bF_{z_{2l}(i),z_{2l}(j)} -  \bF_{z'_{2l}(i),z'_{2l}(j)})^2  \\
+%
+& =    \frac{2n}{m} \, \sum_{l=1}^{[L/2]} \, \sum_{k=1}^{m(1-\ga)}\, \sum_{j = n(1-\ga)+1}^n (\bF_{k,z_{2l}(j)} -  \bF_{k,z'_{2l}(j)})^2 \\
+%
+& =       \frac{2n}{m} \, \sum_{l=1}^{[L/2]} \,  \sum_{j = n(1-\ga)+1}^n \|\bF_{*,z_{2l}(j)} -  \bF_{*,z'_{2l} (j)}\|^2  
+%
+  \geq    \frac{n \al^2}{8} \, \sum_{l=1}^{[L/2]}   \|\bC^{(2l)} - \bC'^{(2l)}\|_H, 
+\end{align*}
+so that  by \fr{d_l}, 
+\be \label{d11}
+\| \bLam - \bLam'\|^2  \geq  (L-1) n n_0 \al^2 /1280.
+\ee
+%
+%
+Again, similarly to the previous case, if $\al \leq 1/4$, then by Lemma~\ref{lem:Gao2015},
+obtain that the Kullback divergence is bounded above 
+\be \label{kul2}
+K (\PP_{\bLam}, \PP_{\bLam'}) \leq 8\, \| \bLam - \bLam'\|^2  \leq
+8  L n n_0 \al^2.
+\ee 
+Set 
+%\bes
+$\al^2 = C_\al n^{-1}\, \log (n e m/n_0)$
+%\ees
+ where $C_\al$ is an absolute constant  and apply Theorem 2.5 of Tsybakov (2009).
+%
+Observe that if $C_\al$ is small enough, then, due   to \fr{cardSnmL} and \fr{kul2},  conditions of this theorem are satisfied, hence,  
+\be \label{lower_DSBM2}
+\inf_{\hbLam} \sup_{\stackrel{\bG \in \calG_{m,L,s}}{\bC \in \calS  (m,n,n_0,\ga,L)}}
+\PP_{\bLam} \lfi \frac{\|\hbLam - \bLams\|^2}{n^2\,L} \geq  C(\ga) \,   \frac{n_0}{n^2}\,\log \lkr \frac{n e m}{n_0} \rkr
+ \rfi \geq 1/4.
+\ee
+ 
+ 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ 
+\underline{\bf The nonparametric estimation error. } 
+Consider uniform sequential clustering with $n/m$ nodes in each group and 
+group memberships remaining the same for all $l=1, \cdots, L$. 
+% Let tensor $\bG$ be such that $\bG_{k,k,l} =0$ for any $k = 1, \cdots, m$, $l=1, \cdots, L$. 
+Let $\bQ  \in \RR^{M\times L}$ be the matrix with columns   $\bq^{(l)}$,
+$l=1, \cdots, L$, defined in Section \ref{sec:vectorization}.
+Denote $\bV = \bQ \bH^T \in \RR^{M\times L}$ and recall that for $\bG \in \calG_{m,L,s}$,   by   \fr{vecQHT}
+and \fr{transformed}, matrix $\bV$  should have at most $s$ nonzero entries.  
+
+
+Let $k_0 = \min(s/2, M)$.  Choose $k_0$ rows among $M$ rows of matrix $\bV$
+and denote this set by $\calX$. If $k_0 = M$,  set  $\calX  = \{1, \cdots, M\}$.
+For $k \in \calX$, set $\bV_{k,1} \neq 0$. 
+We have already distributed $k_0$ non-zero entries and have $s -k_0$ entries left.
+We distribute those entries into  the $k_0$ rows $\bV_{k,*}$ where $k \in \calX$.
+Let   
+\be \label{k0s0} 
+s_0 = [(s -k_0)/k_0] = [s/k_0] -1 \quad \mbox{with} \quad s/2 \leq k_0 s_0 <s,
+\ee 
+where $[s/k_0]$ is the largest integer no larger than $s/k_0$.
+Consider a set of binary vectors $\bom \in \{0,1\}^{L}$ with exactly $s_0$ ones in each 
+vector. By Lemma 4.10 of Massart (2007), there exists a subset $\calT$ of those vectors  such that 
+for any $\bom, \bom' \in \calT$, one has
+\bes
+\|\bom - \bom'\|_H \geq s_0/2  \quad \mbox{and} \quad 
+\log|\calT| \geq 0.233\, s_0\, \log(L/s_0).
+\ees 
+Denote $\tilde{\calT} = \bigotimes_{k \in \calX} \calT_k$, where $\calT_k$ is a copy of the set $\calT$
+corresponding to row $k$ of matrix $\bV$.
+%
+For $\bom^{(k)} \in \calT_k$, set 
+\be \label{bV}
+\bV_{k,*} = (\sqrt{L}/2, \cdots, 0) + \al m/n \,  \bom^{(k)}, \ \mbox{if}\ k \in \calX,
+\quad  \bV_{k,*} = 0 \ \mbox{if}\  k \notin \calX.
+\ee
+It is easy to see that matrix $\bV$ has at most $s$ nonzero entries as required. 
+
+
+
+Let $\bV$ and $\bV'$ be matrices corresponding to sequences $\bom^{(k)}$ and $\bom'^{(k)}$  
+in $\calT_k$, $k \in \calX$. Let $\bLam$ and $\bLam'$ be the tensors corresponding to $\bV$ and $\bV'$.
+% It is pretty straightforward to check that $s/2 \leq k_0 s_0 \leq s$.   
+Then, due to \fr{k0s0} and the uniform sequential clustering,   \fr{bV} implies that 
+\begin{align*} 
+\|\bLam - \bLam'\|^2 
+& \geq   \lkr \frac{n}{m}\rkr^2 \|\bV - \bV'\|^2 
+\geq   \lkr \frac{n}{m}\rkr^2 \sum_{k \in \calX} \|\bV_{k,*} - \bV'_{k,*}\|^2  
+  \geq   \frac{\al^2  k_0 s_0}{2} \geq  \frac{\al^2  s}{4};\\
+\|\bLam - \bLam'\|^2 & \leq    4\, \lkr \frac{m}{n}\rkr^2 \al^2 \lkr \frac{n}{m}\rkr^2 k_0 s_0 \leq 4 \al^2 s.
+\end{align*}
+Set $\al^2 = C_\al \log (L/s_0)$.    It is easy to check that, due  to assumptions \fr{H_assump} and \fr{Js_cond},
+one has $\bQ_{ij} \in [1/4,3/4]$ for any $i$ and $j$. Hence,   by Lemma~\ref{lem:Gao2015}, obtain
+$K (\PP_{\bLam}, \PP_{\bLam'}) \leq 8\, \| \bLam - \bLam'\|^2  \leq 32 \al^2 s$. 
+ If $C_\al \leq 2^{-8} \cdot 0.233$, then $32 \al^2 s < (1/8) \log(\tilde{\calT})$ and 
+conditions of Theorem 2.5 of Tsybakov (2009) hold.  
+
+
+Finally, in order to obtain the last term in \fr{lower_DSBM}, examine $L/s_0$.
+If $s < 2M$, then $k_0 = s/2$, $s_0=1$ and  $L/s_0 = L = L m^2/m^2 \geq \ga L m^2/s$.
+If $s \geq 2M$, then $k_0 = M$, $s_0\leq s/M$ and $L/s_0 \geq LM/s \geq Lm^2/(2s) \geq \ga L m^2/s$. 
+Since for some constant $C(\ga)>0$ independent of $L$ and $m$, one has $\log (\ga L m^2/s) \geq C(\ga) \log(L m^2/s)$, obtain
+\be \label{lower_DSBM3}
+\inf_{\hbLam} \sup_{\stackrel{\bG \in \calG_{m,L,s}}{\bC \in \calS  (m,n,n_0,\ga,L)}}
+\PP_{\bLam} \lfi \frac{\|\hbLam - \bLams\|^2}{n^2\,L} \geq   C_\ga \,   \frac{s}{n^2 L}\,\log \lkr \frac{L  m^2}{s} \rkr
+ \rfi \geq 1/4.
+\ee
+ 
+
+
+Finally, in order to obtain the lower bound in \fr{lower_DSBM} observe that, for any $a,b,c \geq 0$, 
+one has $\max(a,b,c)\leq a+b+c \leq 3 \max(a,b,c)$     and then combine
+\fr{lower_DSBM1}, \fr{lower_DSBM2} and \fr{lower_DSBM3}.
+\\ 
+ 
+ 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  
+
+
+\noindent
+{\bf Proof of Theorem \ref{th:smooth_DSBM_lower_bounds}. }
+Note that for Theorem~\ref{th:DSBM_lower_bounds} we proved the lower bounds for the clustering error in the most restrictive case when 
+$\bC \in  \calZ_{\bal} (m,n,n_0,L,1,1)$. Moreover, in this proof, the connection probabilities are set to be constant over time,  hence
+due to condition  \fr{H_assump}, $\bDs_{k,l}=0$ for $l \geq 2$ in assumption \fr{bias_coef_cond}, so \fr{bias_coef_cond} holds
+for any $K_0$ and $\nu_0$. Therefore, the lower bounds for the risk due to clustering errors hold in this case and coincide with the lower bounds in 
+Theorem~\ref{th:DSBM_lower_bounds}. For this reason, we only need to prove the lower bounds that are due to the nonparametric estimation error.
+\\
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ 
+\underline{\bf The nonparametric estimation error. } 
+Consider a set up where the nodes are grouped into $m$ classes,
+$n/m$ nodes in each class, so the model is fully balanced.
+Let $\bG_{k,k,l} =0$ for any $k=1, \cdots, m$ and $l=1, \cdots, L$.
+
+
+
+Consider an even number $L_0$ such that $1 \leq L_0 \leq L/2$ and a set of vectors $\bom \in \{ 0,1\}^{L_0}$ 
+with exactly $L_1 = L_0/2$ nonzero entries.
+%
+By Lemma 4.10 of Massart (2007), there exists a subset $\calT$ of those vectors such that 
+for any $\bom, \bom' \in \calT$ one has 
+\be \label{new_bombom}
+\|\bom - \bom'\|_H \geq L_0/4, \quad
+\log |\calT| \geq 0.233 (L_0/2) \log 2 \geq 0.08 L_0.
+\ee 
+Denote $\calK = \{(k_1, k_2):\ 1 \leq k_1 < k_2 \leq m\}$ and 
+let  $\calT_{k_1, k_2}$ be the copies of $\calT$ for $(k_1, k_2) \in \calK$. 
+Denote $\tilde{\calT} = \bigotimes_{(k_1,k_2) \in \calK}\, \calT_{k_1, k_2}$ and
+observe that 
+\bes
+\log|\tilde{\calT}| = 0.5\, m(m-1)\, \log |\calT| \geq 0.02 m^2\, L_0.
+\ees
+Then, $\tilde{\bom} \in \tilde{\calT}$ are   binary tensors with elements $\bom_{l}^{(k_1, k_2)}$, $l=1, \cdots, L_0$,
+and  $(k_1,k_2) \in \calK$.
+Consider a set of matrices  $\bD^{(\tilde{\bom})}$ indexed by  $\tilde{\bom}$
+such that for the index $k = 1, \cdots, M,$ corresponding to $(k_1,k_2) \in \calK$, one has
+\bes
+\bD^{(\tilde{\bom})}_{k,1} = \sqrt{L}/2; \quad 
+\bD^{(\tilde{\bom})}_{k, l} =  
+\al \, \bom_{l-L_0}^{(k_1, k_2)},\ l=L_0+1, \cdots, 2L_0  , \  k =(k_1,k_2) \in \calK.
+% \quad \mbox{if}
+% \beta_{k_1-1}  < x \leq \beta_{k_1}, \ \beta_{k_2-1} < y \leq \beta_{k_2}.
+\ees  
+% where $\tilde{\bom}$ is a binary matrix with elements $\bom_{l}^{(k_1, k_2)}$,$l=1, \cdots, L_0$
+% and  $(k_1,k_2) \in \calK$.
+%
+In order condition \fr{bias_coef_cond} is satisfied, we set
+\be \label{new_rhoL0}
+\al^2 \leq C_1 L_0^{-(2 \nu_0 +1)}  \quad \mbox{with} \quad C_1 \leq  \min(K_2 2^{1 - 2\nu_0},1/8).
+\ee 
+Denote by $\bLam$ and $\bLam'$ the probability tensors corresponding, respectively,  to $\tilde{\bom}$ and 
+$\tilde{\bom'}$ in $\tilde{\calT}$. Then, due to \fr{new_bombom} and the symmetry, 
+\beqns
+\|\bLam - \bLam'\|^2 &\geq &    \al^2 \sum_{k_1 =1}^m \sum_{k_2 = k_1 +1}^m 
+\|\bom^{(k_1, k_2)} - \bom'^{(k_1, k_2)}\|_H \lkr \frac{n}{m}\rkr^2  \geq \frac{\al^2 n^2 L_0}{8};\\
+\|\bLam - \bLam'\|^2 &\leq &    \al^2 m(m-1) (n/m)^2 L_0 \leq \al^2 n^2 L_0.
+\eeqns
+Note that  one has $1/4 \leq \bQ_{k,l} \leq 3/4$ provided
+$\|\bH^T \bom ^{(k_1, k_2)}\|_\infty \leq 1/4$ for $(k_1, k_2) \in \calK$.
+By  Assumption \fr{H_assump}, the latter is guaranteed by 
+$\al^2 L_0^2/L \leq 1/4$, so that, due to $L  \geq 2 L_0$ and $\nu_0 \geq 1/2$,
+it is ensured by \fr{new_rhoL0}. Then, by  Lemma~\ref{lem:Gao2015}, one has 
+\bes
+K (\PP_{\bLam}, \PP_{\bLam'}) \leq 8\, \| \bLam - \bLam'\|^2  \leq
+8  \al^2 n^2 L_0 \leq \log |\tilde{\calT}|/8   
+\ees  
+provided 
+\bes % \label{rho_con1}
+\al^2 \leq C_2 (m/n)^2,
+\ees
+ where $C_2$ is an absolute constant.
+Therefore, application of Theorem 2.5 of Tsybakov (2009) yields that 
+\bes
+\inf_{\hbLam} \sup_{\stackrel{\bG \in \calG_{m,L,s}}{\bC \in \calZ_{\bal}}}
+\PP_{\bLam}   \lfi \frac{\|\hbLam - \bLam \|^2}{n^2\,L}   \geq \Del(n,L) \rfi \geq \frac{1}{4} 
+\ees
+with $\Del(n,m,L) = C\,\al^2 L_0/L$ where $C$ is an absolute constant.
+
+
+
+Now, we denote $C_3^2 = (C_2/C_1) 2^{-(2 \nu_0 +1)}$ and consider two cases.   
+If $n \leq C_3 m L^{\nu_0 + 1/2}$, choose $L_0 = [(C_1/C_2) (n/m)^2]^{1/(2 \nu_0 +1)}$ 
+which leads to $\al^2 = C_1 L_0^{-(2 \nu_0 +1)} = C_2 (m/n)^2$.  
+It is easy to check that $L_0 \geq 2$ and that $L_0 \leq L/2$, so that  
+\bes 
+\Del(n,m,L) =   \frac{C}{L} \lkv \lkr \frac{m}{n}\rkr^2   \rkv^{\frac{2 \nu_0}{2 \nu_0+1}}.
+\ees
+If  $n > C_3 m L^{\nu_0 + 1/2}$, choose $\al^2 = C_2 (m/n)^2$ and set $L_0 = L/2$. Then, 
+\fr{new_rhoL0} holds and $\Del(n,m,L) = C (m/n)^2$ which completes the proof of the lower bound
+in this case. 
+\\
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+
+
+
+
+ 
+  

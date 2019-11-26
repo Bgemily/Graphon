@@ -1,0 +1,55 @@
+%!TEX root = Main.tex
+
+\section{Model} %%% introcude $Gamma_a, a=1,\cdots,k$ somewhere in this section!
+% \subsection{Notations}
+
+
+\subsection{Stochastic block model}
+A set of $n$ nodes $\Gamma=\left\{ v_1,\cdots,v_n \right\}$ is partitioned into $k$ clusters $\Gamma_1,\cdots,\Gamma_k$. The cluster of node $v_i$ is represented by $z_i\in \left\{ 1,\cdots,k \right\}$, and the clusters are obtained in the vector $\bz=\left( z_i \right)_{i=1}^n $. 
+Define the adjacency matrix $\bA\in \left\{ 0,1\right\}^{n\times n}$ where (for $i<j$) $\bA_{i,j}= 1$ if an edge is observed between $v_i$ and $v_j$ and $\bA_{i,j}=0$ otherwise.
+We set $\mathbf{A}_{i,i}\equiv 0$ and $\mathbf{A}_{i,j}=\mathbf{A}_{j,i}$ for any $i,j=1,\cdots,n$, 
+and assume that $\bA_{i,j}$'s are conditionally independent given the cluster vector $\bz$:
+\begin{align*}
+\mathbf{A}_{i,j}|z_i=q,z_j=l \overset{ind}{\sim} \text{Bernoulli}(\mathbf{C}_{q,l}), \qquad i< j,
+\end{align*}
+where $\mathbf{C}\in [0,1]^{k\times k}$ denote the (symmetric) connecting probability matrix.
+
+
+
+% \section*{DSBM}
+\subsection{Dynamic generalization of the stochastic block model}
+Consider a growing dynamic network where edges appear over time. 
+Assume that the edges will not disappear once developed,
+and that the observed point processes ${N}_{i,j}(\cdot)\in \left\{ 0,1 \right\}$ are independent realizations of intensity functions 
+\begin{align*}
+\lambda_{i,j}(t)=f_{z_i,z_j}(t-\tau_{i,j})\cdot g(d_{i,j}), \qquad t\in[0,T],\quad i<j, 
+\end{align*}
+where $[0,T]$ is overall time period, $\tau_{i,j}$ and $d_{i,j}$ represents the time lag and the spatial distance between $v_i$ and $v_j$, $f_{z_i,z_j}(\cdot)$ is the connecting intensity function between cluster $z_i$ and $z_j$, and $g(\cdot)$ is a decreasing function that accounts for the decay of connection as the distance between any pair of nodes increases.
+Similar as stochastic block model, we set $\lambda_{i,i}(\cdot)\equiv 0$ and $\lambda_{i,j}(\cdot)=\lambda_{j,i}(\cdot)$.
+% Add more rigorous definition of point process and intensity function.
+
+The integrated point process is defined as following. 
+Let $\lambda_{i,\cdot}(t)=\sum_{j\neq i}\lambda_{i,j}(t)$ for $t\in[0,T]$, then
+${N}_{i,\cdot}(t)=\sum_{j\neq i}N_{i,j}(t)$ 
+is a realization of $\lambda_{i,\cdot}(\cdot)$. For convenience, we abbreviate $\lambda_{i,\cdot}(\cdot)$ to $\lambda_{i}(\cdot)$, and $N_{i,\cdot}(\cdot)$ to $N_i(\cdot)$. 
+\begin{assumption}\label{asp:same distr}
+Need to fill the gap.
+\end{assumption}
+By assumption \ref{asp:same distr}, $N_i(t+\tau_i)\overset{d}{=}N_j(t+\tau_j)$ for any $i,j$ such that $z_i=z_j$.
+
+
+
+% The set of observations $\mathcal T$ is a realization of the multivariate counting process $\left\{ N_{i,j}(\cdot) \right\}_{(i,j)\in \mathcal R}$ with conditional intensity $\left\{\lambda_{{i,j}}(t)\right\}_{(i,j)\in \mathcal R}$. {\color{blue}If $\tau_{i,j}$ can be estimated using prior information (such as birth time)}, then for individual $i$ the integrated observation $t_{i,\cdot}+\tau_{i,\cdot}:=\left\{t_{i,j}+\tau_{i,j}\right\}_{j\neq i}$ is a realization of the counting process $\sum_{j\neq i}N_{i,j}(\cdot)$ with intensity 
+% \begin{align*}
+% \lambda_i(t)=\sum_{l=1}^m\left( \sum_{j:Z_j=l,j\neq i}g(d_{i,j}) \right) \cdot f_{Z_il}(t)=\sum_{l=1}^m w_{i,l} \cdot f_{Z_il}(t),
+% \end{align*}
+% where $w_{i,l} = \sum_{j:Z_j=l,j\neq i}g(d_{i,j})$ measures the overall distance between the individual $i$ and the group $l$.
+% Denote the integrated observations by $\mathcal O=\left\{ t_{i,\cdot}+\tau_{i,\cdot},i=1,\cdots,n \right\}$, the clustering matrix by $Z_{n\times m}$ with entries $Z_{i,q}=\mathbf{1}_{\left\{ Z_i=q \right\}}$, and the connecting intensity matrix by $F_{m\times m}=[F_{ql}(\cdot)]_{q,l\in \left\{ 1,\cdots,m \right\}}$. Also let $W_{n\times m}=[w_{i,l}]_{i\in \left\{ 1,\cdots,n \right\},l\in \left\{ 1,\cdots,m \right\}}$. Then the intensities of $\mathcal O$ can be writen as
+% \begin{align*}
+% \begin{bmatrix}
+% \lambda_1(\cdot)\\
+% \vdots\\
+% \lambda_n(\cdot)
+% \end{bmatrix}=\text{diag}\left( CFW^\top \right) .
+% \end{align*}
+
