@@ -7,118 +7,135 @@
 
 
 	\subsection{k-means objective function}
-		We will introduce the objective function of k-means in the Euclidean space as well as in our case where the samples are realizations of point process.
+		In what follows, we review the k-means objective function in the Euclidean space, and introduce the objective function in our case where the samples are realizations of point processes.
+
+		% We will introduce the objective function of k-means in the Euclidean space as well as in our case where the samples are realizations of point process.
 		\subsubsection*{k-means in $\mathbb{R}^d$} 
-			Let ${\mathbf{x}_1,\cdots,\mathbf{x}_n}\in \mathbb{R}^d$ be an i.i.d. sample from distribution function $F$. Denote by $F_n$ the empirical distribution function. The k-means problem is to minimize 
+			Let ${\mathbf{x}_1,\cdots,\mathbf{x}_n}\in \mathbb{R}^d$ be an i.i.d. sample from distribution function $F$. Denote by $F_n$ the empirical distribution function. The k-means problem is to solve  
 			\begin{align*}
-			W_n(A,F_n)=\int \min_{a\in A}\|\mathbf{x}_i-a\|^2  dF_n
+			A_n:=\underset{A:A\subset \mathbb{R}^d, |A|=k}{\arg\min} W_n(A,F_n)=\underset{A:A\subset \mathbb{R}^d, |A|=k}{\arg\min}\int \min_{a\in A}\|\mathbf{x}_i-a\|^2  \text{d}F_n.
 			\end{align*}
-			over all possible choices of the set $A$ containing $k$ points in $\mathbb{R}^d$.
-			Denote by $\bar A = \arg\min_A W(A,F) $ the optimal population cluster centers, and $A_n = \arg\min_A W_n(A,F_n)$ the optimal sample cluster centers. \citet{Pollard1981a} showed that for a given $k$,
-			\begin{align*}
-			A_n\to \bar A \ \text{a.s.}
-			\end{align*}
-			{\color{red} What does $\bar A$ represent? If $k=2$ and $F(x)=\frac{1}{2}\Phi(x;\mu_1,\sigma_1^2)+\frac{1}{2}\Phi(x;\mu_2, \sigma_2^2)$ is a mixture Gaussian distribution, 
-			and denote $X_1\sim N(\mu_1,\sigma_1^2)$, then I expect $\bar A= \left\{ a_1,a_2 \right\} $ where $a_1=\mathbb{E}[X_1 \mathbf{1}_{X_1\leq (\mu_1+\mu_2)/2}]\neq \mu_1 $ (and a similar expression for $a_2$). } 
 
-			This problem can be reformulated as solving 
+			There are some theoretical guarantees of k-means.
+			\citet{Pollard1981a} shows that for a given $k$, $A_n\to \bar A $ almost surely, where $\bar A=\arg\min_A W(A,F) $ denotes the optimal population cluster centers.
+			\citet{Bachem2017} provides a uniform bound with a rate of $\mathcal{O}\left(n^{-1/2}\right)$ for the deviation between the empirical loss and the expected loss. 
+			The bound is uniform in the sense that it holds for any set of $k$ cluster centers.
+			% \begin{align*}
+			% \sup_{A}\big|W_n(A,F_n)-W(A,F)\big|= \mathcal O(n^{-\frac{1}{2}})
+			% \end{align*}
+			
+			
+			Note that $\bar A$ is a biased estimator of the true cluster centers (when they are well-defined).
+			% {\color{red} What does $\bar A$ represent? 
+			For example, if $k=2$ and $F(x)=\frac{1}{2}\Phi(x;\mu_1,\sigma_1^2)+\frac{1}{2}\Phi(x;\mu_2, \sigma_2^2)$ is a mixture Gaussian distribution, 
+			and denote $X_1\sim N(\mu_1,\sigma_1^2)$, then $\bar A= \left\{ a_1,a_2 \right\} $ where $a_1=\mathbb{E}[X_1 \mathbf{1}_{X_1\leq (\mu_1+\mu_2)/2}]\neq \mu_1 $ (and a similar expression for $a_2$).
+
+			
+			This problem can be re-formulated as following 
 			\begin{equation}\label{eq:kmeans}
-			\min_{\left\{ \Gamma_l \right\}_{l=1}^k}\frac{1}{n}\sum_{l=1}^k\sum_{i\in \mathbf{\gamma}_l} \|\mathbf{x}_i- \mathbf{c}_l\|^2,
+			\min_{\left\{ \Gamma_l \right\}_{l=1}^k}\frac{1}{n}\sum_{l=1}^k\sum_{i\in {\Gamma}_l} \|\mathbf{x}_i- \mathbf{c}_l\|^2,
 			\end{equation}
-			where $\left\{ \Gamma_l \right\}_{l=1}^k$ represent the clusters and form a partition of $\Gamma = \left\{ 1,2,\cdots,n \right\}$, $\mathbf{c}_l = \frac{1}{|\Gamma_l|}\sum_{i\in \Gamma_l}\mathbf{x}_i$ is the sample center of the $l$-th cluster. We now extend this objective function to the context of point process.
-		\subsubsection*{k-means in point process}
-			Denote by $d(N(\cdot), \lambda(\cdot))$ the distance between a point process and an intensity function. The problem of selecting distance function is discussed later.
-			{\color{red} If we can assume that $N_i(t+\tau_i)\overset{d}{=}N_j(t+\tau_j)$ for any $i,j$ such that $z_i=z_j$,}
-			the k-means problem is
-			\begin{equation}\label{eq:kmeans_pp}
-			\min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\gamma_l},\lambda_l} \sum_{i\in\gamma_l} d(N_i(t+\tau_i), \lambda_l) \right).
+			where $\left\{ \Gamma_l \right\}_{l=1}^k$ represent the clusters and form a partition of $\Gamma = \left\{ \mathbf{x}_1,\mathbf{x}_2,\cdots,\mathbf{x}_n \right\}$,
+			$\mathbf{c}_l = {1}/{|\Gamma_l|}\cdot\sum_{\mathbf{x}_i\in \Gamma_l}\mathbf{x}_i$ is the sample center of the $l$-th cluster. 
+			For simplicity, we denote $\mathbf{x}_i\in \Gamma_l$ by $i\in\Gamma_l$ henceforth.
+			{\color{red} The notation $\Gamma_l$ is introduced in 2.1 but for a different set of nodes. What is the appropriate way to re-define this notation?}
+			We now extend this objective function to the context of point process.
+		
+		\subsubsection*{k-means in point processes}
+			Recall that by Assumption \ref{asp:time lag} and \ref{asp:same distr}, $\lambda_{N_i}(t)=\lambda_{z_i}(t-\tau_i)+\sum_{l=1}^kf_{z_i,l}(t-\tau_i)\epsilon_{i,l}$, 
+			hence $\lambda_{N_i}(t+\tau_i)\overset{d}{=}\lambda_{N_j}(t+\tau_j)$ for any $i,j$ satisfying $z_i=z_j$.
+			So the k-means problem is to solve
+			\begin{equation}\label{eq:kmeans_lambda}
+			\min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},\lambda_l} \sum_{i\in\Gamma_l} \|\hat\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2 \right),
 			\end{equation}
-			I expect the solution of (\ref{eq:kmeans_pp}) to converge, as $n\to\infty$, to the minimizer of the population version of this objective function. {\color{red}But what does that mean?}
-			{\color{blue} Read more paper about consistency of k-means problem.}
-		\subsubsection*{Distance between a point process and an intensity function}
-			For a given Poisson process $N(\cdot)$ and an intensity function $\lambda(\cdot)$, the distance can be defined as the negative log-likelihood
-			\begin{align*}
-			d(N, \lambda) \equiv -l(N;\lambda) = \int_{0}^T\lambda(t)dt - \sum_{j=1}^{N(0,T]}\log \left( \lambda(t_j^{(N)}) \right) ,
-			\end{align*}
-			where $t_j^{(N)}$'s are the time of events of $N(\cdot)$.			
-			{\color{blue} Justify why it is reasonable to use Poisson process. }
-			% Also explain why this is a good measure of similarity.
-	 		See \citet{Daley} for details.
+			or, equivalently,
+			\begin{align}\label{eq:kmeans_F}
+			\min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},F_l} \sum_{i\in\Gamma_l} \|\hat F_{N_i}(\cdot+\tau_i)- F_l(\cdot)\|_2^2 \right),
+			\end{align}
+			where $\hat \lambda_{N_i}(\cdot)$ is the intensity function estimated from $N_i(\cdot)$ using some smooth method,
+			$\hat F_{N_i}(t):=1/{N_i[0,T]}\cdot\sum_{j=1}^{N_i[0,T]}\mathbf{1}_{\{t_{N_i,j}\leq t\}}$ is the empirical distribution of time of edges, $t_{N_i,j}$'s are the time of edges of $N_i(\cdot)$.
 
+			Likelihood can also be used as a measure of similarity between a point process and an intensify function,
+			which yields the objective function
+			\begin{align}\label{eq:kmeans_likelihood}
+			\min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},\lambda_l} \sum_{i\in\Gamma_l} d\big({N_i}(\cdot+\tau_i), \lambda_l(\cdot)\big) \right),
+			\end{align}
+			where the distance is defined as the negative log-likelihood
+			\begin{align*}
+			d(N, \lambda) := -\log L(N;\lambda) = \int_{0}^T\lambda(t)\text{d}t - \sum_{j=1}^{N(0,T]}\log \left( \lambda(t_{N,j}) \right) .
+			\end{align*}
+				
+			% {\color{blue} Justify why it is reasonable to use Poisson process. }
+			% % Also explain why this is a good measure of similarity.
+	 		% {\color{blue} See \citet{Daley} for details.}
+
+	 	\subsubsection*{Other possible distance}
 			The squared error distance is defined as 
 			\begin{align*}
-			d(N,\lambda) \equiv \int_0^T\lambda^2(t)dt - 2\int_0^T \lambda(t)dN(t)
+			d(N,\lambda) := \int_0^T\lambda^2(t)\text{d} t - 2\int_0^T \lambda(t)\text{d}N(t)+?
 			\end{align*}
-			{\color{red} It seems obvious but I do not know how to derive this.}
-			\\			
-			% We also consider the quadratic distance since it is convex. 
-			{\color{blue} Analyze its pros and cons and compare with the log-likelihood metric.}
+
+
+			% {\color{blue} Analyze its pros and cons and compare with the log-likelihood metric: stat theory, optimization, intuition.}
 
 
 
 	\subsection{Algorithm}
-		To solve the k-means problem in $\mathbb{R}^d$, Lloyd's algorithm \cite{Lloyd1982} is a standard choice.
-		In order to apply the Lloyd's algorithm, a good estimation of $\left\{ \tau_i \right\}_{i=1}^n$ and $ \left\{ \lambda_l \right\}_{l=1}^k $, given clusters $\left\{ \Gamma_l \right\}_{l=1}^k$, is needed. 
+		For \eqref{eq:kmeans_lambda} and \eqref{eq:kmeans_F}, following the idea of Lloyd's algorithm \cite{Lloyd1982},
+		we iterate between two steps until convergence:
+		\begin{itemize}
+		\item Update time lags $\tau_i$'s and mean intensity functions $\lambda_l$'s (or $F_l$'s) based on  current clustering using the method of shape invariant model.
+		\item Update clustering by re-assigning each node ($\hat\lambda_{N_i}$ or $\hat F_{N_i}$) to its nearest center.
+		\end{itemize}
+
+		% To solve the k-means problem in $\mathbb{R}^d$, Lloyd's algorithm \cite{Lloyd1982} is a standard choice.
+		% In order to apply the Lloyd's algorithm, a good estimation of $\left\{ \tau_i \right\}_{i=1}^n$ and $ \left\{ \lambda_l \right\}_{l=1}^k $, given clusters $\left\{ \Gamma_l \right\}_{l=1}^k$, is needed. 
 		% \subsubsection*{Initialization}
 		% 	A naive way is to uniformly at random select the initial centroids. Another choice is ``k-means++'' which aims at spreading out the initial centroids (this method guarantees almost surely convergence to a local min).
 
-		\subsubsection*{Intensity estimation: shape invariant model}
-			Shape invariant model (SIM) is analyzed in \cite{Bontemps2014,Bigot2013,Ronn2009,Gervini2005,Vimond2010,Gamboa2007,JeremieBigot2010,Wang1997}. The model is
-			\begin{align*}
-			Y_{s,j}=f(t_s- \theta_j^*)+\epsilon_{s,j}, \qquad s = 1,\cdots,n \text{ and }j=1,\cdots,J,
-			\end{align*}
-			where $j$ is the index of curves, $s$ is the index of observed points, $\epsilon_{s,j}$'s are i.i.d. Gaussian variables with zero expectation and variance $\sigma^2$, and $f$ is $T$-periodic.
+		% \subsubsection*{Intensity estimation: shape invariant model}
+			Shape invariant model has been analyzed in many literatures \cite{Bontemps2014,Bigot2013,Ronn2009,Gervini2005,Vimond2010,Gamboa2007,JeremieBigot2010,Wang1997}. 
+			The model aims to estimate a mean function (of time) from a set of similar functions where the variability consists of the time shifts and additive noise.
 
-			Depending on the choice of distance, we have two directions.
-			If the squared error distance is adopted, one can estimate the time lags based on Fourier coefficients, then take the mean (in the Euclidean space) of aligned curves as the estimation of the mean curve. 
-			Relevant papers include \cite{Bigot2013,JeremieBigot2010} and the reference therein.
-			\citet{Bigot2013} minimizes the sum of squared distance over time lags, then take the mean of curves aligned by estimated time lags. A minimax rate is derived and the proposed estimator is proved to achieve this minimax rate when both the number of curves and the number of sampling points go to infinity.
-			\\
-			To be more specific, fixing a cluster $\Gamma_l$, we can model the smoothed intensity function 
-				\begin{equation}\label{eq:SIM of Lambda}
-				\hat\lambda_{N_i}(t) = \lambda_l(t-\tau_i)+\epsilon_i(t), \qquad i\in\Gamma_l, l=1,\cdots,k,
-				\end{equation}
-			or the empirical distribution of edge emerging time
-				\begin{align}\label{eq:SIM of F}
-				\hat F_{N_i}(t) &\equiv \frac{1}{N_i(0,T]}\sum_{j=1}^{N_i(0,T]}\mathbf{1}_{\left\{ t_j^{(N_i)}\leq t \right\}}\nonumber\\
-				&= F_l(t-\tau_i)+\epsilon_i(t), \qquad i\in\Gamma_l, l=1,\cdots,k.
-				\end{align}
-			Having the above model, one can then solve for time lags via
-				\begin{align*}
-				\underset{\{\tau_i\}_{i\in \Gamma_l}}{\arg\min}\sum_{i\in\Gamma_l}d\left(\hat\lambda_{N_i}(t+\tau_i),~ \frac{1}{|\Gamma_l|}\sum_{j\in\Gamma_l}\hat\lambda_{N_j}(t+\tau_j)\right)
-				\end{align*}
-				or
-				\begin{align*}
-				\underset{\{\tau_i\}_{i\in \Gamma_l}}{\arg\min}\sum_{i\in\Gamma_l}d\left(\hat F_{N_i}(t+\tau_i),~ \frac{1}{|\Gamma_l|}\sum_{j\in\Gamma_l}\hat F_{N_j}(t+\tau_j)\right)
-				\end{align*}
-			where the distance can be $\ell_2$-distance or squared $\ell_2$-distance (or K-S distance?).
+			Following the method in \cite{Bigot2013}, one can estimate the time lags based on Fourier coefficients, then take the mean of aligned curves as the estimation of the mean curve. To be specific, the estimators for \eqref{eq:kmeans_lambda} are given by 
+			\begin{align*}
+			\left\{ \hat\tau_i \right\}_{i\in\Gamma_l} &=\underset{\tau_i,i\in\Gamma_l}{\arg\min}\frac{1}{|\Gamma_l|}\sum_{i\in\Gamma_l}\Big\| \hat \lambda_{N_i}(t+\tau_i)- \frac{1}{|\Gamma_l|}\sum_{j\in\Gamma_l}\hat\lambda_{N_j}(t+\tau_j)\Big\|_2^2,\\
+			\hat\lambda_l(t) &= \frac{1}{|\Gamma_l|}\sum_{i\in\Gamma_l}\hat\lambda_{N_i}(t+\hat\tau_i).
+			\end{align*}
+			The estimation procedure for \eqref{eq:kmeans_F} is similar.
 			
-			Note that in \eqref{eq:SIM of Lambda}, 
-			$\epsilon_i(\cdot) = (\hat\lambda_{N_i}(\cdot)-\lambda_{N_i}(\cdot))+(\lambda_{N_i}(\cdot)-\lambda_{l}(\cdot)) $ includes 
-			(i) the error between $\hat\lambda_{N_i}$ and $\lambda_{N_i}$ and 
-			(ii) the error between $\lambda_{N_i}$ and $\lambda_l$. 
-			Similar decomposition holds for \eqref{eq:SIM of F}.
-			{\color{red} So in order to control these two error terms,
-			we need convergence theory of smooth method (or empirical distribution function), as well as some assumptions about the distribution of $\{\lambda_{N_i}\}_{i\in\Gamma_l}$ (which is required by the theorems of SIM). }\\
-			{\color{blue} Find papers analyzing the behavior of Lloyd's algorithm with error in centers.}
+			We might be able to prove similar theorems as those in \citet{Bigot2013}. For example, given a cluster $\Gamma_l$, the convergence rate of
+			\begin{align}\label{eq:converge of lambda}
+			\underset{\{\tau_i\}_{i\in\Gamma_l},\lambda_l}{\arg\min} \sum_{i\in\Gamma_l} \|\hat\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2 \to \underset{\{\tau_i\}_{i\in\Gamma_l},\lambda_l}{\arg\min} \sum_{i\in\Gamma_l} \|\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2
+			\end{align} 
+			and 
+			\begin{align}\label{eq:converge of F}
+			\underset{\{\tau_i\}_{i\in\Gamma_l},F_l}{\arg\min} \sum_{i\in\Gamma_l} \|\hat F_{N_i}(\cdot+\tau_i)- F_l(\cdot)\|_2^2 \to \underset{\{\tau_i\}_{i\in\Gamma_l},F_l}{\arg\min} \sum_{i\in\Gamma_l} \|F_{N_i}(\cdot+\tau_i)- F_l(\cdot)\|_2^2.
+			\end{align}
+			The derivation of theory for \eqref{eq:converge of F} may be easier than \eqref{eq:converge of lambda} because $\hat F_{N_i}(t)\to F_{N_i}(t)$ as $n\to\infty$, but $\hat\lambda_{N_i}(t)$ depends on the choice of bandwidth.
+
+			{\color{red} How to derive the convergence of solution of \eqref{eq:kmeans_lambda} and \eqref{eq:kmeans_F}?}
+			
+			
+
+			{\color{red} Should we take into account the error in $t_{N_i,j}$?}\\
+			
+
+			
+			
+			
 
 			
 			Another direction is to use negative log-likelihood as the distance.
 			For reference see \cite{Vimond2010,Gamboa2007,Ronn2009,Gervini2005}.
 			The maximum likelihood estimator of the mean curve proposed in \citet{Gervini2005} is showed to be $\sqrt{n}$-consistent and asymptotically normal. % {(converge to a Gaussian process)}
-			\\
-			Each point process is treated as its (expected) intensity function plus an error term {\color{red}(how to control?)}
-				\begin{equation}\label{eq:SIM of PP}
-					{N_i}(t) = \lambda_l(t-\tau_i)+\epsilon_i(t), \qquad i\in\Gamma_l, l=1,\cdots,k,
-				\end{equation}
-			One can then solve for the time lags and the mean intensity function base on the log-likelihood
-				\begin{align*}
-				\underset{\lambda_l, \left\{ \tau_i \right\}_{i\in\Gamma_l}}{\arg\max}\sum_{i\in\Gamma_l}l(N_i(t), \lambda_l(t-\tau_i)).
-				\end{align*}
-			Note that the likelihood implicitly includes the distribution of $\left\{ \lambda_{N_i} \right\}_{i\in\Gamma_l}$. 
-			{\color{red} How to formulate the distribution of $\left\{ \lambda_{N_i} \right\}_{i\in\Gamma_l}$?}
-			\\
-			{\color{blue} The convergence of MLE are proved for Gaussian model. Need some modification for Poisson process model.}
+			{\color {red} But the log-likelihood includes unknown $f_{l,l'}$}
+			\begin{align*}
+			L(\lambda_{l},\tau_i;N_i)=\int \mathbb{P}\left( N_i(t)\Big| \lambda_{l}(t-\tau_i)+\sum_{l'=1}^k f_{l,l'}(t-\tau_i)\epsilon_{i,l'} \right) f(\epsilon_{i,1})\cdots f(\epsilon_{i,k})\\\text{d}\epsilon_{i,1}\cdots \text{d}\epsilon_{i,k}
+			\end{align*}
+			
+
+			% {The convergence of MLE are proved for Gaussian model. Need some modification for Poisson process model.}
 
 	\subsection{Convex relaxation of k-means type clustering}
 		\subsubsection*{Semidefinite programming relaxation}
@@ -136,17 +153,27 @@
 			& \ \text{s.t. } \quad \mathbf{Z} \succeq 0, \quad \mathbf{Z} \geq 0, \quad \mathbf{Z} 1_{n}=\mathbf{1}_{n}, \quad \operatorname{Tr}(\mathbf{Z})=k.
 			\end{align*}
 		Proximity conditions are discussed in \ref{sec:proximity condition}.
-		\\
-		{\color{red} But this relaxation replies on $\sum_{i\in\Gamma_l}(\mathbf{x}_i- \mathbf{c}_i)=0$, how to generalize it in \eqref{eq:kmeans_pp}?}
-		\\
-		{\color{blue} Read other convex relaxation method and their proximity conditions.}
 		
-	\subsection{Other thoughts}
-		\begin{itemize}
-			\item Non-asymptotic theory?
-			\item { If we want to estimate pairwise dissimilarity while incorporating time lag, we can estimate the time lag such that the sum of squared pairwise distance is maximized.}
-			\item What about using Fourier transformation and then k-means? What about functional principal component analysis?
-		\end{itemize}
+		In our case, \eqref{eq:kmeans_lambda} is equivalent to 
+			\begin{equation}\label{eq:unconvexified k-means}
+			\min_{\mathbf{Z},\left\{ \tau_i \right\}_{i=1}^n}\langle \mathbf{Z}, \mathbf D(\tau_1,\cdots,\tau_n)  \rangle
+			\end{equation}
+		where $\mathbf{Z}=1/2\cdot \sum_{l=1}^k(1/|\Gamma_l|\cdot \mathbf{1}_{\Gamma_l}\mathbf{1}_{\Gamma_l}^\top)$, $\mathbf{D}_{i,j} = \| \hat\lambda_{N_i}(t+\tau_i)-\hat\lambda_{N_j}(t+\tau_j) \|_2^2$.
+		Using Fourier transformation, 
+		\begin{align*}
+		\mathbf{D}_{i,j} &= \int_{0}^T \left( \int_0^\infty \hat h_{N_i}(\xi)e^{i2\pi\xi(t+\tau_i)}-\hat h_{N_j}(\xi)e^{i2\pi\xi(t+\tau_j)}\text{d}\xi \right)^2 \text{d}t
+		\end{align*}
+		where $\hat h_{N_i}(\xi)$ is the Fourier transform of $\hat\lambda_{N_i}(t)$. 
+		% This seems not a convex function of $\tau_i$'s.
+		{\color{red} How to convexify?}
+		
+		
+		
+
+	% \subsection{Other thoughts}
+	% 	\begin{itemize}
+	% 		\item What about using Fourier transformation and then k-means? What about functional principal component analysis?
+	% 	\end{itemize}
 
 
 

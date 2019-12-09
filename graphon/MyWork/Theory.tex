@@ -10,17 +10,39 @@
 % \begin{proof}
 % \end{proof}
 
-	\subsection{Consistency of k-means type method}
-		\citet{Pollard1981a} showed the almost sure convergence, as the sample size increases, of the set of means of the k clusters. The result can be generalized to any metric space for which all the closed balls are compact would do.
+	\subsection{Convergence of empirical loss}
+		For the case in \eqref{eq:kmeans_lambda}, denote $\mathbf{\theta}=\left( \{\Gamma_l\}_{l=1}^k, \left\{ \tau_i \right\}_{i=1}^n, \left\{ \lambda_l \right\}_{l=1}^k \right)$, show the convergence rate of
+			\begin{align*}
+			\hat\theta_n := 
+			\underset{\{\Gamma_l\}_{l=1}^k, \left\{ \tau_i \right\}_{i=1}^n, \left\{ \lambda_l \right\}_{l=1}^k}{\arg\min}
+			\frac{1}{n} \sum_{l=1}^k \sum_{i\in\Gamma_l} \|\hat\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2 
+			\end{align*}
+		to 
+			\begin{align*}
+				\theta_n := 
+				\underset{\{\Gamma_l\}_{l=1}^k, \left\{ \tau_i \right\}_{i=1}^n, \left\{ \lambda_l \right\}_{l=1}^k}{\arg\min}
+				\frac{1}{n} \sum_{l=1}^k \sum_{i\in\Gamma_l} \|\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2.
+			\end{align*}
+		Papers about shape invariant model might be useful. 
+		
+		
+		
+		
+		
+		
+
+		% Likelihood case
+
+		% \citet{Pollard1981a} showed the almost sure convergence, as the sample size increases, of the set of means of the k clusters. The result can be generalized to any metric space for which all the closed balls are compact would do.
+
 
 	\subsection{Convergence of Lloyd's algorithm using shape invariant model}
 		\subsubsection*{Guarantees of Lloyd's algorithm}
 			\citet{Lu} provides a weak initialization condition under which Lloyd's algorithm converges to the optimal label estimators of sub-Gaussian mixture model.
 			Also, see the reference therein.
-		\subsubsection*{Consistency of the shape invariant model}
 
 	% or other intensity estimation method
-		Consistent in terms of both number of curves and number of observed points go to infinity.
+		% Consistent in terms of both number of curves and number of observed points go to infinity.
 
 	\subsection{Proximity condition of the convex relaxation}\label{sec:proximity condition}
 		See \citet{Ling2019,Li2017,Peng2005,Zhao2012} for theory and proof.
@@ -35,7 +57,9 @@
 		where $\mathbf{w}_{b,a} = \frac{\mathbf{c}_a - \mathbf{c}_b}{\| \mathbf{c}_a - \mathbf{c}_b \|}$ is the unit vector pointing from $\mathbf{c}_b$ to $\mathbf{c}_a$,
 		$\overline{\mathbf{X}}_l$ is the centered data matrix of the $l$-th cluster, $\|\overline{\mathbf{X}}_l\|$  is the operator norm of $\overline{\mathbf{X}}_l$, and $n_a=|\Gamma_a|,n_b=|\Gamma_b|$.
 		\\
-		\textcolor{red}{It seems to require the clusters are well-separated?}
+		% {It also requires that the clusters are well-separated.}
+		\\
+		{\color{blue} Translate into point processes if \eqref{eq:unconvexified k-means} can be convexified.}
 		
 
 
