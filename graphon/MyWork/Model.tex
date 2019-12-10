@@ -50,13 +50,14 @@ More formally, we have the following assumption.
  % which means $w_{i,l}=\bar w_{z_i,l}+\epsilon_{i,l}$ where $\left\{ \epsilon_{i,l} \right\}_{i\in\Gamma_l}$ are i.i.d. random variables with mean zero.
 
 \begin{assumption}\label{asp:same distr}
+% We assume $\left\{ w_{i,l} \right\}_{i\in\Gamma_l, l=1,\cdots,k}$ are i.i.d. random variables with mean $\bar w_{Z_i,l}$ and variance $\sigma^2<\infty$.
 $w_{i,l}=\bar w_{z_i,l}+\epsilon_{i,l}$ where $\left\{ \epsilon_{i,l} \right\}_{i\in\Gamma_l,l=1,\cdots,k}$ are i.i.d. random variables with mean $0$ and variance $\sigma^2<\infty$.
 \end{assumption}
 \noindent
 By Assumption \ref{asp:time lag} and \ref{asp:same distr}, $\lambda_{N_i}(t)=\lambda_{z_i}(t-\tau_i)+\sum_{l=1}^kf_{z_i,l}(t-\tau_i)\epsilon_{i,l}$ for $t\in[0,T]$, where $\lambda_{z_i}(t):=\sum_{k=1}^lf_{z_i,l}(t)\cdot\bar w_{z_i,l}$.
 
 \subsubsection*{Minor comments}
-Hoeffding's inequality might be useful later. (If $\epsilon_{1},\cdots,\epsilon_d\overset{i.i.d}{\sim}\text{sub-G}(\tau_0)$ and $\mathbb{E}\epsilon_{i}=0$, then $\mathbb{P}(\langle a,\epsilon\rangle\geq t)\leq \exp \left\{ -t^2/(2\|a\|_2^2\tau_0^2) \right\}$ for any $a\in \mathbb{R}^d$.)
+% Hoeffding's inequality might be useful later. (If $\epsilon_{1},\cdots,\epsilon_d\overset{i.i.d}{\sim}\text{sub-G}(\tau_0)$ and $\mathbb{E}\epsilon_{i}=0$, then $\mathbb{P}(\langle a,\epsilon\rangle\geq t)\leq \exp \left\{ -t^2/(2\|a\|_2^2\tau_0^2) \right\}$ for any $a\in \mathbb{R}^d$.)
 
 Let $\mathbf{F}_{k\times k} = [f_{q,l}(\cdot)]_{q,l\in \left\{ 1,\cdots,k \right\}}$, $\mathbf W_{n\times k} = [w_{i,l}]_{i\in \left\{ 1,\cdots,n \right\}, l\in \left\{ 1,\cdots,k \right\}}$, $\mathbf{Z}\in \left\{ 0,1 \right\}^{n\times k}$ with $\mathbf Z_{i,l}=1$ if $z_i=l$ and $0$ otherwise. Then
 \begin{align*}
