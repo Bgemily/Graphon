@@ -42,100 +42,163 @@
 			We now extend this objective function to the context of point process.
 		
 		\subsubsection*{k-means in point processes}
-			Recall that by Assumption \ref{asp:time lag} and \ref{asp:same distr}, $\lambda_{N_i}(t)=\lambda_{z_i}(t-\tau_i)+\sum_{l=1}^kf_{z_i,l}(t-\tau_i)\epsilon_{i,l}$, 
-			hence $\lambda_{N_i}(t+\tau_i)\overset{d}{=}\lambda_{N_j}(t+\tau_j)$ for any $i,j$ satisfying $z_i=z_j$.
+			By Assumption \ref{asp:time lag} and \ref{asp:same distr}, 
+			% $\lambda_{N_i}(t)=\lambda_{z_i}(t-\tau_i)+\sum_{l=1}^kf_{z_i,l}(t-\tau_i)\epsilon_{i,l}$, hence 
+			$\lambda_{N_i}(t+\tau_i)\overset{d}{=}\lambda_{N_j}(t+\tau_j)$ for any $i,j$ satisfying $z_i=z_j$. Thus $F_{N_i}(t+\tau_i)\overset{d}{=}F_{N_j}(t+\tau_j)$ for any $i,j$ satisfying $z_i=z_j$, 
+			where 
+			$F_{N_i}(t):=\int_0^t\lambda_{N_i}(s)\text{d}s\big/\int_0^T\lambda_{N_i}(s)\text{d}s$.
 			So the k-means problem is to solve
-			\begin{equation}\label{eq:kmeans_lambda}
-			\min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},\lambda_l} \sum_{i\in\Gamma_l} \|\hat\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2 \right),
-			\end{equation}
-			or, equivalently,
+			% \begin{equation}\label{eq:kmeans_lambda}
+			% \min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},\lambda_l} \sum_{i\in\Gamma_l} \|\hat\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2 \right),
+			% \end{equation}
+			% or, equivalently,
 			\begin{align}\label{eq:kmeans_F}
-			\min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},F_l} \sum_{i\in\Gamma_l} \|\hat F_{N_i}(\cdot+\tau_i)- F_l(\cdot)\|_2^2 \right),
+			\min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},F_l} \sum_{i\in\Gamma_l} \| F^{obs}_{N_i}(\cdot+\tau_i)- F_l(\cdot)\|_2^2 \right),
 			\end{align}
-			where $\hat \lambda_{N_i}(\cdot)$ is the intensity function estimated from $N_i(\cdot)$ using some smooth method,
-			$\hat F_{N_i}(t):=1/{N_i[0,T]}\cdot\sum_{j=1}^{N_i[0,T]}\mathbf{1}_{\{t_{N_i,j}\leq t\}}$ is the empirical distribution of time of edges, $t_{N_i,j}$'s are the time of edges of $N_i(\cdot)$.
+			where 
+			% $\hat \lambda_{N_i}(\cdot)$ is the intensity function estimated from $N_i(\cdot)$ using some smooth method,
+			$F^{obs}_{N_i}(t):=1/{N_i([0,T])}\cdot\sum_{j=1}^{N_i([0,T])}\mathbf{1}_{\{t_{N_i,j}\leq t\}}$ is the empirical distribution function of the occurrence time of edges,
+			$t_{N_i,j}$ is the occurrence time of the $j$-th edge of $N_i(\cdot)$,
+			and $F_l(t)=\mathbb{E}[F_{N_i}(t+\tau_i)] (\forall i\in\Gamma_l)$ is the expected cumulative distribution function of the $l$-th cluster.
 
-			Likelihood can also be used as a measure of similarity between a point process and an intensify function,
-			which yields the objective function
-			\begin{align}\label{eq:kmeans_likelihood}
-			\min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},\lambda_l} \sum_{i\in\Gamma_l} d\big({N_i}(\cdot+\tau_i), \lambda_l(\cdot)\big) \right),
-			\end{align}
-			where the distance is defined as the negative log-likelihood
-			\begin{align*}
-			d(N, \lambda) := -\log L(N;\lambda) = \int_{0}^T\lambda(t)\text{d}t - \sum_{j=1}^{N(0,T]}\log \left( \lambda(t_{N,j}) \right) .
-			\end{align*}
+
+			% Likelihood can also be used as a measure of similarity between a point process and an intensify function,
+			% which yields the objective function
+			% \begin{align}\label{eq:kmeans_likelihood}
+			% \min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},\lambda_l} \sum_{i\in\Gamma_l} d\big({N_i}(\cdot+\tau_i), \lambda_l(\cdot)\big) \right),
+			% \end{align}
+			% where the distance is defined as the negative log-likelihood
+			% \begin{align*}
+			% d(N, \lambda) := -\log L(N;\lambda) = \int_{0}^T\lambda(t)\text{d}t - \sum_{j=1}^{N(0,T]}\log \left( \lambda(t_{N,j}) \right) .
+			% \end{align*}
 				
 			% {\color{blue} Justify why it is reasonable to use Poisson process. }
 			% % Also explain why this is a good measure of similarity.
 	 		% {\color{blue} See \citet{Daley} for details.}
 
-	 	\subsubsection*{Other possible distance}
-			The squared error distance is defined as 
-			\begin{align*}
-			d(N,\lambda) := \int_0^T\lambda^2(t)\text{d} t - 2\int_0^T \lambda(t)\text{d}N(t)+?
-			\end{align*}
-
-
-			% {\color{blue} Analyze its pros and cons and compare with the log-likelihood metric: stat theory, optimization, intuition.}
+	 	% \subsubsection*{Other possible distance}
+			% The squared error distance is defined as 
+			% \begin{align*}
+			% d(N,\lambda) := \int_0^T\lambda^2(t)\text{d} t - 2\int_0^T \lambda(t)\text{d}N(t)+?
+			% \end{align*}
 
 
 
 	\subsection{Algorithm}
-		For \eqref{eq:kmeans_lambda} and \eqref{eq:kmeans_F}, following the idea of Lloyd's algorithm \cite{Lloyd1982},
-		we iterate between two steps until convergence:
-		\begin{itemize}
-		\item Update time lags $\tau_i$'s and mean intensity functions $\lambda_l$'s (or $F_l$'s) based on  current clustering using the method of shape invariant model.
-		\item Update clustering by re-assigning each node ($\hat\lambda_{N_i}$ or $\hat F_{N_i}$) to its nearest center.
-		\end{itemize}
+		
+		The initialization method and the choice of the number of clusters $k$ will be discussed later, now let us assume the initialization and $k$ are given.
+		To solve the problem \eqref{eq:kmeans_F}, we iterate between two steps until convergence:
+			\begin{itemize}
+				\item Re-cluster step: update the clustering 
+				$\left\{ \hat\Gamma_l \right\}_{l=1}^k$ based on the distance $d(F^{obs}_{N_i}, \hat F_l)$ 
+				defined as 
+				\begin{align*}
+				 d(F^{obs}_{N_i}, \hat F_l) = \inf_{\tau\in[0,T]}\left( \int_{-T}^T\big| f_\tau(t)-g(t) \big|^2 \right)^{1/2},
+				\end{align*}
+				where
+				\begin{align}\label{eq:def of shifted curve}
+				f_\tau(t)=
+				\begin{cases}
+				0, &t\in[-T,-\tau)\\
+				F_{N_i}^{obs}(t+ \tau), &t\in[-\tau,T-\tau)\\
+				1,& t\in [T-\tau,T]
+				\end{cases},
+				% \quad
+				g(t)=
+				\begin{cases}
+				0, &t\in[-T,0)\\
+				\hat F_{l}(t), &t\in [0,T]
+				\end{cases}.
+				\end{align}
+				
+				
+				\textcolor{red}{The range of $\tau$?}
 
-		% To solve the k-means problem in $\mathbb{R}^d$, Lloyd's algorithm \cite{Lloyd1982} is a standard choice.
-		% In order to apply the Lloyd's algorithm, a good estimation of $\left\{ \tau_i \right\}_{i=1}^n$ and $ \left\{ \lambda_l \right\}_{l=1}^k $, given clusters $\left\{ \Gamma_l \right\}_{l=1}^k$, is needed. 
-		% \subsubsection*{Initialization}
-		% 	A naive way is to uniformly at random select the initial centroids. Another choice is ``k-means++'' which aims at spreading out the initial centroids (this method guarantees almost surely convergence to a local min).
+				\item Re-center step: update the expected cumulative distribution functions $\{\hat F_l\}_{l=1}^k$ using the method in \citet{Bigot2013}.
 
-		% \subsubsection*{Intensity estimation: shape invariant model}
-			Shape invariant model has been analyzed in many literatures \cite{Bontemps2014,Bigot2013,Ronn2009,Gervini2005,Vimond2010,Gamboa2007,JeremieBigot2010,Wang1997}. 
-			The model aims to estimate a mean function (of time) from a set of similar functions where the variability consists of the time shifts and additive noise.
+			\end{itemize}
 
-			Following the method in \cite{Bigot2013}, one can estimate the time lags based on Fourier coefficients, then take the mean of aligned curves as the estimation of the mean curve. To be specific, the estimators for \eqref{eq:kmeans_lambda} are given by 
-			\begin{align*}
-			\left\{ \hat\tau_i \right\}_{i\in\Gamma_l} &=\underset{\tau_i,i\in\Gamma_l}{\arg\min}\frac{1}{|\Gamma_l|}\sum_{i\in\Gamma_l}\Big\| \hat \lambda_{N_i}(t+\tau_i)- \frac{1}{|\Gamma_l|}\sum_{j\in\Gamma_l}\hat\lambda_{N_j}(t+\tau_j)\Big\|_2^2,\\
-			\hat\lambda_l(t) &= \frac{1}{|\Gamma_l|}\sum_{i\in\Gamma_l}\hat\lambda_{N_i}(t+\hat\tau_i).
-			\end{align*}
-			The estimation procedure for \eqref{eq:kmeans_F} is similar.
-			
-			We might be able to prove similar theorems as those in \citet{Bigot2013}. For example, given a cluster $\Gamma_l$, the convergence rate of
-			\begin{align}\label{eq:converge of lambda}
-			\underset{\{\tau_i\}_{i\in\Gamma_l},\lambda_l}{\arg\min} \sum_{i\in\Gamma_l} \|\hat\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2 \to \underset{\{\tau_i\}_{i\in\Gamma_l},\lambda_l}{\arg\min} \sum_{i\in\Gamma_l} \|\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2
-			\end{align} 
-			and 
-			\begin{align}\label{eq:converge of F}
-			\underset{\{\tau_i\}_{i\in\Gamma_l},F_l}{\arg\min} \sum_{i\in\Gamma_l} \|\hat F_{N_i}(\cdot+\tau_i)- F_l(\cdot)\|_2^2 \to \underset{\{\tau_i\}_{i\in\Gamma_l},F_l}{\arg\min} \sum_{i\in\Gamma_l} \|F_{N_i}(\cdot+\tau_i)- F_l(\cdot)\|_2^2.
-			\end{align}
-			The derivation of theory for \eqref{eq:converge of F} may be easier than \eqref{eq:converge of lambda} because $\hat F_{N_i}(t)\to F_{N_i}(t)$ as $n\to\infty$, but $\hat\lambda_{N_i}(t)$ depends on the choice of bandwidth.
+		In the re-cluster step, the distance $d(F_{N_i}^{obs}, \hat F_l)$ for each pair of node $i$ and cluster $l$ is evaluated by solving a (non-convex) optimization problem
+		\begin{equation}
+		\begin{aligned}\label{eq:aligned distance}
+		\hat\tau_{i,l}&=\underset{\tau\in[0,T]}{\arg\min}\sum_{|j|\leq m}\left| \theta_{i,j}e^{\complexunit 2\pi j\tau}+\int_{T-\tau}^Te^{-\complexunit2\pi jt}\text{d}t -\gamma_{i,j} \right|^2\\
+		&=\underset{\tau\in[0,T]}{\arg\min}\sum_{|j|\leq m}\left| \left( \theta_{i,j}+\frac{e^{-\complexunit2\pi jT}}{\complexunit2\pi j} \right) e^{\complexunit2\pi j\tau} - \left( \gamma_{i,j}+\frac{e^{-\complexunit2\pi jT}}{\complexunit2\pi j} \right)  \right|^2 \\
+		&\overset{\triangle}{=}\underset{\tau\in[0,T]}{\arg\min}\sum_{|j|\leq m}\left| \theta_{i,j}' e^{\complexunit2\pi j\tau} - {\gamma_{i,j}'}  \right|^2
+		,
+		\end{aligned}
+		\end{equation}
+		where $\theta_{i,j}$ and $\gamma_{i,j}$, $j\in \mathbb{Z}$, are the Fourier coefficients of $F_{N_i}^{obs}$ and $\hat F_l$, respectively,
+		$m$ is a positive integer which will be specified later.
+		Gradient descent is used to solve problem \eqref{eq:aligned distance} with gradient
+		\begin{equation}
+		\nabla = 4\pi \sum_{|j|\leq m} j\cdot \text{Im}\left( {\theta_{i,j}'}\overline{{\gamma_{i,j}'}}e^{\complexunit2\pi j\tau} \right) .
+		\end{equation}
+		\textcolor{blue}{Initialization and step size?}
+		
 
-			{\color{red} How to derive the convergence of solution of \eqref{eq:kmeans_lambda} and \eqref{eq:kmeans_F}?}
-			
+
+		In the re-center step, let $\left\{ \theta_{i,j} \right\}_{j\in \mathbb{Z}}$ be the Fourier coefficients of $F_{N_i}^{obs}$ and $f_\tau(t)$ be as defined in \eqref{eq:def of shifted curve}. The Fourier coefficients of $f_\tau(t)$ are
+		\begin{align*}
+		\left( \theta_{i,j}+\frac{e^{-\complexunit2\pi j T}}{\complexunit{}2\pi j} \right) e^{\complexunit2\pi j \tau_i }-\frac{e^{-\complexunit2\pi j T}}{\complexunit{}2\pi j} 
+		\overset{\triangle}{=}
+		\theta_{i,j}' e^{\complexunit2\pi j \tau_i }-C. 
+		\end{align*}
+		Then
+		$\left\{ \hat\tau_i \right\}_{i=1}^n$ are obtained by 
+		\begin{align*}
+		\left\{ \hat\tau_i \right\}_{i\in\Gamma_l} &= 
+		\underset{\min \left\{ \tau_i \right\}_{i\in\Gamma_l}=0}{\arg\min}
+		\frac{1}{|\Gamma_l|}\sum_{i\in\Gamma_l}\sum_{|j|\leq m} 
+		\left| 
+		\theta_{i,j}' e^{\complexunit2\pi j \tau_i } -
+		\frac{1}{|\Gamma_l|}\sum_{i'\in\Gamma_l}\theta_{i',j}' e^{\complexunit2\pi j \tau_{i'} } 
+		\right|^2 \\
+		&\overset{\triangle}{=}
+		\underset{\min \left\{ \tau_i \right\}_{i\in\Gamma_l}=0}{\arg\min}
+		L(\left\{ \tau_i \right\}_{i\in\Gamma_l})
+		.
+		\end{align*}
+		Again, gradient descent is applied with gradients
+		\begin{align*}
+		 \frac{\partial L}{\partial \tau_i} = 
+		 \frac{1}{|\Gamma_l|^2}
+		 \sum_{|j|\leq m} 4\pi j
+		 \left( 
+		 	\text{Im}\left( \theta_{i,j}' e^{\complexunit{}2\pi j \tau_i}\cdot\overline{A_j}\right)+
+		 	\left(\frac{1}{|\Gamma_l|}-2\right) \text{Im}(A_j)\cdot 2 \text{Re}\left( \theta_{i,j}' e^{\complexunit{}2\pi j \tau_i}   \right) 
+		 \right) ,
+		 \end{align*}
+		 where $A_j=\frac{1}{|\Gamma_l|}\sum_{i\in\Gamma_l}\theta_{i,j}'e^{\complexunit{}2\pi j \tau_i} $.
+		 Therefore, the expected c.d.f. is estimated as the average of shifted empirical distribution functions.
+		 \\
+		 \textcolor{blue}{Initialization? Step size?}\\
+		 \textcolor{red}{Truncate $\hat F_l$ at zero?}
+		  
+
+
+
+		\subsubsection*{Initialization}
+			We need good initialization of mean curves.
+
+		\subsubsection*{Choosing $k$}
+			Model selection. 
+
+
+
+		% {\color{red} Should we take into account the error in $t_{N_i,j}$?}\\
+		
+
+
+		
+		% Another direction is to use negative log-likelihood as the distance.
+		% For reference see \cite{Vimond2010,Gamboa2007,Ronn2009,Gervini2005}.
+		% The maximum likelihood estimator of the mean curve proposed in \citet{Gervini2005} is showed to be $\sqrt{n}$-consistent and asymptotically normal. % {(converge to a Gaussian process)}
+		% {\color {red} But the log-likelihood includes unknown $f_{l,l'}$}
+		% \begin{align*}
+		% L(\lambda_{l},\tau_i;N_i)=\int \mathbb{P}\left( N_i(t)\Big| \lambda_{l}(t-\tau_i)+\sum_{l'=1}^k f_{l,l'}(t-\tau_i)\epsilon_{i,l'} \right) f(\epsilon_{i,1})\cdots f(\epsilon_{i,k})\\\text{d}\epsilon_{i,1}\cdots \text{d}\epsilon_{i,k}
+		% \end{align*}
 			
 
-			{\color{red} Should we take into account the error in $t_{N_i,j}$?}\\
-			
-
-			
-			
-			
-
-			
-			Another direction is to use negative log-likelihood as the distance.
-			For reference see \cite{Vimond2010,Gamboa2007,Ronn2009,Gervini2005}.
-			The maximum likelihood estimator of the mean curve proposed in \citet{Gervini2005} is showed to be $\sqrt{n}$-consistent and asymptotically normal. % {(converge to a Gaussian process)}
-			{\color {red} But the log-likelihood includes unknown $f_{l,l'}$}
-			\begin{align*}
-			L(\lambda_{l},\tau_i;N_i)=\int \mathbb{P}\left( N_i(t)\Big| \lambda_{l}(t-\tau_i)+\sum_{l'=1}^k f_{l,l'}(t-\tau_i)\epsilon_{i,l'} \right) f(\epsilon_{i,1})\cdots f(\epsilon_{i,k})\\\text{d}\epsilon_{i,1}\cdots \text{d}\epsilon_{i,k}
-			\end{align*}
-			
-
-			% {The convergence of MLE are proved for Gaussian model. Need some modification for Poisson process model.}
 
 	\subsection{Convex relaxation of k-means type clustering}
 		\subsubsection*{Semidefinite programming relaxation}
