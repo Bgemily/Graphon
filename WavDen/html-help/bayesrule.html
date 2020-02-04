@@ -1,0 +1,307 @@
+<!DOCTYPE html public "-//w3c//dtd html 4.0 transitional//en">
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List href="./bayesrule_files/filelist.xml">
+<title>Wavelet Smoothing Toolbox: BAMS Procedure</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Dr Theofanis Sapatinas</o:Author>
+  <o:Template>Normal</o:Template>
+  <o:LastAuthor>Dr Theofanis Sapatinas</o:LastAuthor>
+  <o:Revision>22</o:Revision>
+  <o:TotalTime>20</o:TotalTime>
+  <o:Created>2001-01-19T10:39:00Z</o:Created>
+  <o:LastSaved>2001-01-20T09:29:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>214</o:Words>
+  <o:Characters>1222</o:Characters>
+  <o:Company>University of Kent at Canterbury</o:Company>
+  <o:Lines>10</o:Lines>
+  <o:Paragraphs>2</o:Paragraphs>
+  <o:CharactersWithSpaces>1500</o:CharactersWithSpaces>
+  <o:Version>9.2720</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoBodyTextIndent, li.MsoBodyTextIndent, div.MsoBodyTextIndent
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:#000FFF;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+p
+	{margin-right:0cm;
+	mso-margin-top-alt:auto;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+tt
+	{mso-ascii-font-family:"Courier New";
+	mso-fareast-font-family:"Courier New";
+	mso-hansi-font-family:"Courier New";
+	mso-bidi-font-family:"Courier New";}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="1027"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+<meta name=DESCRIPTION
+content="Script and documentation for S-Plus functions for density, distribution function, quantilesand random number generation for the inverse Gaussian distribution.">
+</head>
+
+<body bgcolor=white lang=EN-GB link="#000fff" vlink=blue style='tab-interval:
+36.0pt'>
+
+<div class=Section1>
+
+<p>&nbsp; </p>
+
+<table border=0 cellspacing=0 cellpadding=0 width="100%" style='width:100.0%;
+ mso-cellspacing:0cm;mso-padding-alt:3.0pt 3.0pt 3.0pt 3.0pt'>
+ <tr>
+  <td style='background:navy;padding:3.0pt 3.0pt 3.0pt 3.0pt'>
+  <p class=MsoNormal><tt><b><span style='font-size:18.0pt;font-family:"Courier New";
+  color:#FFCE00'>bayesrule</span></b></tt></p>
+  </td>
+  <td width=30 style='width:22.5pt;background:navy;padding:3.0pt 3.0pt 3.0pt 3.0pt'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td style='background:#5050A0;padding:3.0pt 3.0pt 3.0pt 3.0pt'>
+  <p class=MsoNormal align=right style='text-align:right'><i><span
+  style='font-size:18.0pt;color:#FFCE00'>Bayesian Denoising Procedure</span></i></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><b><span style='color:navy'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></b></p>
+
+<p class=MsoNormal><b><span style='color:navy'>DESCRIPTION</span></b> </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>&nbsp; <br>
+Calculates the marginal distribution and shrinkage Bayes rule needed by the <span
+style='font-family:"Courier New"'>bamsmooth</span> procedure.</p>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoNormal><b><span style='color:navy'>USAGE</span></b> </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>&nbsp; </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><tt><span style='mso-ansi-font-size:
+12.0pt;font-family:"Courier New"'>[me, br]= bayesrule(d, mu, tau, eps)</span></tt>
+</p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>&nbsp; </p>
+
+<p class=MsoNormal style='tab-stops:555.75pt'><b><span style='color:navy'>REQUIRED
+ARGUMENTS</span></b> </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<table border=0 cellpadding=0 style='mso-cellspacing:1.5pt;mso-padding-alt:
+ 0cm 0cm 0cm 0cm' height=75>
+ <tr style='height:12.0pt'>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p><tt><span style='mso-ansi-font-size:12.0pt;font-family:"Courier New"'>d</span></tt></p>
+  </td>
+  <td width=20 style='width:15.0pt;padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal><span style="mso-spacerun: yes">&nbsp;</span>Wavelet
+  coefficients </p>
+  </td>
+ </tr>
+ <tr style='height:12.0pt'>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p><tt><span style='mso-ansi-font-size:12.0pt;font-family:"Courier New"'>mu</span></tt></p>
+  </td>
+  <td width=20 style='width:15.0pt;padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal><span style="mso-spacerun: yes">&nbsp;</span>Parameter -
+  concerning prior on the scale of noise </p>
+  </td>
+ </tr>
+ <tr style='height:12.0pt'>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p align=center style='text-align:center'><span style='font-family:"Courier New"'>tau
+  <o:p></o:p></span></p>
+  </td>
+  <td width=20 style='width:15.0pt;padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal><span style="mso-spacerun: yes">&nbsp;</span>Scale of the
+  prior on location of <span style='font-family:"Courier New"'>d</span>
+  (signal) </p>
+  </td>
+ </tr>
+ <tr style='height:12.0pt'>
+  <td style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p style='margin:0cm;margin-bottom:.0001pt'><span style='font-family:"Courier New"'>eps<o:p></o:p></span></p>
+  </td>
+  <td style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal>&nbsp;Weight of point mass at zero in the prior on <span
+  style='font-family:"Courier New"'>d</span> (signal)</p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoNormal><b><span style='color:navy'>OPTIONAL ARGUMENTS</span></b> </p>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoNormal><b><span style='color:navy'>VALUE</span></b><span
+style="mso-spacerun: yes">&nbsp; </span></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<table border=0 cellpadding=0 style='mso-cellspacing:1.5pt;margin-left:36.0pt;
+ mso-padding-alt:0cm 0cm 0cm 0cm' height=41>
+ <tr style='height:12.0pt'>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal style='text-align:justify'><span style='font-family:"Courier New"'>me<o:p></o:p></span></p>
+  </td>
+  <td width=20 style='width:15.0pt;padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal style='text-align:justify'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+  </td>
+  <td style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal style='text-align:justify'>value of the marginal
+  distribution at <span style='font-family:"Courier New"'>d</span></p>
+  </td>
+ </tr>
+ <tr style='height:13.5pt'>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm;height:13.5pt'>
+  <p class=MsoNormal style='text-align:justify'><tt><span style='mso-ansi-font-size:
+  12.0pt;font-family:"Courier New"'>br</span></tt></p>
+  </td>
+  <td width=20 style='width:15.0pt;padding:0cm 0cm 0cm 0cm;height:13.5pt'>
+  <p class=MsoNormal style='text-align:justify'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+  </td>
+  <td style='padding:0cm 0cm 0cm 0cm;height:13.5pt'>
+  <p class=MsoNormal style='text-align:justify'>value of the bayes rule at <span
+  style='font-family:"Courier New"'>d</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoNormal><b><span style='color:navy'>SIDE EFFECTS</span></b> </p>
+
+<p style='margin:0cm;margin-bottom:.0001pt'>&nbsp; </p>
+
+<p class=MsoNormal><b><span style='color:navy'>BACKGROUND</span></b> </p>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoBodyTextIndent>This procedure addresses the problem of
+model-induced wavelet shrinkage. Assuming</p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>the independence model according
+to which the wavelet coefficients are treated individually, </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>a level-adaptive Bayesian model
+in the wavelet domain is implemented . The model has two </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>important properties: (i) it
+realistically describes empirical properties of signals in the wavelet </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>domain, and (ii) it results in
+simple optimal shrinkage rules to be used in fast wavelet denoising. </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>The proposed denoising paradigm
+is called BAMS (short for Bayesian Adaptive Multiresolution </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>Smoother).</p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>&nbsp; </p>
+
+<p class=MsoNormal><b><span style='color:navy'>REFERENCES</span></b> </p>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><span style="mso-spacerun:
+yes">&nbsp;</span>Vidakovic, B. &amp; Ruggeri, F.<span style="mso-spacerun:
+yes">&nbsp; </span>(2000). Bams Method : Theory and Simulations.</p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><i>Discussion Paper</i>,
+Institute of Statistics and Decision Sciences, Duke University, </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>USA. </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><b><span style='color:navy'>ACKNOWLEDGEMENT</span></b> </p>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>The function <tt><span
+style='mso-ansi-font-size:12.0pt;font-family:"Courier New"'>bayesrule</span></tt>
+was contributed by Brani Vidakovic. </p>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoNormal><b><span style='color:navy'>SEE ALSO</span></b> </p>
+
+<p class=MsoNormal>&nbsp; </p>
+
+  <p class=MsoNormal style='margin-left:36.0pt'><a href="bamsmooth.html">bamsmooth</a> 
+    , <a href="recbams.html">recbams</a></p>
+
+</div>
+
+</body>
+
+</html>

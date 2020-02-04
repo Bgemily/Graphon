@@ -4,45 +4,71 @@
 \section{Introduction}
 ~ 
 
-\subsection*{Topic introduction and motivation}
+\subsection*{Motivation}
 \begin{itemize}
-	\item Networks arise in many disciplines. [Cite some applied papers.]
-	\item One major topic in network analysis is the study of node classification. [Introduce its application in neuroscience, social science, etc.]
-	\item In this paper, we focus on the problem of clustering cell types of neurons in a developing network. 
-	We observe the time of the appearance of edges in the network, and the edges do not disappear once developed.
-	Neurons of the same type have similar active time and connecting patterns.
-	\item While existing dynamic stochastic block models show promising performance on some real datasets, they do not fit our dataset for the following reasons.
-	 (i) Most of the dynamic stochastic block models are designed for the snapshots of a network. But in our case, the network is sparse in the sense that there is at most one event (occurrence of an edge) for each pair of neurons. For this reason, one cannot model the snapshots by (dynamic) stochastic block models.
-	 (ii) The assumption that all the nodes within the same cluster are statistically equivalent is violated. In our network, neurons only develop edges with their neighbor neurons. So two neurons from the same cluster may connect with two different subsets of neurons from another cluster.
-	\item We address these problems by an extension of the stochastic block model.
+	\item Introduce the growing network in zebrafish, where the edges are increasing and the nodes are fixed (or assumed to be fixed?).\\
+	How do we obtain the pictures of the growing network from the real data?
+	\item The network in different zebrafish are different in the sense that neurons are not one-one correspondent. 
+	But there should be some similarity among the growing networks in different zebrafish. 
+	The key to comparing networks is to find a measure of similarity.
+	\item From the real data we can see that neurons have different functional roles, e.g. some neurons become active in advance to the edge (or ensemble) formation and some do not.
+	This observation gives rise to the hypothesis that the edge formation may be led by some ``leaders'', and that the neurons can be clustered by the roles they are playing in the network development. 
+	\item To sum up, our problem is to identify some typical patterns that are comparable among subjects, and classify the neurons according to those patterns.
+
 \end{itemize}
 
-\subsection*{Contribution}
+\subsection*{Introduce the stochastic block model}
+	\begin{itemize}
+	\item Assume neurons are classified to several groups according to their ``roles'' in the development of the network, and the edge formation time between two nodes is determined only by their group memberships.
+	\item This setup falls in the framework of the stochastic block model, where the groups are determined by the ``roles'' of neurons and the connecting probabilities are generalized to the typical patterns.
+
+	\end{itemize}
+
+\subsection*{Literature review}
+
 \begin{itemize}
-	\item We integrate the point processes in order to obtain the statistical equivalence of nodes from the same cluster.
-	\item We derive a k-means (or least square) estimator and show its consistency (or the oracle inequality). This is similar to \citet{Pensky2019a}, except that we also incorporate time lag and spatial position which may lower the estimation precision.
-	\item For inference, we (hopefully) propose a convex relaxation method that convexify over both clustering matrix and time lags. We also obtain the proximity condition for this convex relaxation method to recover the global optima. (Convex relaxation can also be adapted to solve the penalized least square problem in \citet{Pensky2019a}. )
-\end{itemize}
-
-
-
-
-\subsection*{Related work}
-\begin{itemize}
+	\item The stochastic block model is first proposed by \citet{Wang1987}.
 	\item There are many dynamic extensions of stochastic block model. 
 	\citet{Yang2011,Xu2014a,Matias2016,Xu2015} use the Markov chain to model the time-varying  connecting probabilities and/or the clustering matrix. 
 	EM algorithm or iterative optimization algorithm is commonly used for inference.
-	\citet{Pensky2019a} proposes a vectorization technique and derives a penalized least square estimator that satisfies an oracle inequality and  attains the minimax lower bound for the risk.
-	\item However, these methods are based on snapshots of networks where data are aggregated on some time intervals. 
-	Aggregating data will lose much information, and the results can be crucially influenced by the choice of time intervals. 
-	\item \citet{Matias2018} address this problem by extending the stochastic block model to recurrent interaction events in continuous time, where the time-varying connecting probabilities are characterized by intensity functions.
-	\item While this model gives reasonable interpretation on some real datasets, it does not guarantee to recover the clusters determined by the connecting pattern of each node. Moreover, the model comes without theoretical guarantees for the estimation precision. 
-	\item Convex relaxation methods for community detection have been studied in \citet{Li2018,Li2017,Peng2005}.
-	\item {\color{blue} Degree-corrected model?}
+	\item Minimax optimal estimators are also studied.
+	\citet{Gao2015a} provides a minimax rate for the stochastic block model with high intra-cluster connection and low inter-cluster connection.
+	\citet{Pensky2019a} proposes a vectorization technique to simplify the tensor estimation in the dynamic network setting, and derives a penalized least square estimator that satisfies an oracle inequality and  attains the minimax lower bound for the risk.
+	\item \citet{Matias2018} adapt the stochastic block model to the context of recurrent interaction events in continuous time, 
+	where the recurrent events are modeled by Poisson processes with intensities determined by the nodes' group memberships. 
+	The maximum likelihood estimator is proposed, but no theoretical analysis is available in the paper. 
+
+	% \item Convex relaxation methods for community detection have been studied in \citet{Li2018,Li2017,Peng2005}.
 
 \end{itemize}
 
 
+
+\subsection*{Contribution}
+\begin{itemize}
+	\item We develop a method for analyzing typical connecting patterns in a growing network with spatial constraints on edges and time delay of nodes.
+
+	\item We derive a least square estimator and show its consistency (and the minimax optimality?). 
+	The proof is based on \citet{Gao2015a}.
+
+	\item We propose a k-means algorithm equipped with a shape invariant method for inference.
+
+	% \item We integrate the point processes in order to obtain the statistical equivalence of nodes from the same cluster.
+
+\end{itemize}
+
+
+\subsection*{Future work}
+\begin{itemize}
+	\item Seek for a convex relaxation method that convexify over both clustering matrix and time lags. 
+	% We also obtain the proximity condition for this convex relaxation method to recover the global optima. 
+	(Convex relaxation can also be adapted to solve the penalized least square problem in \citet{Pensky2019a}.)
+
+	\item Try other clustering methods.
+
+	\item Identify clusters with similar connecting pattern but different active time phase or different vertex degree. 
+
+\end{itemize}
 
 
 

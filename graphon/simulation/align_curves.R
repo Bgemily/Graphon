@@ -18,6 +18,15 @@ distance = function(theta_prime, gamma_prime, n0) # squared L2 distance
   return(sum(abs(theta_prime[k+1]*exp(1i*2*pi*k*n0/N)-gamma_prime[k+1])^2)+abs(theta_prime[1]+n0-gamma_prime[1])^2)
 }
 
+distance2 = function(theta_prime, gamma_prime, n0) # get rid of high frequency,same result as distance() 
+{
+  N = length(theta_prime)
+  k = seq(1,N-1)
+  k_freq = k
+  k_freq[(N%/%2):(N-1)] = k_freq[(N%/%2):(N-1)]-N
+  return(sum(abs(theta_prime[k+1]*exp(1i*2*pi*k_freq*n0/N)-gamma_prime[k+1])^2)+abs(theta_prime[1]+n0-gamma_prime[1])^2)
+}
+
 
 # gradient -----------------------------------------------------------------
 
@@ -26,12 +35,15 @@ gradient = function(theta_prime, gamma_prime, n0)
   N = length(theta_prime)
   if(N != length(gamma_prime)) stop("Length of theta and gamma do not match.")
   k = seq(1, N-1)
-  return (-(4*pi/N) * sum(k*Re(1i*(theta_prime[k+1])*Conj(gamma_prime[k+1])*exp(1i*2*pi*k*n0/N))) + 2*n0 + 2*Re(theta_prime[1]-gamma_prime[1]) )
+  k_freq = k
+  k_freq[(N%/%2):(N-1)] = k_freq[(N%/%2):(N-1)]-N
+  
+  return ((4*pi/N) * sum(k_freq*Im((theta_prime[k+1])*Conj(gamma_prime[k+1])*exp(1i*2*pi*k_freq*n0/N))) + 2*n0 + 2*Re(theta_prime[1]-gamma_prime[1]) )
 }
 
-grads = sapply(seq(199,201,0.1),function(x)gradient(theta_prime, gamma_prime, x))
-plot(seq(199,201,0.1), grads, type = 'l')
-abline(h=0,col=2)
+# grads = sapply(seq(0,400,0.1),function(x)gradient(theta_prime, gamma_prime, x))
+# plot(seq(0,400,0.1), grads, type = 'l')
+# abline(h=0,col=2)
 
 
 # Align curve (using grid search) -----------------------------------------
@@ -81,6 +93,7 @@ align_curves_search = function(f1, f2, n_min, n_max, by=1)
   }
 }
 
+# Shift the grid search region if the result is near n_min or n_max
 align_curves_search2 = function(f1, f2, n_min, n_max, by=100)
 {
   r = align_curves_search(f1, f2, n_min, n_max, by)
@@ -92,10 +105,13 @@ align_curves_search2 = function(f1, f2, n_min, n_max, by=100)
     return(align_curves_search2(f1, f2, n_max-2*by, n_max*2-n_min, by))
 }
 
+# align_curves_search(f_origin, f_shift, 0, 2000)
+# align_curves_search(f_shift, f_origin, -300,300)
+
 
 # Align curve (using gradient) -------------------------------------------------------------
 
-align_curves_gd = function(f_origin, f_shift, n0, step_size)
+align_curves_gd_ = function(f_origin, f_shift, n0, step_size, MaxIter=1000, stopping_redu=0.01)
 {
   theta = fft(f_origin)
   gamma = fft(f_shift)
@@ -103,17 +119,59 @@ align_curves_gd = function(f_origin, f_shift, n0, step_size)
   k = seq(1, N-1)
   theta_prime = c(theta[1], theta[2:N]+exp(-1i*2*pi*k)/(1-exp(-1i*2*pi*k/N)))
   gamma_prime = c(gamma[1], gamma[2:N]+exp(-1i*2*pi*k)/(1-exp(-1i*2*pi*k/N)))
-  MaxIter = 30
-  for (tmp in 1:MaxIter) {
+  
+  iter_count = 0
+  dist_redu = Inf
+  dist_curr = Inf
+  while (dist_redu>stopping_redu && iter_count<MaxIter) {
+    iter_count = iter_count+1
+    
     gd = gradient(theta_prime, gamma_prime, n0)
-    n0 = n0 - step_size*sign(gd)
+    n0 = n0 - step_size*gd
     n0 = round(n0)
-    if(n0<0) n0 = 0
+    
+    if(n0<0) { 
+      n0 = 0; 
+      dist_curr = distance(theta_prime, gamma_prime, n0)
+      break 
+    }
+    if(n0>length(f_origin)%/%2) { 
+      n0 = length(f_origin)%/%2; 
+      dist_curr = distance(theta_prime, gamma_prime, n0)
+      break 
+    }
+    
+    dist_upd = distance(theta_prime, gamma_prime, n0)
+    dist_redu = (dist_curr-dist_upd)/dist_upd
+    if (is.na(dist_redu)) dist_redu = 0
+    dist_curr = dist_upd
   }
-  return(n0)
+  
+  # print(iter_count)
+  
+  return(list(n0=n0, dist_min = dist_curr))
 }
 
-# align_curves_gd(f_origin, f_shift, 201, 1)
+# Allow n0 to be negative
+align_curves_gd = function(f1, f2, n0, step_size, MaxIter=1000, stopping_redu=0.01)
+{
+  if (n0 <= 0) {
+    r = align_curves_gd_(f2, f1, -n0, step_size, MaxIter, stopping_redu)
+    if(r$n0>0)  {return(list(n0 = -r$n0, dist_min = r$dist_min))}
+    else {return(align_curves_gd_(f1, f2, 0, step_size, MaxIter, stopping_redu))}
+  }
+  else{
+    r = align_curves_gd_(f1, f2, n0, step_size, MaxIter, stopping_redu)
+    if(r$n0>0) {return(r)}
+    else {
+      r = (align_curves_gd_(f2, f1, 0, step_size, MaxIter, stopping_redu))
+      return(list(n0 = -r$n0, dist_min = r$dist_min))
+    }
+  }
+}
+
+
+# align_curves_gd(f_origin, f_origin, -2000, .1, stopping_redu = 0.01)
 
 
 
@@ -161,49 +219,56 @@ mean_curve = function(f_list, n0_vec)
 # 
 # x = seq(0,35,0.01)
 # f_origin = c(rep(0,length(x)),x/max(x))
-# # f_origin = c(rep(0,length(x)),1/3*pnorm(x,5,2)+2/3*pnorm(x,10,3))
 # N = length(f_origin)
-# plot(f_origin)
+# plot(f_origin, type = 'l')
 # 
 # theta = fft(f_origin)
 # 
+# tmp = c(rep(0,length(theta))); tmp[2:3]=theta[2:3]
+# plot(Re(fft(tmp, inverse = T)),type = 'l', ylim = c(-2000,3000))
+# par(new=T)
+# tmp2 = c(rep(0,length(theta))); tmp2[4]=theta[4]
+# plot(Re(fft(tmp2, inverse = T)),type = 'l',ylim = c(-2000,3000), ylab='')
+# par(new=T)
+# plot(Re(fft(tmp+tmp2, inverse = T)),type = 'l', ylim = c(-2000,3000),col=2, ylab='')
+# 
+# 
+# plot(abs(theta))
+# 
 # f_shift = shift(f_origin, 200)
-# plot(f_shift)
+# # f_shift = c(rep(0,length(x)-200),rep(1/length(x), length(x)), rep(0,length(x)+200))
+# plot(f_shift, type='l')
 # 
 # theta_shift = fft(f_shift)
 # 
 # 
 # ##### Test coef formula
+# # {
+# #   k = seq(0,N-1)
+# #   n0 = 2/0.01
+# #   theta_hope = theta*exp(1i*2*pi*k*(2/0.01)/N)+exp(-1i*2*pi*k)*(exp(1i*2*pi*n0*k/N)-1)/(1-exp(-1i*2*pi*k/N))
+# #   theta_hope[1] = theta[1]+n0
+# #   
+# #   plot(abs(theta_hope-theta_shift))
+# #   diff = theta_hope-theta_shift
+# #   diff[1]
+# # }
 # 
-# k = seq(0,N-1)
-# n0 = 2/0.01
-# theta_hope = theta*exp(1i*2*pi*k*(2/0.01)/N)+exp(-1i*2*pi*k)*(exp(1i*2*pi*n0*k/N)-1)/(1-exp(-1i*2*pi*k/N))
-# 
-# 
-# plot(abs(theta_hope-theta_shift))
-# diff = theta_hope-theta_shift
-# diff[1]
 # 
 # ##### plot of dist between curves
 # 
-# theta = fft(f_origin)
-# gamma = fft(f_shift)
-# N = length(theta)
-# k = seq(1, N-1)
-# theta_prime = c(theta[1], theta[2:N]+exp(-1i*2*pi*k)/(1-exp(-1i*2*pi*k/N)))
-# gamma_prime = c(gamma[1], gamma[2:N]+exp(-1i*2*pi*k)/(1-exp(-1i*2*pi*k/N)))
+# {
+#   theta = fft(f_origin)
+#   gamma = fft(f_shift)
+#   N = length(theta)
+#   k = seq(1, N-1)
+#   theta_prime = c(theta[1], theta[2:N]+exp(-1i*2*pi*k)/(1-exp(-1i*2*pi*k/N)))
+#   gamma_prime = c(gamma[1], gamma[2:N]+exp(-1i*2*pi*k)/(1-exp(-1i*2*pi*k/N)))
+#   
+#   seq = seq(0,400,.1)
+#   dists_vec = sapply(seq, function(x)distance2(theta_prime, gamma_prime, x))
+#   plot(c(seq),c(dists_vec), type = 'l', xlab = 'integer n (time shift)', ylab = 'distance between two curves')
+#   abline(h=distance(theta_prime, gamma_prime, 200), col=2)
 # 
-# 
-# seq = seq(0,400,1)
-# # seq = c(seq,seq+.1,seq+.2,seq+.3,seq+.4,seq+.5,seq+.6,seq+.7,seq+.8,seq+.9)
-# dists_vec = sapply(seq, function(x)distance(theta_prime, gamma_prime, x))
-# dists_vec2 = sapply(seq2, function(x)distance(theta_prime, gamma_prime, x))
-# plot(c(seq),c(dists_vec), type = 'l', xlab = 'integer n (time shift)', ylab = 'distance between two curves')
-# abline(h=distance(theta_prime, gamma_prime, 200), col=2)
-# 
-# 
-# ##### align curves
-# 
-# # align_curves_search(f_origin, f_shift, 0, 2000)
-# # align_curves_search(f_shift, f_origin, -300,300)
+# }
 # 

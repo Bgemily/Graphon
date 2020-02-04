@@ -1,0 +1,263 @@
+<!DOCTYPE html public "-//w3c//dtd html 4.0 transitional//en">
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List href="./noisysignal_files/filelist.xml">
+<title>Wavelet Smoothing Toolbox: Creating a Noisy Signal</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Dr Theofanis Sapatinas</o:Author>
+  <o:Template>Normal</o:Template>
+  <o:LastAuthor>Dr Theofanis Sapatinas</o:LastAuthor>
+  <o:Revision>10</o:Revision>
+  <o:TotalTime>6</o:TotalTime>
+  <o:Created>2001-01-19T19:55:00Z</o:Created>
+  <o:LastSaved>2001-01-21T12:35:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>156</o:Words>
+  <o:Characters>893</o:Characters>
+  <o:Company>University of Kent at Canterbury</o:Company>
+  <o:Lines>7</o:Lines>
+  <o:Paragraphs>1</o:Paragraphs>
+  <o:CharactersWithSpaces>1096</o:CharactersWithSpaces>
+  <o:Version>9.2720</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+@font-face
+	{font-family:Courier;
+	panose-1:0 0 0 0 0 0 0 0 0 0;
+	mso-font-alt:"Courier New";
+	mso-font-charset:0;
+	mso-generic-font-family:modern;
+	mso-font-format:other;
+	mso-font-pitch:fixed;
+	mso-font-signature:3 0 0 0 1 0;}
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:#000FFF;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+p
+	{margin-right:0cm;
+	mso-margin-top-alt:auto;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+tt
+	{mso-ascii-font-family:"Courier New";
+	mso-fareast-font-family:"Courier New";
+	mso-hansi-font-family:"Courier New";
+	mso-bidi-font-family:"Courier New";}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="1027"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+<meta name=DESCRIPTION
+content="Script and documentation for S-Plus functions for density, distribution function, quantilesand random number generation for the inverse Gaussian distribution.">
+</head>
+
+<body bgcolor=white lang=EN-GB link="#000fff" vlink=blue style='tab-interval:
+36.0pt'>
+
+<div class=Section1>
+
+<p>&nbsp; </p>
+
+<table border=0 cellspacing=0 cellpadding=0 width="100%" style='width:100.0%;
+ mso-cellspacing:0cm;mso-padding-alt:3.0pt 3.0pt 3.0pt 3.0pt'>
+ <tr>
+  <td style='background:navy;padding:3.0pt 3.0pt 3.0pt 3.0pt'>
+  <p class=MsoNormal><tt><b><span style='font-size:18.0pt;font-family:"Courier New";
+  color:#FFCE00'>noisysignal</span></b></tt></p>
+  </td>
+  <td width=30 style='width:22.5pt;background:navy;padding:3.0pt 3.0pt 3.0pt 3.0pt'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td style='background:#5050A0;padding:3.0pt 3.0pt 3.0pt 3.0pt'>
+  <p class=MsoNormal align=right style='text-align:right'><i><span
+  style='font-size:18.0pt;color:#FFCE00'>Creating a Noisy Signal</span></i></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><b><span style='color:navy'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></b></p>
+
+<p class=MsoNormal><b><span style='color:navy'>DESCRIPTION</span></b> </p>
+
+<p class=MsoNormal style='margin-top:0cm;margin-right:0cm;margin-bottom:12.0pt;
+margin-left:36.0pt'>&nbsp; <br>
+Generatea a noisy signal from a specified function.</p>
+
+<p class=MsoNormal><b><span style='color:navy'>USAGE</span></b> </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>&nbsp; </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><tt><span style='mso-ansi-font-size:
+12.0pt;font-family:Courier'>f = </span></tt><span style='font-family:Courier'>noisysignal(name,
+n, rsnr)</span> </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>&nbsp; </p>
+
+<p class=MsoNormal><b><span style='color:navy'>REQUIRED ARGUMENTS</span></b> </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<table border=0 cellpadding=0 width="78%" style='width:78.0%;mso-cellspacing:
+ 1.5pt;mso-padding-alt:0cm 0cm 0cm 0cm' height=84>
+ <tr style='height:17.25pt'>
+  <td width=70 valign=top style='width:52.5pt;padding:0cm 0cm 0cm 0cm;
+  height:17.25pt'>
+  <p><span style='font-family:Courier'>name</span> </p>
+  </td>
+  <td width=30 style='width:22.5pt;padding:0cm 0cm 0cm 0cm;height:17.25pt'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td width=351 style='width:263.25pt;padding:0cm 0cm 0cm 0cm;height:17.25pt'>
+  <p class=MsoNormal>A string: 'Step','Wave','Blip','Blocks','Bumps','HeaviSine',</p>
+  </td>
+ </tr>
+ <tr style='height:13.5pt'>
+  <td width=70 style='width:52.5pt;padding:0cm 0cm 0cm 0cm;height:13.5pt'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td width=30 style='width:22.5pt;padding:0cm 0cm 0cm 0cm;height:13.5pt'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td width=351 style='width:263.25pt;padding:0cm 0cm 0cm 0cm;height:13.5pt'>
+  <p class=MsoNormal>'Doppler','Angles','Parabolas','Time Shifted
+  Sine','Spikes','Corner'</p>
+  </td>
+ </tr>
+ <tr style='height:12.0pt'>
+  <td width=70 valign=top style='width:52.5pt;padding:0cm 0cm 0cm 0cm;
+  height:12.0pt'>
+  <p class=MsoNormal><tt><span style='mso-ansi-font-size:12.0pt;font-family:
+  "Courier New"'>n</span></tt></p>
+  </td>
+  <td width=30 style='width:22.5pt;padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td width=351 style='width:263.25pt;padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal>Desired signal length </p>
+  </td>
+ </tr>
+ <tr style='height:12.0pt'>
+  <td style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p><span style='font-family:"Courier New"'>rsnr<o:p></o:p></span></p>
+  </td>
+  <td style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td style='padding:0cm 0cm 0cm 0cm;height:12.0pt'>
+  <p class=MsoNormal>Signal to noise ratio</p>
+  </td>
+ </tr>
+</table>
+
+<p><b><span style='color:navy'>OPTIONAL ARGUMENTS</span></b>&nbsp; </p>
+
+<p class=MsoNormal><b><span style='color:navy'>VALUE</span></b> </p>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoNormal><span style='font-family:"Courier New"'>f</span><span
+style="mso-spacerun:
+yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>1-d noisy
+signal</p>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoNormal><b><span style='color:navy'>BACKGROUND</span></b> </p>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>This procedure uses the <span
+style='font-family:"Courier New"'>MakeSignalNewb MATLAB</span> procedure. The
+noise added is Gaussian. </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>&nbsp; </p>
+
+<p class=MsoNormal><b><span style='color:navy'>REFERENCES</span></b> </p>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoNormal><span style="mso-spacerun:
+yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Buckheit, J.B. &amp; Donoho, D.L. (1995).WaveLab and Reproducible
+Research.<br>
+<span style="mso-spacerun:
+yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>In <i>Wavelets and Statistics, Antoniadis, A.&amp; Oppenheim, G. (Eds.),
+Lect. Notes<br>
+<span style="mso-spacerun:
+yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Statist.</i>, <b>103</b>, pp. 55--81, New York: Springer-Verlag. </p>
+
+<p class=MsoNormal>&nbsp; &nbsp; </p>
+
+<p class=MsoNormal><b><span style='color:navy'>SEE ALSO</span></b> </p>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><a href="MakeSignalNewb.html">MakeSignalNewb</a>
+</p>
+
+<p class=MsoNormal style='margin-left:36.0pt'>&nbsp; </p>
+
+<p class=MsoNormal><b><span style='color:navy'>EXAMPLES</span></b> </p>
+
+<p class=MsoNormal>&nbsp; </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><span style='font-family:Courier'>names={'Step'
+'Wave' 'Blip' 'Blocks' 'Bumps' 'HeaviSine' ...<br>
+'Doppler' 'Angles' 'Parabolas' 'Time Shifted Sine' ...<br>
+'Spikes' 'Corner'};</span></p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><span style='font-family:Courier'>n=128;
+rsnr=3;</span> </p>
+
+<p class=MsoNormal style='margin-left:36.0pt'><span style='font-family:Courier'>signal
+= noisysignal(names(4), n, rsnr);</span> </p>
+
+</div>
+
+</body>
+
+</html>

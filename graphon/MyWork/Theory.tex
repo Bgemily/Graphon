@@ -3,27 +3,122 @@
 
 \section{Theory}
 
+Assume $ \mathbf{F}=\left( F_i \right)_{i=1}^n$ is from the parameter space
+\begin{align*}
+\mathcal F_k = XXX.
+\end{align*}
 
-% \begin{thm}
-% \end{thm}
 
-% \begin{proof}
-% \end{proof}
+\begin{thm}
+For any constant $C'>0$, there is a constant $C>0$ only depending on $C'$, such that
+\begin{align*}
+\frac{1}{n}\sum_{i=1}^n \left\| \hat F_i - F_i \right\|^2\leq C \left( XXX \right)  ,
+\end{align*}
+with probability at least $1-\exp \left( -C' XXX \right)  $, uniformly over $\mathbf{F}\in \mathcal F_k$.
 
-	\subsection{Minimax optimality of the estimator}
-		For the case in \eqref{eq:kmeans_lambda}, denote $\mathbf{\theta}=\left( \{\Gamma_l\}_{l=1}^k, \left\{ \tau_i \right\}_{i=1}^n, \left\{ \lambda_l \right\}_{l=1}^k \right)$, show the convergence rate of
-			\begin{align*}
-			\hat\theta_n := 
-			\underset{\{\Gamma_l\}_{l=1}^k, \left\{ \tau_i \right\}_{i=1}^n, \left\{ \lambda_l \right\}_{l=1}^k}{\arg\min}
-			\frac{1}{n} \sum_{l=1}^k \sum_{i\in\Gamma_l} \|\hat\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2 
-			\end{align*}
-		to 
-			\begin{align*}
-				\theta_n := 
-				\underset{\{\Gamma_l\}_{l=1}^k, \left\{ \tau_i \right\}_{i=1}^n, \left\{ \lambda_l \right\}_{l=1}^k}{\arg\min}
-				\frac{1}{n} \sum_{l=1}^k \sum_{i\in\Gamma_l} \|\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2.
-			\end{align*}
-		Papers about shape invariant model might be useful. 
+\end{thm}
+
+\begin{proof}
+This is a sketch of proof and is based on the proof in \cite{Gao2015b}.
+
+We denote the true value by $\theta^*_i = F^*_{Z_i^*}(\cdot - \tau_i^*)$. 
+For the estimated $\hat z$, define $ \tilde \theta = \underset{\theta\in\Theta_k(\hat z)}{\arg\min} \| \theta^* - \theta\|^2 $.
+By the definition of the estimator, we  have
+\begin{align*}
+L(\hat F, \hat Z, \hat \tau) \leq L(F^*, Z^*, \tau^*),
+\end{align*}
+which can be rewritten as
+\begin{equation}\label{4.1}
+\| \hat \theta - F^{obs}\|^2 \leq \|\theta^* - F^{obs}\|^2.
+\end{equation}
+The left-hand side of \eqref{4.1} can be decomposed as
+\begin{equation}\label{4.2}
+\| \hat \theta - \theta^*\|^2 + 2\langle \hat \theta - \theta^*, \theta^* - F^{obs} \rangle + \| \theta^* - F^{obs}\|^2.
+\end{equation}
+Combining \eqref{4.1} and \eqref{4.2}, we have
+\begin{equation}\label{4.3}
+\| \hat \theta - \theta ^* \|^2 \leq 2 \langle \hat \theta - \theta^*, F^{obs}-\theta^* \rangle.
+\end{equation}
+The right-hand side of \eqref{4.3} can be bounded as 
+\begin{align}
+\nonumber
+\langle \hat \theta - \theta^*, F^{obs} - \theta^*\rangle 
+&= 
+\langle \hat \theta - \tilde\theta, F^{obs} - \theta^*\rangle 
++ \langle \tilde \theta - \theta^*, F^{obs} - \theta^*\rangle \\
+\label{4.4}
+&\leq 
+\| \hat \theta - \tilde \theta \|  
+\left| \left\langle \frac{\hat \theta - \tilde \theta}{\| \hat \theta - \tilde \theta \|}, F^{obs} - \theta^* \right\rangle \right|\\
+\label{4.5}
+& \quad + 
+\left( \| \tilde \theta - \hat \theta \| +  \| \hat \theta -  \theta^* \| \right) 
+\left| \left\langle \frac{\tilde \theta -  \theta^*}{\| \tilde \theta - \theta^* \|}, F^{obs} - \theta^* \right\rangle \right|.
+\end{align}
+Using Lemmas XXX, the following three terms:
+\begin{equation}\label{4.6}
+\| \hat \theta - \tilde \theta \| , 
+\quad 
+\left| \left\langle \frac{\hat \theta - \tilde \theta}{\| \hat \theta - \tilde \theta \|}, F^{obs} - \theta^* \right\rangle \right|,
+\quad
+\left| \left\langle \frac{\tilde \theta -  \theta^*}{\| \tilde \theta - \theta^* \|}, F^{obs} - \theta^* \right\rangle \right|
+\end{equation}
+can all be bounded by XXX with probability at least
+\begin{align*}
+XXX.
+\end{align*}
+Combining these bounds with \eqref{4.4}, \eqref{4.5}
+and \eqref{4.3}, we get
+\begin{align*}
+\|\hat \theta - \theta^* \|^2 \leq XXX
+\end{align*}
+with probability at least XXX. 
+
+Now we present the lemmas, which bound the three terms in \eqref{4.6}, respectively. 
+\begin{lemma}
+For any constant $C'>0$, there exists a constant $C>0$ only depending on $C'$, such that
+\begin{align*}
+\|\hat \theta - \tilde{\theta} \| \leq C XXX,
+\end{align*}
+with probability at least XXX.
+\end{lemma}
+
+
+\begin{lemma}
+For any constant $C'>0$, there exists a constant $C>0$ only depending on $C'$, such that
+\begin{align*}
+\left| \left\langle \frac{\tilde \theta -  \theta^*}{\| \tilde \theta - \theta^* \|}, F^{obs} - \theta^* \right\rangle \right|
+ \leq C XXX,
+\end{align*}
+with probability at least XXX.
+\end{lemma}
+
+
+\begin{lemma}
+For any constant $C'>0$, there exists a constant $C>0$ only depending on $C'$, such that
+\begin{align*}
+\left| \left\langle \frac{\hat \theta - \tilde \theta}{\| \hat \theta - \tilde \theta \|}, F^{obs} - \theta^* \right\rangle \right|
+ \leq C XXX,
+\end{align*}
+with probability at least XXX.
+\end{lemma}
+
+\end{proof}
+
+	% \subsection{Minimax optimality of the estimator}
+	% 	For the case in \eqref{eq:kmeans_lambda}, denote $\mathbf{\theta}=\left( \{\Gamma_l\}_{l=1}^k, \left\{ \tau_i \right\}_{i=1}^n, \left\{ \lambda_l \right\}_{l=1}^k \right)$, show the convergence rate of
+	% 		\begin{align*}
+	% 		\hat\theta_n := 
+	% 		\underset{\{\Gamma_l\}_{l=1}^k, \left\{ \tau_i \right\}_{i=1}^n, \left\{ \lambda_l \right\}_{l=1}^k}{\arg\min}
+	% 		\frac{1}{n} \sum_{l=1}^k \sum_{i\in\Gamma_l} \|\hat\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2 
+	% 		\end{align*}
+	% 	to 
+	% 		\begin{align*}
+	% 			\theta_n := 
+	% 			\underset{\{\Gamma_l\}_{l=1}^k, \left\{ \tau_i \right\}_{i=1}^n, \left\{ \lambda_l \right\}_{l=1}^k}{\arg\min}
+	% 			\frac{1}{n} \sum_{l=1}^k \sum_{i\in\Gamma_l} \|\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2.
+	% 		\end{align*}
+	% 	Papers about shape invariant model might be useful. 
 		
 		
 		
@@ -36,30 +131,30 @@
 		% \citet{Pollard1981a} showed the almost sure convergence, as the sample size increases, of the set of means of the k clusters. The result can be generalized to any metric space for which all the closed balls are compact would do.
 
 
-	\subsection{Convergence of Lloyd's algorithm using shape invariant model}
-		\subsubsection*{Guarantees of Lloyd's algorithm}
-			\citet{Lu} provides a weak initialization condition under which Lloyd's algorithm converges to the optimal label estimators of sub-Gaussian mixture model.
-			Also, see the reference therein.
+	% \subsection{Convergence of Lloyd's algorithm using shape invariant model}
+	% 	\subsubsection*{Guarantees of Lloyd's algorithm}
+	% 		\citet{Lu} provides a weak initialization condition under which Lloyd's algorithm converges to the optimal label estimators of sub-Gaussian mixture model.
+	% 		Also, see the reference therein.
 
 	% or other intensity estimation method
 		% Consistent in terms of both number of curves and number of observed points go to infinity.
 
-	\subsection{Proximity condition of the convex relaxation}\label{sec:proximity condition}
-		See \citet{Ling2019,Li2017,Peng2005,Zhao2012} for theory and proof.
-		\citet{Ling2019} proposed a proximity condition under which the convex relaxation of RatioCuts is exactly the global optimal to the original ratio cut problem. The theorem is then applied to spectral clustering {(as a special case of graph cuts)} to obtain the theoretical guarantees for spectral clustering
-		\\
-		\citet{Li2018} surveys recent theoretical advances in convex optimization approaches for community detection.
-		\citet{Li2017} compare different convex relaxations by relating them to corresponding proximity conditions. They present an improved proximity condition under which the relaxation proposed by \citet{Peng2005} recovers the underlying clusters exactly.
-		The proximity condition states that for any $a\neq b$, the following holds
-		\begin{align*}
-		\min _{i\in\Gamma_a}\left\langle \mathbf{x}_{i}-\frac{\mathbf{c}_{a}+\mathbf{c}_{b}}{2}, \mathbf{w}_{b, a}\right\rangle>\frac{1}{2} \sqrt{\left(\sum_{l=1}^{k}\left\|\overline{\mathbf{X}}_{l}\right\|^{2}\right)\left(\frac{1}{n_{a}}+\frac{1}{n_{b}}\right)} 
-		\end{align*}
-		where $\mathbf{w}_{b,a} = \frac{\mathbf{c}_a - \mathbf{c}_b}{\| \mathbf{c}_a - \mathbf{c}_b \|}$ is the unit vector pointing from $\mathbf{c}_b$ to $\mathbf{c}_a$,
-		$\overline{\mathbf{X}}_l$ is the centered data matrix of the $l$-th cluster, $\|\overline{\mathbf{X}}_l\|$  is the operator norm of $\overline{\mathbf{X}}_l$, and $n_a=|\Gamma_a|,n_b=|\Gamma_b|$.
-		\\
-		% {It also requires that the clusters are well-separated.}
-		\\
-		{\color{blue} Translate into point processes if \eqref{eq:unconvexified k-means} can be convexified.}
+	% \subsection{Proximity condition of the convex relaxation}\label{sec:proximity condition}
+	% 	See \citet{Ling2019,Li2017,Peng2005,Zhao2012} for theory and proof.
+	% 	\citet{Ling2019} proposed a proximity condition under which the convex relaxation of RatioCuts is exactly the global optimal to the original ratio cut problem. The theorem is then applied to spectral clustering {(as a special case of graph cuts)} to obtain the theoretical guarantees for spectral clustering
+	% 	\\
+	% 	\citet{Li2018} surveys recent theoretical advances in convex optimization approaches for community detection.
+	% 	\citet{Li2017} compare different convex relaxations by relating them to corresponding proximity conditions. They present an improved proximity condition under which the relaxation proposed by \citet{Peng2005} recovers the underlying clusters exactly.
+	% 	The proximity condition states that for any $a\neq b$, the following holds
+	% 	\begin{align*}
+	% 	\min _{i\in\Gamma_a}\left\langle \mathbf{x}_{i}-\frac{\mathbf{c}_{a}+\mathbf{c}_{b}}{2}, \mathbf{w}_{b, a}\right\rangle>\frac{1}{2} \sqrt{\left(\sum_{l=1}^{k}\left\|\overline{\mathbf{X}}_{l}\right\|^{2}\right)\left(\frac{1}{n_{a}}+\frac{1}{n_{b}}\right)} 
+	% 	\end{align*}
+	% 	where $\mathbf{w}_{b,a} = \frac{\mathbf{c}_a - \mathbf{c}_b}{\| \mathbf{c}_a - \mathbf{c}_b \|}$ is the unit vector pointing from $\mathbf{c}_b$ to $\mathbf{c}_a$,
+	% 	$\overline{\mathbf{X}}_l$ is the centered data matrix of the $l$-th cluster, $\|\overline{\mathbf{X}}_l\|$  is the operator norm of $\overline{\mathbf{X}}_l$, and $n_a=|\Gamma_a|,n_b=|\Gamma_b|$.
+	% 	\\
+	% 	% {It also requires that the clusters are well-separated.}
+	% 	\\
+	% 	{\color{blue} Translate into point processes if \eqref{eq:unconvexified k-means} can be convexified.}
 		
 
 

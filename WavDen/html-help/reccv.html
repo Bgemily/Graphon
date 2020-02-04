@@ -1,0 +1,324 @@
+<!DOCTYPE html public "-//w3c//dtd html 4.0 transitional//en">
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List href="./reccv_files/filelist.xml">
+<title>Wavelet Smoothing Toolbox: Nason's cross-validation denoising procedure</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Dr Theofanis Sapatinas</o:Author>
+  <o:Template>Normal</o:Template>
+  <o:LastAuthor>fanis</o:LastAuthor>
+  <o:Revision>28</o:Revision>
+  <o:TotalTime>25</o:TotalTime>
+  <o:Created>2001-01-19T13:17:00Z</o:Created>
+  <o:LastSaved>2001-06-19T18:10:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>237</o:Words>
+  <o:Characters>1351</o:Characters>
+  <o:Company>University of Kent at Canterbury</o:Company>
+  <o:Lines>11</o:Lines>
+  <o:Paragraphs>2</o:Paragraphs>
+  <o:CharactersWithSpaces>1659</o:CharactersWithSpaces>
+  <o:Version>9.2720</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+@font-face
+	{font-family:Courier;
+	panose-1:0 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:0;
+	mso-generic-font-family:modern;
+	mso-font-format:other;
+	mso-font-pitch:fixed;
+	mso-font-signature:3 0 0 0 1 0;}
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:#000FFF;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+p
+	{margin-right:0in;
+	mso-margin-top-alt:auto;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+tt
+	{mso-ascii-font-family:"Courier New";
+	mso-fareast-font-family:"Courier New";
+	mso-hansi-font-family:"Courier New";
+	mso-bidi-font-family:"Courier New";}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="1027"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+<meta name=DESCRIPTION
+content="Script and documentation for S-Plus functions for density, distribution function, quantilesand random number generation for the inverse Gaussian distribution.">
+</head>
+
+<body bgcolor=white lang=EN-US link="#000fff" vlink=blue style='tab-interval:
+.5in'>
+
+<div class=Section1>
+
+<p><span lang=EN-GB style='mso-ansi-language:EN-GB'>&nbsp; <o:p></o:p></span></p>
+
+<table border=0 cellspacing=0 cellpadding=0 width="100%" style='width:100.0%;
+ mso-cellspacing:0in;mso-padding-alt:3.0pt 3.0pt 3.0pt 3.0pt'>
+ <tr>
+  <td style='background:navy;padding:3.0pt 3.0pt 3.0pt 3.0pt'>
+  <p class=MsoNormal><tt><b><span style='font-size:18.0pt;font-family:"Courier New";
+  color:#FFCE00'>reccv</span></b></tt></p>
+  </td>
+  <td width=30 style='width:22.5pt;background:navy;padding:3.0pt 3.0pt 3.0pt 3.0pt'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td style='background:#5050A0;padding:3.0pt 3.0pt 3.0pt 3.0pt'>
+  <p class=MsoNormal align=right style='text-align:right'><i><span
+  style='font-size:18.0pt;color:#FFCE00'>&#8220;Leave-out-Half&#8221; Cross-Validation
+  Denoising Procedure</span></i></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><b><span lang=EN-GB style='color:navy;mso-ansi-language:
+EN-GB'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></b></p>
+
+<p class=MsoNormal><b><span lang=EN-GB style='color:navy;mso-ansi-language:
+EN-GB'>DESCRIPTION</span></b><span lang=EN-GB style='mso-ansi-language:EN-GB'> <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='mso-ansi-language:
+EN-GB'>&nbsp; <br>
+Denoising a signal using a `leave-out-half&#8217; cross-validation method. It calls
+the </span><span lang=EN-GB style='font-family:"Courier New";mso-ansi-language:
+EN-GB'>cv</span><span lang=EN-GB style='mso-ansi-language:EN-GB'> procedure.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='mso-ansi-language:
+EN-GB'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span lang=EN-GB style='color:navy;mso-ansi-language:
+EN-GB'>USAGE</span></b><span lang=EN-GB style='mso-ansi-language:EN-GB'> <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='mso-ansi-language:
+EN-GB'>&nbsp; <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><tt><span lang=EN-GB
+style='mso-ansi-font-size:12.0pt;font-family:"Courier New";mso-ansi-language:
+EN-GB'>f = reccv(signal, type, h)</span></tt><span lang=EN-GB style='mso-ansi-language:
+EN-GB'> <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='mso-ansi-language:
+EN-GB'>&nbsp; <o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span lang=EN-GB style='color:navy;mso-ansi-language:
+EN-GB'>REQUIRED ARGUMENTS</span></b><span lang=EN-GB style='mso-ansi-language:
+EN-GB'> <o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<table border=0 cellpadding=0 width=377 style='width:282.75pt;mso-cellspacing:
+ 1.5pt;mso-padding-alt:0in 0in 0in 0in'>
+ <tr>
+  <td valign=top style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right'><tt><span
+  style='mso-ansi-font-size:12.0pt;font-family:"Courier New"'>signal</span></tt></p>
+  </td>
+  <td width=20 style='width:15.0pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal>1-d noisy signal, length(signal)= 2^J</p>
+  </td>
+ </tr>
+ <tr>
+  <td valign=top style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal><tt><span style='mso-ansi-font-size:12.0pt;font-family:
+  "Courier New"'>h</span></tt></p>
+  </td>
+  <td width=20 style='width:15.0pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal>Quadature mirror filter for wavelet transform</p>
+  </td>
+ </tr>
+ <tr>
+  <td valign=top style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal><span style='font-family:Courier'>type</span></p>
+  </td>
+  <td width=20 style='width:15.0pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal>&nbsp;</p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal>'S' for soft thresholding, 'H' for hard thresholding </p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><b><span lang=EN-GB style='color:navy;mso-ansi-language:
+EN-GB'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></b></p>
+
+<p class=MsoNormal><b><span lang=EN-GB style='color:navy;mso-ansi-language:
+EN-GB'>OPTIONAL ARGUMENTS</span></b><span lang=EN-GB style='mso-ansi-language:
+EN-GB'> <o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'>&nbsp;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='font-family:"Courier New";
+mso-ansi-language:EN-GB'>h</span><span lang=EN-GB style='mso-ansi-language:
+EN-GB'><span style="mso-spacerun:
+yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Optional,<span
+style="mso-spacerun: yes">&nbsp; </span>Default = Symmlet 8 <o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span lang=EN-GB style='color:navy;mso-ansi-language:
+EN-GB'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></b></p>
+
+<p class=MsoNormal><b><span lang=EN-GB style='color:navy;mso-ansi-language:
+EN-GB'>VALUE</span></b><span lang=EN-GB style='mso-ansi-language:EN-GB'> <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='mso-ansi-language:
+EN-GB'>&nbsp; <o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='font-family:"Courier New";
+mso-ansi-language:EN-GB'>f </span><span lang=EN-GB style='mso-ansi-language:
+EN-GB'><span style="mso-spacerun:
+yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>Estimate, obtained
+by applying thresholding on the wavelet coefficients. <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='mso-ansi-language:
+EN-GB'>&nbsp; <o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span lang=EN-GB style='color:navy;mso-ansi-language:
+EN-GB'>BACKGROUND</span></b><span lang=EN-GB style='mso-ansi-language:EN-GB'> <o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'>&nbsp; <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='color:black;
+mso-ansi-language:EN-GB'><span style="mso-spacerun: yes">&nbsp;</span>The
+approach to cross-validation in wavelet regression was adopted by Nason (1996)
+to choose the threshold <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='color:black;
+mso-ansi-language:EN-GB'><span style="mso-spacerun: yes">&nbsp; </span>level </span><span
+lang=EN-GB style='font-family:"Courier New";color:black;mso-ansi-language:EN-GB'>lambda</span><span
+lang=EN-GB style='color:black;mso-ansi-language:EN-GB'>. In order to directly
+apply the DWT, the author suggests breaking the original data set into 2
+subsets <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='color:black;
+mso-ansi-language:EN-GB'><span style="mso-spacerun: yes">&nbsp;</span>of equal
+size: one containing only the even-indexed data, and the other, the odd-indexed
+data. The odd-indexed <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='color:black;
+mso-ansi-language:EN-GB'><span style="mso-spacerun: yes">&nbsp;</span>data will
+be used to ``predict'' the even-indexed data, and vice-versa, leading to a ``leave-out-half''
+strategy. The <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='color:black;
+mso-ansi-language:EN-GB'><span style="mso-spacerun: yes">&nbsp;</span>estimate
+for the mean integrated squared error compares the interpolated wavelet
+estimators and the left out points <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='color:black;
+mso-ansi-language:EN-GB'><span style="mso-spacerun: yes">&nbsp;</span>and leads
+to an appropriate threshold value which is finaly corrected since ones is using
+</span><span lang=EN-GB style='font-family:"Courier New";color:black;
+mso-ansi-language:EN-GB'>n/2</span><span lang=EN-GB style='color:black;
+mso-ansi-language:EN-GB'> points instead of n.</span><span lang=EN-GB
+style='mso-ansi-language:EN-GB'><o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span lang=EN-GB style='color:navy;mso-ansi-language:
+EN-GB'>REFERENCES</span></b><span lang=EN-GB style='mso-ansi-language:EN-GB'> <o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'>&nbsp; <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='mso-ansi-language:
+EN-GB'>Nason, G.P. (1996).Wavelet shrinkage using cross-validation. <i>J. R.
+Statist. Soc. B</i>, <b>58</b>, 463-479.<o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'>&nbsp; <o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span lang=EN-GB style='color:navy;mso-ansi-language:
+EN-GB'>ACKNOWLEDGEMENT</span></b><span lang=EN-GB style='mso-ansi-language:
+EN-GB'> <o:p></o:p></span></p>
+
+<p style='margin:0in;margin-bottom:.0001pt'><span lang=EN-GB style='mso-ansi-language:
+EN-GB'>&nbsp; <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='mso-ansi-language:
+EN-GB'>The </span><span lang=EN-GB style='font-family:"Courier New";mso-ansi-language:
+EN-GB'>reccv</span><span lang=EN-GB style='mso-ansi-language:EN-GB'> function
+is based on an Splus-code written by G.P. Nason.<span style="mso-spacerun:
+yes">&nbsp; </span><o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'>&nbsp; <o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span lang=EN-GB style='color:navy;mso-ansi-language:
+EN-GB'>SEE ALSO</span></b><span lang=EN-GB style='mso-ansi-language:EN-GB'> <o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-GB style='mso-ansi-language:EN-GB'>&nbsp; <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='mso-ansi-language:
+EN-GB'>Uses the auxiliary routine <a href="cv.html">cv</a> <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='mso-ansi-language:
+EN-GB'>&nbsp; <o:p></o:p></span></p>
+
+<p class=MsoNormal><b><span lang=EN-GB style='color:navy;mso-ansi-language:
+EN-GB'>EXAMPLES</span></b><span lang=EN-GB style='mso-ansi-language:EN-GB'> <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='mso-ansi-language:
+EN-GB'>&nbsp; <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='font-family:
+Courier;mso-ansi-language:EN-GB'>h = MakeONFilter('Symmlet', 8);</span><span
+lang=EN-GB style='mso-ansi-language:EN-GB'> <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span lang=EN-GB style='font-family:
+Courier;mso-ansi-language:EN-GB'>reconstruct = reccv(signal,'S', h);</span><span
+lang=EN-GB style='mso-ansi-language:EN-GB'> <o:p></o:p></span></p>
+
+</div>
+
+</body>
+
+</html>

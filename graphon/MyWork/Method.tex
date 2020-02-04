@@ -117,48 +117,48 @@
 
 			\end{itemize}
 
-		In the re-cluster step, the distance $d(\tilde F_{N_i}, \hat F_l)$ for each pair of node $i$ and cluster $l$ is evaluated by solving a (non-convex) optimization problem
+		In the re-cluster step, the distance $d(\tilde F_{N_i}, \hat F_l)$ for each pair of node $i$ and cluster $l$ is evaluated by solving the problem
 		\begin{equation}
 		\begin{aligned}\label{eq:aligned distance}
-		\hat n_{i,l}&=\underset{n\in[0,N/2]}{\arg\min}\sum_{j=1}^{N-1}
+		\hat n_{i,l}&=
+		\underset{|n|\leq (N-1)/2}{\arg\min}
+		\sum_{0<|j|\leq (N-1)/2}
 		\left| \theta_{i,j}e^{\complexunit 2\pi j n/N}+
-		\frac{e^{-\complexunit{}2\pi j}}{1-e^{\complexunit{}2\pi j /N}}\left( e^{\complexunit{}2\pi j n/N}-1 \right) 
+		\frac{e^{\complexunit{}2\pi j n/N}-1}{1-e^{\complexunit{}2\pi j /N}}
 		-\gamma_{l,j} \right|^2
 		+ \left| \theta_0+n-\gamma_0 \right|^2
 		\\
-		&=\underset{n\in[0,N/2]}{\arg\min}\sum_{j=1}^{N-1}
-		\left| \left( \theta_{i,j}+ \frac{e^{-\complexunit{}2\pi j}}{1-e^{\complexunit{}2\pi j /N}} \right) e^{\complexunit{}2\pi j n/N} 
-		- \left( \gamma_{l,j}+\frac{e^{-\complexunit{}2\pi j}}{1-e^{\complexunit{}2\pi j /N}} \right)  \right|^2 
-		+ \left| \theta_0+n-\gamma_0 \right|^2
+		&=\underset{|n|\leq (N-1)/2}{\arg\min}
+		\sum_{0<|j|\leq (N-1)/2}
+		\left| \left( \theta_{i,j}+ \frac{1}{1-e^{\complexunit{}2\pi j /N}} \right) e^{\complexunit{}2\pi j n/N} 
+		- \left( \gamma_{l,j}+\frac{1}{1-e^{\complexunit{}2\pi j /N}} \right)  \right|^2 
+		+\\
+		&\hspace{11cm} \left| \theta_0+n-\gamma_0 \right|^2
 		\\
-		&\overset{\triangle}{=}\underset{n\in[0,N/2]}{\arg\min}\sum_{j=1}^{N-1}\left| \theta_{i,j}' e^{\complexunit{}2\pi j n/N} - {\gamma_{l,j}'}  \right|^2
+		&\overset{\triangle}{=}
+		\underset{|n|\leq (N-1)/2}{\arg\min}\sum_{0<|j|\leq (N-1)/2}\left| \theta_{i,j}' e^{\complexunit{}2\pi j n/N} - {\gamma_{l,j}'}  \right|^2
 		+ \left| \theta_0+n-\gamma_0 \right|^2
 		,
 		\end{aligned}
 		\end{equation}
 		where $n=N\cdot\tau/2T$,
 		$\theta_{i,j}$ and $\gamma_{l,j}$,
-		$j\in \mathbb{Z}$, are the discrete Fourier coefficients of $\tilde F^*_{N_i}$ and $\hat F^*_l$,
-		$N$ is the length of discretized series of $\tilde F^*_{N_i}$ and $\hat F^*_l$.
-		Grid search is used to solve problem \eqref{eq:aligned distance}.
-
-		Gradient descent is not appropriate because the objective function oscillates rapidly and has too many local minima. 
-		\begin{figure}[H]
-		\centering
-		\includegraphics[width=0.7\textwidth]{../simulation/Dist_vs_integer_timeshift}\\
-		\caption{The objective function is convex as a function of integer $n$.}
-		\end{figure}
-		\begin{figure}[H]
-		\centering
-		\includegraphics[width=0.7\textwidth]{../simulation/Oscillating}
-		\caption{The function oscillates as a function of continuous $n$.}
-		\end{figure}
-
-
+		$j=  -(N-1)/2,\cdots,(N-1)/2 $, are the discrete Fourier coefficients of $\tilde F^*_{N_i}$ and $\hat F^*_l$,
+		$N$ is the length of discretized version of $\tilde F^*_{N_i}$ and $\hat F^*_l$.
+		% Grid search can be used to solve problem \eqref{eq:aligned distance}.
+		\\
+		Gradient descent can be used to solve the problem. 
+		The gradient is shown below:
 		% Gradient:
-		% \begin{equation}
-		% \nabla = 4\pi \sum_{|j|\leq m} j\cdot \text{Im}\left( {\theta_{i,j}'}\overline{{\gamma_{i,j}'}}e^{\complexunit2\pi j\tau} \right) .
-		% \end{equation}
+		\begin{equation}
+		\begin{split}
+		\nabla_{n_i} = \frac{4\pi}{N}\cdot 
+		\sum_{0<|j|\leq (N-1)/2} j\cdot 
+		\text{Im} \left( {\theta_{i,j}'}\overline{{\gamma_{i,j}'}}e^{\complexunit2\pi n_i j/N} \right) 
+		+ 2n_0+2 \text{Re}\left( \theta_0-\gamma_0 \right) .
+		\end{split}
+		\end{equation}
+		The learning rate was set as $0.01$, the initialization of $n_i$ was set to be the last estimated $\hat n_i$.
 		
 
 
@@ -166,13 +166,13 @@
 		The Fourier coefficients of $S_\tau\circ\tilde{F}^*_{N_i}(t)$ are
 		\begin{align*}
 		\theta_{i,j}e^{\complexunit 2\pi j n/N}+
-		\frac{e^{-\complexunit{}2\pi j}}{1-e^{\complexunit{}2\pi j /N}}
+		\frac{1}{1-e^{\complexunit{}2\pi j /N}}
 		\left( e^{\complexunit{}2\pi j n/N}-1 \right) 
 		\overset{\triangle}{=}
 		\theta_{i,j}' e^{\complexunit{}2\pi j n/N}-C. 
 		\end{align*}
 		Then
-		$\left\{ \hat \tau_i \right\}_{i=1}^n = \left\{ \hat n_i\cdot 2T/N \right\}_{i=1}^n$ are obtained by 
+		$\left\{ \hat \tau_i \right\}_{i=1}^n = \left\{ \hat n_i\cdot 2T/N \right\}_{i=1}^n$ can be obtained by 
 		\begin{align*}
 		\left\{ \hat n_i \right\}_{i\in\Gamma_l} &= 
 		\underset{\min_{i\in\Gamma_l} \left\{ n_i \right\}=0}{\arg\min}
@@ -185,8 +185,7 @@
 		\right|^2 
 		.
 		\end{align*}
-		Again, gradient descent is not appropriate.
-		Doing grid search over all $\left\{ n_i \right\}_{i\in\Gamma_l}$ is expensive, thus we adopt the following two-step estimation procedure:
+		Using gradient descent over all $\left\{ n_i \right\}_{i\in\Gamma_l}$ is expensive, thus we adopt the following two-step estimation procedure:
 		\begin{itemize}
 			\item Estimate the mean distribution function $\hat F^*_l(t)$.
 			\item Estimate $\left\{ \hat n_i \right\}_{i\in\Gamma_l}$ by aligning each $\tilde F^*_{N_i}(t) $ with $\hat F^*_l(t)$.
@@ -210,7 +209,8 @@
 
 
 		\subsubsection*{Initialization}
-			The initial mean curves are set to be randomly chosen empirical distribution function.
+			The k-means++ method is applied for cho
+osing initial mean curves.
 
 		\subsubsection*{Choosing $k$}
 			
@@ -232,35 +232,35 @@
 			
 
 
-	\subsection{Convex relaxation of k-means type clustering}
-		\subsubsection*{Semidefinite programming relaxation}
-			We briefly introduce a semidefinite programming relaxation (Peng-Wei relaxation) of k-means proposed by \citet{Peng2005}.
-			The k-means objective function in \eqref{eq:kmeans} can be re-written as
-			\begin{align*}
-			\sum_{l=1}^k\sum_{i\in\Gamma_l}\|\mathbf{x}_i- \mathbf{c}_l\|^2 &= \frac{1}{2}\sum_{l=1}^k \frac{1}{|\Gamma_l|}\sum_{i,j\in\Gamma_l}\|\mathbf{x}_i - \mathbf{x}_j\|^2\\
-			&= \frac{1}{2}\sum_{l=1}^k\frac{1}{|\Gamma_l|}\langle \mathbf{1}_{\Gamma_l}\mathbf{1}_{\Gamma_l}^\top,\mathbf{D} \rangle
-			\end{align*}
-			where $\mathbf{D}\in \mathbb{R}^{n\times n}$ with entries $\mathbf{D}_{ij}=\|\mathbf{x}_i- \mathbf{x}_j\|^2$.
-			\\
-			Hence \eqref{eq:kmeans} can be relaxed to
-			\begin{align*}
-			&\min_{\mathbf{Z}}\ \langle \mathbf{Z},\mathbf{D}\rangle \qquad \\
-			& \ \text{s.t. } \quad \mathbf{Z} \succeq 0, \quad \mathbf{Z} \geq 0, \quad \mathbf{Z} 1_{n}=\mathbf{1}_{n}, \quad \operatorname{Tr}(\mathbf{Z})=k.
-			\end{align*}
-		Proximity conditions are discussed in \ref{sec:proximity condition}.
+	% \subsection{Convex relaxation of k-means type clustering}
+	% 	\subsubsection*{Semidefinite programming relaxation}
+	% 		We briefly introduce a semidefinite programming relaxation (Peng-Wei relaxation) of k-means proposed by \citet{Peng2005}.
+	% 		The k-means objective function in \eqref{eq:kmeans} can be re-written as
+	% 		\begin{align*}
+	% 		\sum_{l=1}^k\sum_{i\in\Gamma_l}\|\mathbf{x}_i- \mathbf{c}_l\|^2 &= \frac{1}{2}\sum_{l=1}^k \frac{1}{|\Gamma_l|}\sum_{i,j\in\Gamma_l}\|\mathbf{x}_i - \mathbf{x}_j\|^2\\
+	% 		&= \frac{1}{2}\sum_{l=1}^k\frac{1}{|\Gamma_l|}\langle \mathbf{1}_{\Gamma_l}\mathbf{1}_{\Gamma_l}^\top,\mathbf{D} \rangle
+	% 		\end{align*}
+	% 		where $\mathbf{D}\in \mathbb{R}^{n\times n}$ with entries $\mathbf{D}_{ij}=\|\mathbf{x}_i- \mathbf{x}_j\|^2$.
+	% 		\\
+	% 		Hence \eqref{eq:kmeans} can be relaxed to
+	% 		\begin{align*}
+	% 		&\min_{\mathbf{Z}}\ \langle \mathbf{Z},\mathbf{D}\rangle \qquad \\
+	% 		& \ \text{s.t. } \quad \mathbf{Z} \succeq 0, \quad \mathbf{Z} \geq 0, \quad \mathbf{Z} 1_{n}=\mathbf{1}_{n}, \quad \operatorname{Tr}(\mathbf{Z})=k.
+	% 		\end{align*}
+	% 	Proximity conditions are discussed in \ref{sec:proximity condition}.
 		
-		In our case, \eqref{eq:kmeans_lambda} is equivalent to 
-			\begin{equation}\label{eq:unconvexified k-means}
-			\min_{\mathbf{Z},\left\{ \tau_i \right\}_{i=1}^n}\langle \mathbf{Z}, \mathbf D(\tau_1,\cdots,\tau_n)  \rangle
-			\end{equation}
-		where $\mathbf{Z}=1/2\cdot \sum_{l=1}^k(1/|\Gamma_l|\cdot \mathbf{1}_{\Gamma_l}\mathbf{1}_{\Gamma_l}^\top)$, $\mathbf{D}_{i,j} = \| \hat\lambda_{N_i}(t+\tau_i)-\hat\lambda_{N_j}(t+\tau_j) \|_2^2$.
-		Using Fourier transformation, 
-		\begin{align*}
-		\mathbf{D}_{i,j} &= \int_{0}^T \left( \int_0^\infty \hat h_{N_i}(\xi)e^{i2\pi\xi(t+\tau_i)}-\hat h_{N_j}(\xi)e^{i2\pi\xi(t+\tau_j)}\text{d}\xi \right)^2 \text{d}t
-		\end{align*}
-		where $\hat h_{N_i}(\xi)$ is the Fourier transform of $\hat\lambda_{N_i}(t)$. 
-		% This seems not a convex function of $\tau_i$'s.
-		{\color{red} How to convexify?}
+	% 	In our case, \eqref{eq:kmeans_lambda} is equivalent to 
+	% 		\begin{equation}\label{eq:unconvexified k-means}
+	% 		\min_{\mathbf{Z},\left\{ \tau_i \right\}_{i=1}^n}\langle \mathbf{Z}, \mathbf D(\tau_1,\cdots,\tau_n)  \rangle
+	% 		\end{equation}
+	% 	where $\mathbf{Z}=1/2\cdot \sum_{l=1}^k(1/|\Gamma_l|\cdot \mathbf{1}_{\Gamma_l}\mathbf{1}_{\Gamma_l}^\top)$, $\mathbf{D}_{i,j} = \| \hat\lambda_{N_i}(t+\tau_i)-\hat\lambda_{N_j}(t+\tau_j) \|_2^2$.
+	% 	Using Fourier transformation, 
+	% 	\begin{align*}
+	% 	\mathbf{D}_{i,j} &= \int_{0}^T \left( \int_0^\infty \hat h_{N_i}(\xi)e^{i2\pi\xi(t+\tau_i)}-\hat h_{N_j}(\xi)e^{i2\pi\xi(t+\tau_j)}\text{d}\xi \right)^2 \text{d}t
+	% 	\end{align*}
+	% 	where $\hat h_{N_i}(\xi)$ is the Fourier transform of $\hat\lambda_{N_i}(t)$. 
+	% 	% This seems not a convex function of $\tau_i$'s.
+	% 	{\color{red} How to convexify?}
 		
 		
 		
