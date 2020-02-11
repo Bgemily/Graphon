@@ -1,7 +1,7 @@
 %!TEX root = Main.tex
 
 
-\section{Method}
+\section{Method} \label{sec:method}
 
 
 
@@ -38,7 +38,8 @@
 			where $\left\{ \Gamma_l \right\}_{l=1}^k$ represent the clusters and form a partition of $\Gamma = \left\{ \mathbf{x}_1,\mathbf{x}_2,\cdots,\mathbf{x}_n \right\}$,
 			$\mathbf{c}_l = {1}/{|\Gamma_l|}\cdot\sum_{\mathbf{x}_i\in \Gamma_l}\mathbf{x}_i$ is the sample center of the $l$-th cluster. 
 			For simplicity, we denote $\mathbf{x}_i\in \Gamma_l$ by $i\in\Gamma_l$ henceforth.
-			{\color{red} The notation $\Gamma_l$ is introduced in 2.1 but for a different set of nodes. What is the appropriate way to re-define this notation?}
+			% {\color{red} 
+			% The notation $\Gamma_l$ is introduced in 2.1 but for a different set of nodes. What is the appropriate way to re-define this notation?}
 			We now extend this objective function to the context of point process.
 		
 		\subsubsection*{k-means in point processes}
@@ -86,7 +87,7 @@
 
 	\subsection{Algorithm}
 		
-		The initialization method and the choice of the number of clusters $k$ will be discussed later, now let us assume the initialization and $k$ are given.
+		The initialization method and the choice of the number of clusters $k$ will be discussed later, for now we assume the initialization and $k$ are given.
 		To solve the problem \eqref{eq:kmeans_F}, we iterate between two steps until convergence:
 			\begin{itemize}
 				\item Re-cluster step: update the clustering 
@@ -209,8 +210,7 @@
 
 
 		\subsubsection*{Initialization}
-			The k-means++ method is applied for cho
-osing initial mean curves.
+			The k-means++ method is applied for choosing initial mean curves.
 
 		\subsubsection*{Choosing $k$}
 			

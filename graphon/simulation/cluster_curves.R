@@ -1,4 +1,5 @@
-source('~/Documents/Academic/SC/graphon/simulation/align_curves.R')
+# source('~/Documents/Academic/SC/graphon/simulation/align_curves.R')
+source('./align_curves.R')
 
 
 
@@ -251,11 +252,11 @@ cluster_curves = function(f_list, k, MaxIter=100, seed=45, stopping_redu=0.01)
 cluster_curves_gd = function(f_list, k, step_size=0.05, MaxIter=100, seed=45, stopping_redu=0.01)
 {
   n0_vec = rep(0, length(f_list))
-  index = init_kmeans(f_list, k, seed)
-  print(index)
+  init_index = init_kmeans(f_list, k, seed)
+  # print(index)
   # set.seed(seed);
   # index = sample(length(f_list), k)
-  f_center_list = f_list[index]
+  f_center_list = f_list[init_index]
   
   dist_curr = Inf
   dist_redu = Inf
@@ -280,16 +281,21 @@ cluster_curves_gd = function(f_list, k, step_size=0.05, MaxIter=100, seed=45, st
   # clusters = re_cluster_gd(f_list, f_center_list, n0_vec, step_size)$clusters
   # print(iter_count)
   # print(dist_curr)
-  for (i in 1:length(f_center_list)) {
-    plot(f_center_list[[i]],type='l')
-  }
+  # for (i in 1:length(f_center_list)) {
+  #   plot(f_center_list[[i]],type='l')
+  # }
   f_center_var = 0
+  f_center_dist_min = Inf
   for (i in (1:(length(f_center_list)-1))) {
     for (j in ((i+1):length(f_center_list))) {
-      f_center_var = f_center_var+align_curves_gd(f_center_list[[i]], f_center_list[[j]], 0, step_size)$dist_min
+      dist = align_curves_gd(f_center_list[[i]], f_center_list[[j]], 0, step_size)$dist_min
+      f_center_var = f_center_var+dist
+      if (dist < f_center_dist_min) {
+        f_center_dist_min = dist
+      }
     }
   }
-  return(list(clusters=clusters, f_center_var = f_center_var, f_center_list=f_center_list, n0_vec=n0_vec))
+  return(list(clusters=clusters, f_center_var = f_center_var, f_center_dist_min = f_center_dist_min, f_center_list=f_center_list, n0_vec=n0_vec, init_index=init_index))
 }
 
 # cluster_curves_gd(f_list, 2, 0.05)
