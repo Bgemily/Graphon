@@ -4,15 +4,19 @@
 # Case 1 ---------------------------------------------------------------
 
 rm(list=ls())
-source('./cluster_point_proc.R')
+file_path = "./functions"
+file.sources = list.files(path = file_path, pattern = "*.R$", full.names = TRUE)
+sapply(file.sources, source)
 
-NSim = 1000
+
+NSim = 100
 Ncores = 10
 
 step_size = 0.02
 SEED_vec = seq(1908,16417,length.out=NSim)
 results = vector("list", 0)
 count = 1
+pp = TRUE
 
 library(foreach)
 library(doParallel)
@@ -20,7 +24,8 @@ registerDoParallel(cores=Ncores)
 
 results1 <- foreach(i = 1:NSim) %dopar% {
   SEED = SEED_vec[i]
-  main(case=1, SEED, k=2, step_size = step_size)
+  if (pp) main_pp(case=1, SEED, k=2, step_size = step_size, h=1)
+  else main(case=1, SEED, k=2, step_size = step_size)
 }
 
 
@@ -34,7 +39,8 @@ results1 <- foreach(i = 1:NSim) %dopar% {
 
 
 now = format(Sys.time(), "%Y%m%d_%H%M")
-save.image(paste0('case1_NSim', NSim, '_', now, '.Rdata'))
-
-
+{
+  if (!pp) save.image(paste0('case1_NSim', NSim, '_', now, '.Rdata'))
+  else save.image(paste0('pp_case1_NSim', NSim, '_', now, '.Rdata'))
+}
 

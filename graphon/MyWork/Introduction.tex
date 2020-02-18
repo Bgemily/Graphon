@@ -14,18 +14,27 @@ To the best of our knowledge, there is no existing study about the growing netwo
 Fortunately, the data collected by \citet{Wan2019} provides us the possibility to pursue this study.
 
 
-Since a functional network is complicated, we try to break it down and propose to model it by identifying the typical roles of individual nodes. 
-As supported by \cite{Wan2019}, neurons in a patterned network have different roles in terms of active time and connecting patterns. 
-The connecting pattern of a neuron can be described as a collection of point processes representing the connection between this neuron and each of the rest individual neurons.
+In this paper, we focus on the neural data provided by \cite{Wan2019}.
+Since the neuronal network is complicated, we try to break it down and propose to model it by identifying the typical roles of individual neurons. 
+As supported by \cite{Wan2019}, neurons in a growing network play different roles in terms of active time and connecting patterns. 
+The connecting pattern of a neuron can be described as the occurrence time of edges that include this neuron. 
+% a collection of point processes representing the connection between this neuron and each of the rest individual neurons.
 Neurons with the same roles perform similar activities and thus have similar connecting patterns. 
+So the roles of neurons are the basic units in a complex network, and learning these roles can help us understand the developing procedure of growing networks.
 
 
-
-However, being able to identify the typical roles in a single growing network is not satisfactory because 
-the growing network data is transient --- there is only one measurement for each subject, which means we only have one sample for estimation.
-Also, the roles identified from different subjects are not comparable, because the neurons and the networks are not one-to-one mapped. 
+However, being able to identify the typical roles in a single growing network is  infeasible because 
+the growing network data is transient --- 
+the time of the growing trajectory cannot go to infinity.
+Due to this limit, we need  our method to be able to borrow information from other networks.
+% and there is only one sample from each subject.
+% This requires our method to be able to combine multiple subjects and borrow information from other networks.
+This is not trivial, because the neurons in different networks are not one-to-one mapped, and so
+the roles identified from different subjects are not transferable, 
+. 
 This constrains our ability to study the common features across subjects.
 For this reason, we propose to use the stochastic block model as it allows to combine multiple networks and hence resolve the above problems.
+[SBM is.... It has been applied to ...]
 
 
 There are, nevertheless, some unique properties of the data that are beyond the scope of the stochastic block model.
@@ -33,6 +42,7 @@ First, the connection between two neurons is measured over time.
 Second, the connecting pattern between two neurons are determined not only by their roles but also by their active time, which varies from node to node.
 Third, the connection is also effected by the spatial distance between neurons --- connection cannot occur if two neurons are too away from each other.
 To incorporate such uniqueness, we propose a generalized stochastic block model in this paper.
+[Note that these properties also appear in other problems, e.g. venmo...]
 
 
 \subsection*{Related work}

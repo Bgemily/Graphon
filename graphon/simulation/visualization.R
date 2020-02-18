@@ -1,53 +1,82 @@
 
 rm(list=ls())
-source('./cluster_point_proc.R')
+file_path = "./functions"
+file.sources = list.files(path = file_path, pattern = "*.R$", full.names = TRUE)
+sapply(file.sources, source)
 
-# ARI ---------------------------------------------------------------------
 
-get_ARI = function(membership_true, results, truncate)
-{
-  ARI = vector('numeric', length(results))
-  for (i in 1:length(results)) {
-    clusters_i = results[[i]]$clusters
-    membership_i = unlist(clusters_i)
-    for (j in 1:length(clusters_i)) {
-      membership_i[clusters_i[[j]]] = j
-    }
-    ARI[i] = mclust::adjustedRandIndex(membership_i[1:truncate], membership_true[1:truncate])
+# plot estimated mean pdf’s with true pdf's -------------------------------
+
+total_time = 50
+t = seq(0, total_time, 0.05)
+
+# pp = FALSE
+
+r = results3[[3]]
+f_center_list = r$f_center_list
+clusters = r$clusters
+f_list = r$f_list
+network = r$network; pdf_list = network$pdf_list
+n0_vec = r$n0_ve
+
+for (l in 1:length(clusters)) {
+  f_center = f_center_list[[l]]
+
+  if (pp)   {
+    pdf_center = tail(f_center,length(t))
+    plot(t, pdf_center, col = 'red', type='l', xlim = c(0,50), ylim=c(0,.4))
   }
-  return(ARI)
+  else   {
+    pdf_center = obtain_pdf(tail(f_center,length(t)), t)$density
+    plot(pdf_center, col = 'red', xlim = c(0,50), ylim=c(0,.4), main = '')
+  }
+  
+  for (i in (clusters[[l]])) {
+    lines(t, shift(pdf_list[[i]], n0_vec[i], pad=0))
+  }
+  
+  if (pp) lines(t, pdf_center, col = 'red', xlim = c(0,50), ylim=c(0,.4))
+  else lines(pdf_center, col = 'red', xlim = c(0,50), ylim=c(0,.4))
 }
 
-membership_true = c(rep(1,4), rep(2,46))
-ARI1 = get_ARI(membership_true, results, 4)
+  
+# ARI ---------------------------------------------------------------------
+
+
+
+membership_true1 = c(rep(1,4), rep(2,46))
+ARI1 = get_ARI(membership_true1, results1, length(membership_true1))
+ARI1 = get_ARI(membership_true1, results1, 4)
 
 membership_true2 = c(rep(1,4), rep(2,8), rep(3,46))
+ARI2 = get_ARI(membership_true2, results2, length(membership_true2))
 ARI2 = get_ARI(membership_true2, results2, 12)
 
 membership_true3 = c(rep(1,4), rep(2,8), rep(3,46))
+ARI3 = get_ARI(membership_true3, results3, length(membership_true2))
 ARI3 = get_ARI(membership_true3, results3, 12)
 
-ARI=ARI2
+ARI=ARI3
 hist(ARI)
 summary(ARI)
-boxplot(ARI)
+boxplot(ARI, ylim=c(0,1.1))
 
-boxplot(c(ARI1, ARI2, ARI3)~c(rep(1,length(ARI1)), rep(2,length(ARI2)), rep(3,length(ARI3))))
+boxplot(c(ARI3, ARI3_pp)~c(rep(1,length(ARI3)), rep(2,length(ARI3_pp))))
 
 
 
 
 # Initialization vs ARI ---------------------------------------------------
 
-case = 1
+case = 2
 if(case==1) {result = results; membership_true = c(rep(1,4), rep(2,46))}
 if(case==2) {result = results2; membership_true = c(rep(1,4), rep(2,8), rep(3,46))}
 if(case==3) {result = results3; membership_true = c(rep(1,4), rep(2,8), rep(3,46))}
 
-ARI = get_ARI(membership_true, result, length(membership_true))
-# ARI = get_ARI(membership_true, result, 12)
+# ARI = get_ARI(membership_true, result, length(membership_true))
+ARI = get_ARI(membership_true, result, 12)
 
-initials = t(sapply(c(1:length(result)), function(i)result[[i]][[6]]))
+initials = t(sapply(c(1:length(result)), function(i)result[[i]]$init_index))
 if (case==2||case==3) good_initials = apply(initials, 1, function(x)(min(x)<=4 && max(x)>12 && median(x)<=12 && median(x)>4))
 if (case==1) good_initials = apply(initials, 1, function(x)(min(x)<=4 && max(x)>4))
 
@@ -64,40 +93,27 @@ legend('topleft',legend=c('good','fair'),col=c('gray20','gray90'),fill=c('gray30
 
 case = 2
 
-total_time = 50
-t = seq(0, total_time, 0.05)
-SEED = 203
-
-if (case==1) {
-  network = generate_network(SEED, total_time)
-}
-if (case==2) {
-  network = generate_network2(SEED, total_time)
-}
-if (case==3) {
-  network = generate_network3(SEED, total_time)
-}
-
+r = results2[[1]]
+network = r$network
 nodes_mat = network$nodes_mat
-edge_time_mat = network$edge_time_mat
+
 
 if (case==1)
 {
   radius_thres = 1
   
   clus_size_1 = 4; clus_size_2 = 46
-  clusters_vec = c(rep(1,clus_size_1), rep(2,clus_size_2))
-  centers = cbind(c(rep(0.5,clus_size_1)), c(seq(0.8,5.2,length.out=clus_size_1)))
+  centers = nodes_mat[1:clus_size_1,]
   
-  dev.new(width=2,height=6,noRStudioGD = T)
+  dev.new(width=6,height=1.5,noRStudioGD = T)
   par(mar = c(2.5,2.5,1,1))
-  plot(nodes_mat[,1], nodes_mat[,2], cex = .2, xlab='', ylab = '', xlim=c(0,1))
-  points(nodes_mat[1:clus_size_1,1], nodes_mat[1:clus_size_1,2], col='red')
+  plot( nodes_mat[,2], nodes_mat[,1], cex = .2, xlab='', ylab = '', xlim=c(0,6), ylim=c(0,1))
+  points(nodes_mat[1:clus_size_1,2], nodes_mat[1:clus_size_1,1], col='red')
   
   # plot the circle
   angel = seq(0, 2*pi, length.out=200)
   x_center = centers[2,1]; y_center = centers[2,2]
-  points(x_center+radius_thres*cos(angel), y_center+radius_thres*sin(angel), cex=0.1, col='red')
+  points(y_center+radius_thres*sin(angel), x_center+radius_thres*cos(angel), cex=0.1, col='red')
 }
 if (case==2||case==3)
 {
@@ -105,21 +121,20 @@ if (case==2||case==3)
   radius_thres2 = 1
   
   clus_size_1 = 4; clus_size_2 = 8; clus_size_3 = 46
-  clusters_vec = c(rep(1,clus_size_1), rep(2,clus_size_2), rep(3, clus_size_3))
-  centers = cbind(c(rep(0.5,clus_size_1), rep(c(0.7,0.3), clus_size_2/2)), c(seq(0.8,5.2,length.out=clus_size_1), seq(1,5,length.out=clus_size_2)))
+  centers = nodes_mat[1:(clus_size_1+clus_size_2),]
   
-  dev.new(width=2,height=6,noRStudioGD = T)
+  dev.new(width=6,height=1.5,noRStudioGD = T)
   par(mar = c(2.5,2.5,1,1))
-  plot(nodes_mat[,1], nodes_mat[,2], cex = .2, xlab='', ylab = '', xlim=c(0,1))
-  points(nodes_mat[1:clus_size_1,1], nodes_mat[1:clus_size_1,2], col='red')
-  points(nodes_mat[1:clus_size_2+clus_size_1,1], nodes_mat[1:clus_size_2+clus_size_1,2], col='blue')
+  plot( nodes_mat[,2], nodes_mat[,1], cex = .2, xlab='', ylab = '', xlim=c(0,6), ylim=c(0,1))
+  points(nodes_mat[1:clus_size_1,2], nodes_mat[1:clus_size_1,1],  col='red')
+  points(nodes_mat[1:clus_size_2+clus_size_1,2], nodes_mat[1:clus_size_2+clus_size_1,1], col='blue')
   
   # plot the circles
   angel = seq(0, 2*pi, length.out=200)
   x_center = centers[2,1]; y_center = centers[2,2]
-  points(x_center+radius_thres1*cos(angel), y_center+radius_thres1*sin(angel), cex=0.1, col='red')
+  points( y_center+radius_thres1*sin(angel), x_center+radius_thres1*cos(angel), cex=0.1, col='red')
   x_center = centers[1+clus_size_1,1]; y_center = centers[1+clus_size_1,2]
-  points(x_center+radius_thres2*cos(angel), y_center+radius_thres2*sin(angel), cex=0.1, col='blue')
+  points(y_center+radius_thres2*sin(angel), x_center+radius_thres2*cos(angel), cex=0.1, col='blue')
 }
 
 
@@ -177,7 +192,7 @@ edge_time_mat = network$edge_time_mat
 }
 
 
-# plot original cdf's -----------------------------------------------------
+# plot unshifted cdf's by cluster -----------------------------------------------------
 
 total_time = 50
 t = seq(0, total_time, 0.05)
@@ -220,7 +235,7 @@ if(case==2 || case==3)
 }
 
 
-# plot aligned cdf's as well as the centers -------------------------------
+# plot aligned cdf's & estimated mean cdf's by cluster -------------------------------
 
 total_time = 50
 t = seq(0, total_time, 0.05)
@@ -275,7 +290,7 @@ if (case==2 || case==3)
 
 
 
-# plot centers ------------------------------------------------------------
+# plot mean cdf's together ------------------------------------------------------------
 
 r = results3[[2]]
 f_center_list = r$f_center_list
@@ -297,17 +312,17 @@ f_center_list = r$f_center_list
 
 
 
-##### plot of time delay #####
+##### ____plot of time delay #####
 
 # This is not a good idea for the following reasons.
 # First, the estimate of tau will be poor when misclassification appears.
 # Second, we do not care about tau's (maybe).
 # but we can shift min_tau to 0?
 
-# Plot f_list -------------------------------------------------------------
+# ____Plot f_list -------------------------------------------------------------
 
 case = 1
-SEED = 203
+SEED = 1908
 
 total_time = 50
 t = seq(0, total_time, 0.05)
