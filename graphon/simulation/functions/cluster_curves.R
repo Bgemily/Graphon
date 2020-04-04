@@ -265,10 +265,9 @@ cluster_curves = function(f_list, k, MaxIter=100, seed=45, stopping_redu=0.01)
 
 cluster_curves_gd = function(f_list, k, init_method='kmeans', step_size=0.05, MaxIter=100, seed=45, stopping_redu=0.01)
 {
-  library(pracma)
-  if(strcmp(init_method,'kmeans')) init_index = init_kmeans(f_list, k, seed)
+  if(init_method=='kmeans') init_index = init_kmeans(f_list, k, seed)
   # print(index)
-  else if(strcmp(init_method,'random')) {set.seed(seed); init_index = sample(length(f_list), k)}
+  else if(init_method=='random') {set.seed(seed); init_index = sample(length(f_list), k)}
 
   
   f_center_list = f_list[init_index]
@@ -318,10 +317,9 @@ cluster_curves_gd = function(f_list, k, init_method='kmeans', step_size=0.05, Ma
 
 cluster_curves_gd_pp = function(f_list, k, init_method='kmeans', step_size=0.05, MaxIter=100, seed=45, stopping_redu=0.01)
 {
-  library(pracma)
-  if(strcmp(init_method,'kmeans')) init_index = init_kmeans(f_list, k, seed, pp=TRUE)
+  if(init_method=='kmeans') init_index = init_kmeans(f_list, k, seed, pp=TRUE)
   # print(index)
-  else if(strcmp(init_method,'random')) {set.seed(seed); init_index = sample(length(f_list), k)}
+  else if(init_method=='random') {set.seed(seed); init_index = sample(length(f_list), k)}
   
   
   f_center_list = f_list[init_index]

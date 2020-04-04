@@ -1,5 +1,5 @@
 
-# Shift curve towards right -----------------------------------------------
+# Shift curve towards left -----------------------------------------------
 
 shift = function(f_origin, n0, pad = 1, pp=FALSE)
 {
@@ -151,8 +151,8 @@ align_curves_gd_ = function(f_origin, f_shift, n0, step_size, MaxIter=1000, stop
       dist_curr = distance(theta_prime, gamma_prime, n0, pp=pp)
       break 
     }
-    if(n0>length(f_origin)%/%2) { 
-      n0 = length(f_origin)%/%2; 
+    if(n0>length(f_origin)) { 
+      n0 = length(f_origin); 
       dist_curr = distance(theta_prime, gamma_prime, n0, pp=pp)
       break 
     }
@@ -189,6 +189,18 @@ align_curves_gd = function(f1, f2, n0, step_size, MaxIter=1000, stopping_redu=0.
 
 # align_curves_gd(f_origin, f_origin, -2000, .1, stopping_redu = 0.01)
 
+
+align_pdf_gd = function(pdf1, pdf2, n0=0, step_size=0.02, MaxIter=1000, stopping_redu=0.01)
+{
+  if(sum(pdf1)==0 || sum(pdf2)==0) n0_init=n0
+  else{
+    cdf1 = cumsum(pdf1)/sum(pdf1)
+    cdf2 = cumsum(pdf2)/sum(pdf2)
+    n0_init = align_curves_gd(cdf1, cdf2, n0, step_size, MaxIter, stopping_redu, pp=FALSE)$n0
+  }
+  res = align_curves_gd(pdf1, pdf2, n0_init, step_size, MaxIter, stopping_redu, pp=TRUE)
+  return(list(n0 = res$n0, dist_min = res$dist_min))
+}
 
 
 # Find first time f>0+ and last time f<1- -----------------------------------

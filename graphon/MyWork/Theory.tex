@@ -21,7 +21,7 @@ with probability at least $1-\exp \left( -C' XXX \right)  $, uniformly over $\ma
 \begin{proof}
 This is a sketch of proof and is based on the proof in \cite{Gao2015a}.
 
-We denote the true value by $\theta^*_i = F^*_{Z_i^*}(\cdot - \tau_i^*)$. 
+We denote the true value by $\theta^*_i = F^*_{z_i^*}(\cdot - \tau_i^*)$. 
 For the estimated $\hat z$, define $ \tilde \theta = \underset{\theta\in\Theta_k(\hat z)}{\arg\min} \| \theta^* - \theta\|^2 $.
 By the definition of the estimator, we  have
 \begin{align*}
@@ -73,15 +73,62 @@ and \eqref{4.3}, we get
 \|\hat \theta - \theta^* \|^2 \leq XXX
 \end{align*}
 with probability at least XXX. 
+\end{proof}
 
 Now we present the lemmas, which bound the three terms in \eqref{4.6}, respectively. 
-\begin{lemma}
+\begin{lemma}\label{lemma:1}
 For any constant $C'>0$, there exists a constant $C>0$ only depending on $C'$, such that
 \begin{align*}
 \|\hat \theta - \tilde{\theta} \| \leq C XXX,
 \end{align*}
 with probability at least XXX.
 \end{lemma}
+
+\begin{proof}[Proof of Lemma \ref{lemma:1}]
+~
+
+\textit{Step 1: Control $\mathbb{E}\|\hat\tau - \tilde\tau\|^2$.}
+
+Fix a group $\hat\Gamma_k$, denote the group size by $J=|\Gamma_k|$.
+For notation simplicity, relabel the nodes in group $\hat\Gamma_k$ with $\left\{ 1,\cdots,J \right\}$.
+Let 
+\begin{align*}
+M(\tau_1,\cdots,\tau_{J}) 
+= \frac{1}{J}\sum_{j=1}^J 
+\sum_{|k|\leq k_0} \left| 
+ c_{j,k} e^{\complexunit{}2\pi k \tau_j} 
+ - \frac{1}{J}\sum_{j'=1}^J c_{j',k} e^{\complexunit{}2\pi k \tau_{j'}} 
+ \right|^2,
+\end{align*}
+where $c_{j,k},k\in\mathbb{Z},$ are the Fourier coefficients of the distribution function $F^*_{z^*_j}(\cdot-\tau^*_j)$.
+~
+Let 
+\begin{align*}
+\hat M(\tau_1,\cdots,\tau_{J}) 
+= \frac{1}{J}\sum_{j=1}^J 
+\sum_{|k|\leq k_0} \left| 
+ \hat c_{j,k} e^{\complexunit{}2\pi k \tau_j} 
+ - \frac{1}{J}\sum_{j'=1}^J \hat c_{j',k} e^{\complexunit{}2\pi k \tau_{j'}} 
+ \right|^2,
+\end{align*}
+where $\hat c_{j,k},k\in\mathbb{Z},$ are the Fourier coefficients of the empirical distribution function $F^{obs}_j$.
+Then $\hat\tau$ is the minimizer of $\hat M$, and $\tilde\tau$ is the minimizer of $M$.
+\\
+By Proposition 3.1 in \citet{Bigot2013}, under proper assumptions of $F$ and distribution of $\tau$, 
+\begin{align*}
+\frac{1}{J}\|\hat\tau-\tilde\tau\|^2\leq C^{-1}\cdot(M(\hat\tau_1,\cdots,\hat\tau_J)-M(\tilde\tau_1,\cdots,\tilde\tau_J)).
+\end{align*}
+Note that $M(\hat\tau)-M(\tilde{\tau})=M(\hat\tau)-\hat M(\hat{\tau})+\hat M(\hat{\tau})-M(\tilde{\tau})\leq 2~\sup_{\tau}|M(\tau)-\hat M(\tau)| $, so it suffices to control
+$\mathbb{E}\sup_{\tau}|M(\tau)-\hat M(\tau)|$.
+
+$\mathbb{E}\sup_{\tau}|M(\tau)-\hat M(\tau)|$ is controlled by $F_j^{obs}-F^*_j$ or $\hat c_{j,k}-c_{j,k}$?
+
+\textit{Step 2: Bound $\|\hat \theta - \tilde \theta\|$.}
+
+
+
+
+\end{proof}
 
 
 \begin{lemma}
@@ -93,6 +140,54 @@ For any constant $C'>0$, there exists a constant $C>0$ only depending on $C'$, s
 with probability at least XXX.
 \end{lemma}
 
+\begin{proof}
+Note that
+\begin{align*}
+\tilde \theta_i - \theta^*_i 
+= \tilde F_{\hat z_i}(\cdot - \tilde \tau_i) - F^*_{z^*_i}(\cdot-\tau^*_i)
+\end{align*}
+is a function of the partition $\mathbf{\hat z}$, then we have
+\begin{align*}
+\left| \sum_i 
+\left\langle 
+\frac{\tilde \theta_i-\theta^*_i}{\sqrt{\sum_i \| \tilde \theta_i - \theta^*_i \|^2}} 
+, F_i^{obs}-F^*_{z^*_i}(\cdot-\tau^*_i) \right\rangle   
+\right|
+\leq \max_{\mathbf{z}\in \mathcal Z_{n,k}}
+\left | 
+ \sum_{i} \left\langle \gamma_i(\mathbf{z})
+ , F_i^{obs}-F^*_{z^*_i}(\cdot-\tau^*_i) \right\rangle   \right|
+\end{align*}
+where 
+\begin{align*}
+\gamma_i(\mathbf{z})\propto 
+\tilde F_{ z_i}(\cdot - \tilde \tau_i) - F^*_{z^*_i}(\cdot-\tau^*_i)
+\end{align*}
+satisfies $\sum_i \|\gamma_i(\mathbf{z})\|^2=1$.
+By [some inequality similar to Hoeffding's inequality] and union bound, we have
+\begin{align*}
+&\mathbb{P}\left( 
+\max_{\mathbf{z}\in \mathcal Z_{n,k}} 
+\left| \sum_{i} 
+\left\langle \gamma_i(\mathbf{z}), F^{obs}_i-F^*_{z^*_i}(\cdot-\tau^*_i) \right\rangle 
+\right| 
+>t \right) \\
+\leq& \sum_{z\in \mathcal Z_{n,k}}
+\mathbb{P} 
+\left( \left| \sum_{i} 
+\left\langle \gamma_i(\mathbf{z}), F^{obs}_i-F^*_{z^*_i}(\cdot-\tau^*_i) \right\rangle 
+\right| 
+>t \right) \\
+\leq & |\mathcal Z_{n,k}| \exp \left( -C_1t^2 \right) ,
+\end{align*}
+for some universal constant $C_1>0$.
+Choosing $t\propto \sqrt{n\log k} $, the proof is complete.
+
+
+
+
+\end{proof}
+
 
 \begin{lemma}
 For any constant $C'>0$, there exists a constant $C>0$ only depending on $C'$, such that
@@ -103,7 +198,35 @@ For any constant $C'>0$, there exists a constant $C>0$ only depending on $C'$, s
 with probability at least XXX.
 \end{lemma}
 
+\begin{proof}
+Note that
+\begin{align*}
+\hat \theta_i - \tilde \theta_i 
+= \hat F_{\hat z_i}(\cdot - \hat \tau_i) - \tilde F_{\hat z_i}(\cdot-\tilde\tau_i)
+\end{align*}
+is a function of both the partition $\mathbf{\hat z}$ and the observations $F^{obs}$.
+For each $\mathbf{z}\in \mathcal Z_{n,k}$, define the set $\mathcal B_\mathbf{z}$ by
+\begin{align*}
+XXX
+\end{align*}
+Thus, we have the bound
+\begin{align*}
+ \left| \sum_i 
+\left\langle 
+\frac{\tilde \theta_i-\theta^*_i}{\sqrt{\sum_i \| \tilde \theta_i - \theta^*_i \|^2}} 
+, F_i^{obs}-F^*_{z^*_i}(\cdot-\tau^*_i) \right\rangle   
+\right| 
+\leq 
+\max_{\mathbf{z}\in \mathcal Z_{n,k}}
+\sup_{c\in \mathcal B_{\mathbf{z}}}
+\left | 
+ \sum_{i} \left\langle c_i
+ , F_i^{obs}-F^*_{z^*_i}(\cdot-\tau^*_i) \right\rangle   \right|
+ \end{align*}
+If set $\mathcal B_{\mathbf{z}}$ is not too large, applying union bound (and Hoeffding-like inequality) completes the proof.
+
 \end{proof}
+
 
 	% \subsection{Minimax optimality of the estimator}
 	% 	For the case in \eqref{eq:kmeans_lambda}, denote $\mathbf{\theta}=\left( \{\Gamma_l\}_{l=1}^k, \left\{ \tau_i \right\}_{i=1}^n, \left\{ \lambda_l \right\}_{l=1}^k \right)$, show the convergence rate of

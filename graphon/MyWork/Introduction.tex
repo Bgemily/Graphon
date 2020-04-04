@@ -9,7 +9,7 @@ such as the neuronal network in the brain during disease[] or learning tasks[],
 the social network in a time period[], etc.
 A lot of work has been done in order to study the dynamic networks,
 but most of these research focus on analyzing the dynamics in a well-developed network.
-In this paper, we concentrate on the growing networks where a bunch of isolated nodes are developed into a functional network.
+In this paper, we concentrate on the growing networks where isolated nodes  develop into a mature functioning network.
 To the best of our knowledge, there is no existing study about the growing networks, partly because of the lack of data.
 Fortunately, the data collected by \citet{Wan2019} provides us the possibility to pursue this study.
 
@@ -20,17 +20,17 @@ As supported by \cite{Wan2019}, neurons in a growing network play different role
 The connecting pattern of a neuron can be described as the occurrence time of edges that include this neuron. 
 % a collection of point processes representing the connection between this neuron and each of the rest individual neurons.
 Neurons with the same roles perform similar activities and thus have similar connecting patterns. 
-So the roles of neurons are the basic units in a complex network, and learning these roles can help us understand the developing procedure of growing networks.
+Learning these roles can help us understand the development procedure of growing networks.
 
 
 However, being able to identify the typical roles in a single growing network is  infeasible because 
-the growing network data is transient --- 
-the time of the growing trajectory cannot go to infinity.
-Due to this limit, we need  our method to be able to borrow information from other networks.
+the growing network  is transient --- 
+there is only one measurement of a growing network due to its non-stationarity.
+Due to this limit, we combine networks of other subjects as additional samples.
 % and there is only one sample from each subject.
 % This requires our method to be able to combine multiple subjects and borrow information from other networks.
-This is not trivial, because the neurons in different networks are not one-to-one mapped, and so
-the roles identified from different subjects are not transferable, 
+This is not trivial, because the neurons in different networks are not one-to-one mapped, 
+and the roles identified from different subjects are not transferable
 . 
 This constrains our ability to study the common features across subjects.
 For this reason, we propose to use the stochastic block model as it allows to combine multiple networks and hence resolve the above problems.

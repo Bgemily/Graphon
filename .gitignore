@@ -5,6 +5,7 @@ graphon/FunctionalData/
 Stage1/
 Stage2/
 *.mat
+*.Rdata
 
 
 # Byte-compiled / optimized / DLL files
