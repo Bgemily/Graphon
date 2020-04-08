@@ -16,7 +16,7 @@ option_list = list(
               help="number of repeated trials"),
   make_option(c("-p", "--pp"), type="logical", default=FALSE, 
               help="TRUE for pdf and FALSE for cdf [default=%default]"),
-  make_option(c("-s", "--specc"), type="logical", default=FALSE, 
+  make_option(c("-s", "--specc"), type="logical", default=TRUE, 
               help="TRUE for spectral clustering and FALSE for kmeans [default=%default]")
   
 ); 
@@ -51,7 +51,7 @@ results3 <- foreach(i = 1:NSim) %dopar% {
   else main(case=3, SEED, k=3, step_size = step_size)
 }
 
-results3 = combn_subj_recluster(results3)
+results3 = combn_subj_recluster(results3, group_size = 1, MaxIter = 1)
 
 
 # for (SEED in c(SEED_vec[881])) {

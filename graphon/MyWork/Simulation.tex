@@ -2,6 +2,49 @@
 
 \section{Simulation} \label{sec:simulation}
 
+Loss function (without combining subjects)
+\begin{align*}
+\min_{\mathbf{z}, \mathbf{z'}} \sum_{i} \left(  \sum_{z'_q} \frac{d_{iz'_q}}{d_i} \Big\| [f_{i,z'_q}] - [f_{z_i, z'_q}] \Big\|^2 \right) .
+\end{align*}
+
+The algorithm can be summarized as:
+\begin{itemize}
+	\item Initialize $\mathbf{z'}$ as the cluster including all nodes. 
+	\item Iterate between 
+	\begin{itemize}
+		\item minimize over $\mathbf{z}$ given current $\mathbf{z'}$
+		\item update $\mathbf{z'}=\mathbf{z}$.
+	\end{itemize}	
+\end{itemize}
+
+Questions:
+\begin{itemize}
+	\item Incorporate time shift parameters?
+	\item How to assign weights when comparing two nodes? (they have different degrees and weights)
+	\item Incorporate the over-clustering step?
+	\item Loss function of spectral clustering is different from above?
+	\item Combining subjects does not help a lot?
+\end{itemize}
+
+
+
+\begin{figure}[H]
+\includegraphics[width=.6\textwidth]{../simulation/plots/case3_conn_patt}
+\caption{(30+30+30). Estimated connecting patterns. Distribution of connecting patterns: $\Gamma(2,0.5),\Gamma(1,0.5),N(0,1)$. Note that the first row and the second row are not separable, although their aggregated versions are separable.}
+\end{figure}
+
+
+\begin{figure}[H]
+\includegraphics[width=.6\textwidth]{../simulation/plots/case3_cont_clus_res}
+\caption{(30+30+30). Clustering result. Continue clustering given estimated clusters does not help.}
+\end{figure}
+
+
+
+
+
+
+\subsection{Previous results}
 
 \subsection*{Combine subjects}
 \begin{enumerate}
@@ -55,7 +98,6 @@
 
 
 
-\subsection{Previous results}
 
 \subsection*{Over-clustering can help to reduce the within cluster variability caused by time shifts.}
 

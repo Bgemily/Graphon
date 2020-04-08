@@ -47,7 +47,7 @@ jitter_boxplot = function(ARI, group=1)
     geom_jitter(position=position_jitter(width=.1, height=0))
 }
 
-jitter_boxplot(ARI=c(ARI3_old, ARI3),group=c(rep('',length(ARI3_old)),rep('cont.cluster',length(ARI3))))
+jitter_boxplot(ARI=c(ARI2_old, ARI2),group=c(rep('',length(ARI2_old)),rep('cont.cluster',length(ARI2))))
 jitter_boxplot(ARI3_cont)
 
 membership_true1 = results1[[1]]$network$membership_true

@@ -201,7 +201,7 @@ generate_network3 = function(SEED=0, total_time)
   radius_thres1 = 2
   radius_thres2 = 2
   
-  clus_size_1 = 50; clus_size_2 = 50; clus_size_3 = 50
+  clus_size_1 = 30; clus_size_2 = 30; clus_size_3 = 30
   clusters_vec = c(rep(1,clus_size_1), rep(2,clus_size_2), rep(3, clus_size_3))
   set.seed(SEED+487); centers_x = runif(clus_size_1+clus_size_2+clus_size_3, 0, 1)
   set.seed(SEED+53); centers_y = runif(clus_size_1+clus_size_2+clus_size_3, 0, 6)
@@ -210,7 +210,7 @@ generate_network3 = function(SEED=0, total_time)
   nodes_mat = centers
   
   
-  set.seed(98+SEED); tau_vec = c(runif(clus_size_1, 40, 42), runif(clus_size_2,0,10)) # this is the fail case, together with N(0,1)
+  set.seed(98+SEED); tau_vec = c(runif(clus_size_1, 40, 42), runif(clus_size_2,0,2)) # this is the fail case, together with N(0,1)
 
   edge_time_mat = matrix(Inf, nrow=length(clusters_vec), ncol=length(clusters_vec))
   seed = 0+SEED
@@ -220,7 +220,7 @@ generate_network3 = function(SEED=0, total_time)
       dij = norm(t(nodes_mat[i,]-nodes_mat[j,]), 'f')
       if (i==j || dij>radius_thres1)
         next
-      if (clusters_vec[i]== clusters_vec[j] && dij<=radius_thres2 && edge_time_mat[i,j]==Inf) {
+      if (clusters_vec[i]==3 && clusters_vec[j]==3 && dij<=radius_thres2 && edge_time_mat[i,j]==Inf) {
         seed = seed+124; set.seed(seed)
         edge_time_mat[i,j] = runif(1, min=0, max=1*total_time)
         edge_time_mat[j,i] = edge_time_mat[i,j]
@@ -251,7 +251,7 @@ generate_network3 = function(SEED=0, total_time)
         pdf_addend_list[[j]] = rbind(pdf_addend_list[[j]], (sapply(t, function(x)dgamma(x-tau, shape, rate))))
         
       }
-      else if (clusters_vec[i]==1 && clusters_vec[j]==3 && dij<=radius_thres1 && edge_time_mat[i,j]==Inf) {
+      else if (clusters_vec[i]==1 && clusters_vec[j]!=2 && dij<=radius_thres1 && edge_time_mat[i,j]==Inf) {
         seed = seed+1829; 
         tau = tau_vec[i]
         

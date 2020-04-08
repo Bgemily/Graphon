@@ -75,7 +75,7 @@ get_dist_mat_ = function(pdf_array)
 
 merge_clusters = function(clusters, edge_time_mat, n0_mat, k, t=seq(0,50,0.05), h=1)
 {
-  n0_vec = rep(0, length(f_list))
+  n0_vec = rep(0, nrow(edge_time_mat))
   for (i in 1:length(clusters)) {
     n0_vec[clusters[[i]]] = n0_mat[clusters[[i]], clusters[[i]][1]] - min(n0_mat[clusters[[i]], clusters[[i]][1]])
   }
@@ -87,7 +87,7 @@ merge_clusters = function(clusters, edge_time_mat, n0_mat, k, t=seq(0,50,0.05), 
     clusters[[merge_clus_ind[1]]] = c(clusters[[merge_clus_ind[1]]], clusters[[merge_clus_ind[2]]])
     clusters[[merge_clus_ind[2]]] = NULL
     
-    n0_vec = rep(0, length(f_list))
+    n0_vec = rep(0, nrow(edge_time_mat))
     for (i in 1:length(clusters)) {
       n0_vec[clusters[[i]]] = n0_mat[clusters[[i]], clusters[[i]][1]] - min(n0_mat[clusters[[i]], clusters[[i]][1]])
     }

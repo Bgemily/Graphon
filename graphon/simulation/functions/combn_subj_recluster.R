@@ -14,6 +14,7 @@ combn_subj_recluster = function(subj_list, group_size = 5, MaxIter=2)
         edge_time_mat = tmp$network$edge_time_mat; clusters = tmp$clusters; n0_vec=tmp$n0_vec
         
         subj_list[[i]]$clusters = re_cluster_connpatt(edge_time_mat, clusters, n0_vec, permn, pdf_array)$clusters
+        # subj_list[[i]]$clusters = re_cluster_connpatt_specc(edge_time_mat, clusters, n0_vec, permn, pdf_array)$clusters
       }
     }
   }

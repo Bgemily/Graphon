@@ -1,4 +1,4 @@
-get_dist_betw_PatternMat_ = function(pdf_array_1, pdf_array_2, symmetric=TRUE)
+get_dist_betw_PatternMat_ = function(pdf_array_1, pdf_array_2, symmetric=TRUE, weights=NA)
 { 
   if(symmetric){
     ### assuming the connecting pattern matrix is symmetric and square.
@@ -17,16 +17,19 @@ get_dist_betw_PatternMat_ = function(pdf_array_1, pdf_array_2, symmetric=TRUE)
   }
   
   else{
-    dist = 0
+    dist = c()
     n0_BetwSubj_mat = matrix(nrow=dim(pdf_array_1)[1], ncol=dim(pdf_array_1)[2])
     for (i in 1:(dim(pdf_array_1)[1])) {
       for (j in (1):dim(pdf_array_1)[2]) {
         res = align_pdf_gd(pdf_array_1[i,j,], pdf_array_2[i,j,])
         
-        dist = dist + res$dist_min
+        dist = c(dist,res$dist_min)
         n0_BetwSubj_mat[i,j] = res$n0
       }
     }
+    if(is.na(weights)) dist = mean(dist)
+    else dist = t(weights) %*% dist
+      
     return(list(dist = dist, n0_BetwSubj_mat = n0_BetwSubj_mat))
   }
     
