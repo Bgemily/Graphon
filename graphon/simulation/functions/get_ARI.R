@@ -9,7 +9,7 @@ get_one_ARI = function(memb_est_vec, memb_true_vec){
 
 
 # compute ARI_vec for multiple estimated memberships
-get_ARI = function(memb_est_vec_list=NA, memb_true_vec, clusters_list=NA){
+get_ARI = function(memb_true_vec, clusters_list=NA, memb_est_vec_list=NA){
   if(is.na(memb_est_vec_list) && is.na(clusters_list))
     stop("At least one of memb_est_vec_list and clusters_list should be non NA.")
   

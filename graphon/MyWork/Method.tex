@@ -3,217 +3,240 @@
 
 \section{Method} \label{sec:method}
 
+\subsection{Shift-invariant distance between curves}
+We aim to minimize the following loss function
+\begin{align}
+\min_{\mathbf{z}} \sum_{i=1}^n \left(  \sum_{q=1}^k \alpha_{i,q} \cdot d(\hat f_{i,q}, \hat f_{z_i,q}) \right),
+\label{eq:loss function}
+\end{align}
+where $\alpha_{i,q}$ is the weight measuring the reliability of the distance  $d(\hat f_{i,q}, \hat f_{z_i,q})$. 
+The distance function $d(f, g)$ is defined as
+\begin{align}
+d(f,g)=\inf_{\tau\in[-T,T]} \left( \int_{-T}^{2T} |f(t-\tau)-g(t)|^2 \text{d}t \right)^{1/2} ,
+\label{eq:distance}
+\end{align}
+which is invariant to shifts of curves and measures the difference between shapes of curves.
 
 
 
-	\subsection{k-means objective function}
-		In what follows, we review the k-means objective function in the Euclidean space, and introduce the objective function in our case where the samples are realizations of point processes.
 
-		% We will introduce the objective function of k-means in the Euclidean space as well as in our case where the samples are realizations of point process.
-		\subsubsection*{k-means in $\mathbb{R}^d$} 
-			Let ${\mathbf{x}_1,\cdots,\mathbf{x}_n}\in \mathbb{R}^d$ be an i.i.d. sample from distribution function $F$. Denote by $F_n$ the empirical distribution function. The k-means problem is to solve  
-			\begin{align*}
-			A_n:=\underset{A:A\subset \mathbb{R}^d, |A|=k}{\arg\min} W_n(A,F_n)=\underset{A:A\subset \mathbb{R}^d, |A|=k}{\arg\min}\int \min_{a\in A}\|\mathbf{x}_i-a\|^2  \text{d}F_n.
-			\end{align*}
+\subsection{Aligning curves}
+We use the shape-invariant method proposed by \citet{Bigot2013} to evaluate the distance defined in \eqref{eq:distance}.
+The idea is to find the optimal shift that aligns $f$ and $g$ best in the Fourier domain.
+Let $\theta_j$ and $\gamma_j, j=-(N-1)/2,\cdots,(N-1)/2$ be the discrete Fourier coefficients of $f$ and $g$, where $N$ is the length of discretized $f$ and $g$. The time shift parameter $\tau$ can be estimated by solving the following problem by gradient descent
 
-			There are some theoretical guarantees of k-means.
-			\citet{Pollard1981a} shows that for a given $k$, $A_n\to \bar A $ almost surely, where $\bar A=\arg\min_A W(A,F) $ denotes the optimal population cluster centers.
-			\citet{Bachem2017} provides a uniform bound with a rate of $\mathcal{O}\left(n^{-1/2}\right)$ for the deviation between the empirical loss and the expected loss. 
-			The bound is uniform in the sense that it holds for any set of $k$ cluster centers.
-			% \begin{align*}
-			% \sup_{A}\big|W_n(A,F_n)-W(A,F)\big|= \mathcal O(n^{-\frac{1}{2}})
-			% \end{align*}
-			
-			
-			Note that $\bar A$ is a biased estimator of the true cluster centers (when they are well-defined).
-			% {\color{red} What does $\bar A$ represent? 
-			For example, if $k=2$ and $F(x)=\frac{1}{2}\Phi(x;\mu_1,\sigma_1^2)+\frac{1}{2}\Phi(x;\mu_2, \sigma_2^2)$ is a mixture Gaussian distribution, 
-			and denote $X_1\sim N(\mu_1,\sigma_1^2)$, then $\bar A= \left\{ a_1,a_2 \right\} $ where $a_1=\mathbb{E}[X_1 \mathbf{1}_{X_1\leq (\mu_1+\mu_2)/2}]\neq \mu_1 $ (and a similar expression for $a_2$).
+	\begin{equation}
+	\begin{aligned}\label{eq:time shift}
+	\hat n&=
+	\underset{|n|\leq (N-1)/2}{\arg\min}
+	\sum_{|j|\leq (N-1)/2}
+	\left| \theta_{j}e^{\complexunit 2\pi j n/N}
+	-\gamma_{j} \right|^2
+	,
+	\end{aligned}
+	\end{equation}
+where $n=N\cdot\tau/2T$.
 
-			
-			This problem can be re-formulated as following 
-			\begin{equation}\label{eq:kmeans}
-			\min_{\left\{ \Gamma_l \right\}_{l=1}^k}\frac{1}{n}\sum_{l=1}^k\sum_{i\in {\Gamma}_l} \|\mathbf{x}_i- \mathbf{c}_l\|^2,
-			\end{equation}
-			where $\left\{ \Gamma_l \right\}_{l=1}^k$ represent the clusters and form a partition of $\Gamma = \left\{ \mathbf{x}_1,\mathbf{x}_2,\cdots,\mathbf{x}_n \right\}$,
-			$\mathbf{c}_l = {1}/{|\Gamma_l|}\cdot\sum_{\mathbf{x}_i\in \Gamma_l}\mathbf{x}_i$ is the sample center of the $l$-th cluster. 
-			For simplicity, we denote $\mathbf{x}_i\in \Gamma_l$ by $i\in\Gamma_l$ henceforth.
-			% {\color{red} 
-			% The notation $\Gamma_l$ is introduced in 2.1 but for a different set of nodes. What is the appropriate way to re-define this notation?}
-			We now extend this objective function to the context of point process.
+The objective function \eqref{eq:time shift} may have a large plane when the supports of $f$ and $g$ are far away from each other, in which case a good initialization is crucial.
+To address this problem, we compute and align the corresponding cumulative distribution functions, and the $\hat\tau$ leading to the best alignment is then used as the initialization of the gradient descent for solving \eqref{eq:time shift}.
+
+\noindent [Write down the loss function for aligning cdf?]
+
+
+
+
+\subsection{Algorithm}
+We propose to iteratively update the group membership $\mathbf{z}$ and the connecting patterns $\{\hat f_{i,q}\}_{i\in[n],q\in[k]} \text{ and } \{\hat f_{l,q}\}_{l,q\in[k]}$.
+
+Given current clustering $\mathbf{z}$ a
+The algorithm is summarized as follows. Initialization step will be discussed in the next section.
+
+\begin{algorithm}[H]
+\SetAlgoLined
+ Set $s=0$\;
+ Initialize $\mathbf{z}^{[0]}$ and $\mathbf{\tau}^{[0]}$\;
+\While{not converge}{
+  	Update $\{\hat f_{i,q}^{[s+1]}\}_{i\in[n],q\in[k]}$ and $\{\hat f_{l,q}^{[s+1]}\}_{l,q\in[k]}$ with $\mathbf{z}=\mathbf{z}^{[s]}$ and $\tau=\tau^{[0]}$ \;
+  	Compute $\{\alpha_{i,q}\}_{i\in[n],q\in[k]}$ with $\mathbf{z}=\mathbf{z}^{[s]}$\;
+  	Update $\mathbf{z}^{[s+1]}$ with $\{\hat f_{i,q}^{[s+1]}\}_{i\in[n],q\in[k]}$, $\{\hat f_{l,q}^{[s+1]}\}_{l,q\in[k]}$ and $\{\alpha_{i,q}\}_{i\in[n],q\in[k]}$\;
+  	Evaluate the stopping criterion\;
+  	$s\leftarrow s+1 $\;
+ }
+ Update $\tau^{[1]}$ with $\mathbf{z^{[s]}}$ and $\{\hat f_{i,q}^{[s]}\}_{i\in[n],q\in[k]}$\;
+\KwOut{$\mathbf{z^{[s]}}$, $\{\hat f_{l,q}^{[s]}\}_{l,q\in[k]}$.}
+ \caption{ [name of algorithm]}
+\end{algorithm}
+
+
+
+\subsection{Initialization: spectral clustering}
+Spectral clustering algorithm is used to obtain the initial clustering and time shifts.
+
 		
-		\subsubsection*{k-means in point processes}
-			By Assumption \ref{asp:time lag} and \ref{asp:same distr}, 
-			% $\lambda_{N_i}(t)=\lambda_{z_i}(t-\tau_i)+\sum_{l=1}^kf_{z_i,l}(t-\tau_i)\epsilon_{i,l}$, hence 
-			$\lambda_{N_i}(t+\tau_i)\overset{d}{=}\lambda_{N_j}(t+\tau_j)$ for any $i,j$ satisfying $z_i=z_j$. Thus $F_{N_i}(t+\tau_i)\overset{d}{=}F_{N_j}(t+\tau_j)$ for any $i,j$ satisfying $z_i=z_j$, 
-			where 
-			$F_{N_i}(t):=\int_0^t\lambda_{N_i}(s)\text{d}s\big/\int_0^T\lambda_{N_i}(s)\text{d}s$.
-			So the k-means problem is to solve
-			% \begin{equation}\label{eq:kmeans_lambda}
-			% \min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},\lambda_l} \sum_{i\in\Gamma_l} \|\hat\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2 \right),
-			% \end{equation}
-			% or, equivalently,
-			\begin{align}\label{eq:kmeans_F}
-			\min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},F_l} \sum_{i\in\Gamma_l} \| \tilde{F}_{N_i}(\cdot+\tau_i)- F_l(\cdot)\|_2^2 \right),
-			\end{align}
-			where 
-			% $\hat \lambda_{N_i}(\cdot)$ is the intensity function estimated from $N_i(\cdot)$ using some smooth method,
-			$\tilde{F}_{N_i}(t):=1/{N_i([0,T])}\cdot\sum_{j=1}^{N_i([0,T])}\mathbf{1}_{\{t_{N_i,j}\leq t\}}$ is the empirical distribution function of the occurrence time of edges,
-			$t_{N_i,j}$ is the occurrence time of the $j$-th edge of $N_i(\cdot)$,
-			and $F_l(t)=\mathbb{E}[F_{N_i}(t+\tau_i)] (\forall i\in\Gamma_l)$ is the expected cumulative distribution function of the $l$-th cluster.
+		% \subsubsection*{k-means in point processes}
+		% 	By Assumption \ref{asp:time lag} and \ref{asp:same distr}, 
+		% 	% $\lambda_{N_i}(t)=\lambda_{z_i}(t-\tau_i)+\sum_{l=1}^kf_{z_i,l}(t-\tau_i)\epsilon_{i,l}$, hence 
+		% 	$\lambda_{N_i}(t+\tau_i)\overset{d}{=}\lambda_{N_j}(t+\tau_j)$ for any $i,j$ satisfying $z_i=z_j$. Thus $F_{N_i}(t+\tau_i)\overset{d}{=}F_{N_j}(t+\tau_j)$ for any $i,j$ satisfying $z_i=z_j$, 
+		% 	where 
+		% 	$F_{N_i}(t):=\int_0^t\lambda_{N_i}(s)\text{d}s\big/\int_0^T\lambda_{N_i}(s)\text{d}s$.
+		% 	So the k-means problem is to solve
+		% 	% \begin{equation}\label{eq:kmeans_lambda}
+		% 	% \min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},\lambda_l} \sum_{i\in\Gamma_l} \|\hat\lambda_{N_i}(\cdot+\tau_i)- \lambda_l(\cdot)\|_2^2 \right),
+		% 	% \end{equation}
+		% 	% or, equivalently,
+		% 	\begin{align}\label{eq:kmeans_F}
+		% 	\min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},F_l} \sum_{i\in\Gamma_l} \| \tilde{F}_{N_i}(\cdot+\tau_i)- F_l(\cdot)\|_2^2 \right),
+		% 	\end{align}
+		% 	where 
+		% 	% $\hat \lambda_{N_i}(\cdot)$ is the intensity function estimated from $N_i(\cdot)$ using some smooth method,
+		% 	$\tilde{F}_{N_i}(t):=1/{N_i([0,T])}\cdot\sum_{j=1}^{N_i([0,T])}\mathbf{1}_{\{t_{N_i,j}\leq t\}}$ is the empirical distribution function of the occurrence time of edges,
+		% 	$t_{N_i,j}$ is the occurrence time of the $j$-th edge of $N_i(\cdot)$,
+		% 	and $F_l(t)=\mathbb{E}[F_{N_i}(t+\tau_i)] (\forall i\in\Gamma_l)$ is the expected cumulative distribution function of the $l$-th cluster.
 
 
-			% Likelihood can also be used as a measure of similarity between a point process and an intensify function,
-			% which yields the objective function
-			% \begin{align}\label{eq:kmeans_likelihood}
-			% \min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},\lambda_l} \sum_{i\in\Gamma_l} d\big({N_i}(\cdot+\tau_i), \lambda_l(\cdot)\big) \right),
-			% \end{align}
-			% where the distance is defined as the negative log-likelihood
-			% \begin{align*}
-			% d(N, \lambda) := -\log L(N;\lambda) = \int_{0}^T\lambda(t)\text{d}t - \sum_{j=1}^{N(0,T]}\log \left( \lambda(t_{N,j}) \right) .
-			% \end{align*}
+		% 	% Likelihood can also be used as a measure of similarity between a point process and an intensify function,
+		% 	% which yields the objective function
+		% 	% \begin{align}\label{eq:kmeans_likelihood}
+		% 	% \min_{\left\{ \Gamma_l \right\}_{l=1}^k} \frac{1}{n} \sum_{l=1}^k \left(\min_{\{\tau_i\}_{i\in\Gamma_l},\lambda_l} \sum_{i\in\Gamma_l} d\big({N_i}(\cdot+\tau_i), \lambda_l(\cdot)\big) \right),
+		% 	% \end{align}
+		% 	% where the distance is defined as the negative log-likelihood
+		% 	% \begin{align*}
+		% 	% d(N, \lambda) := -\log L(N;\lambda) = \int_{0}^T\lambda(t)\text{d}t - \sum_{j=1}^{N(0,T]}\log \left( \lambda(t_{N,j}) \right) .
+		% 	% \end{align*}
 				
-			% {\color{blue} Justify why it is reasonable to use Poisson process. }
-			% % Also explain why this is a good measure of similarity.
-	 		% {\color{blue} See \citet{Daley} for details.}
+		% 	% {\color{blue} Justify why it is reasonable to use Poisson process. }
+		% 	% % Also explain why this is a good measure of similarity.
+	 % 		% {\color{blue} See \citet{Daley} for details.}
 
-	 	% \subsubsection*{Other possible distance}
-			% The squared error distance is defined as 
-			% \begin{align*}
-			% d(N,\lambda) := \int_0^T\lambda^2(t)\text{d} t - 2\int_0^T \lambda(t)\text{d}N(t)+?
-			% \end{align*}
+	 % 	% \subsubsection*{Other possible distance}
+		% 	% The squared error distance is defined as 
+		% 	% \begin{align*}
+		% 	% d(N,\lambda) := \int_0^T\lambda^2(t)\text{d} t - 2\int_0^T \lambda(t)\text{d}N(t)+?
+		% 	% \end{align*}
 
 
 
-	\subsection{Algorithm}
+	% \subsection{Algorithm}
 		
-		The initialization method and the choice of the number of clusters $k$ will be discussed later, for now we assume the initialization and $k$ are given.
-		To solve the problem \eqref{eq:kmeans_F}, we iterate between two steps until convergence:
-			\begin{itemize}
-				\item Re-cluster step: update the clustering 
-				$\left\{ \hat\Gamma_l \right\}_{l=1}^k$ based on the distance $d(\tilde{F}_{N_i}, \hat F_l)$ 
-				defined as 
-				\begin{align*}
-				 d(\tilde{F}_{N_i}, \hat F_l) = \min\Big\{ \inf_{\tau\in[0,T]}\left( \int_{-T}^T\big| S_\tau\circ\tilde{F}^*_{N_i}(t)-\hat F_{l}^*(t) \big|^2 \text{d}t \right)^{1/2}, \\
-				 \inf_{\tau\in[0,T]}\left( \int_{-T}^T\big| \tilde{F}^*_{N_i}(t)-S_\tau\circ\hat F_{l}^*(t) \big|^2 \text{d}t \right)^{1/2} \Big\},
-				\end{align*}
-				where
-				\begin{align}\label{eq:def of shifted curve}
-				S_\tau\circ\tilde{F}^*_{N_i}(t)=
-				\begin{cases}
-				0, &t\in[-T,-\tau)\\
-				\tilde F_{N_i}(t+ \tau), &t\in[-\tau,T-\tau)\\
-				1,& t\in [T-\tau,T]
-				\end{cases},
-				% \quad
-				\hat F_{l}^*(t)=
-				\begin{cases}
-				0, &t\in[-T,0)\\
-				\hat F_{l}(t), &t\in [0,T]
-				\end{cases}.
-				\end{align}
+	% 	The initialization method and the choice of the number of clusters $k$ will be discussed later, for now we assume the initialization and $k$ are given.
+	% 	To solve the problem \eqref{eq:kmeans_F}, we iterate between two steps until convergence:
+	% 		\begin{itemize}
+	% 			\item Re-cluster step: update the clustering 
+	% 			$\left\{ \hat\Gamma_l \right\}_{l=1}^k$ based on the distance $d(\tilde{F}_{N_i}, \hat F_l)$ 
+	% 			defined as 
+	% 			\begin{align*}
+	% 			 d(\tilde{F}_{N_i}, \hat F_l) = \min\Big\{ \inf_{\tau\in[0,T]}\left( \int_{-T}^T\big| S_\tau\circ\tilde{F}^*_{N_i}(t)-\hat F_{l}^*(t) \big|^2 \text{d}t \right)^{1/2}, \\
+	% 			 \inf_{\tau\in[0,T]}\left( \int_{-T}^T\big| \tilde{F}^*_{N_i}(t)-S_\tau\circ\hat F_{l}^*(t) \big|^2 \text{d}t \right)^{1/2} \Big\},
+	% 			\end{align*}
+	% 			where
+	% 			\begin{align}\label{eq:def of shifted curve}
+	% 			S_\tau\circ\tilde{F}^*_{N_i}(t)=
+	% 			\begin{cases}
+	% 			0, &t\in[-T,-\tau)\\
+	% 			\tilde F_{N_i}(t+ \tau), &t\in[-\tau,T-\tau)\\
+	% 			1,& t\in [T-\tau,T]
+	% 			\end{cases},
+	% 			% \quad
+	% 			\hat F_{l}^*(t)=
+	% 			\begin{cases}
+	% 			0, &t\in[-T,0)\\
+	% 			\hat F_{l}(t), &t\in [0,T]
+	% 			\end{cases}.
+	% 			\end{align}
 				
 				
-				\item Re-center step: update the expected cumulative distribution functions $\{\hat F_l\}_{l=1}^k$ using the method in \citet{Bigot2013}.
+	% 			\item Re-center step: update the expected cumulative distribution functions $\{\hat F_l\}_{l=1}^k$ using the method in \citet{Bigot2013}.
 
-			\end{itemize}
+	% 		\end{itemize}
 
-		In the re-cluster step, the distance $d(\tilde F_{N_i}, \hat F_l)$ for each pair of node $i$ and cluster $l$ is evaluated by solving the problem
-		\begin{equation}
-		\begin{aligned}\label{eq:aligned distance}
-		\hat n_{i,l}&=
-		\underset{|n|\leq (N-1)/2}{\arg\min}
-		\sum_{0<|j|\leq (N-1)/2}
-		\left| \theta_{i,j}e^{\complexunit 2\pi j n/N}+
-		\frac{e^{\complexunit{}2\pi j n/N}-1}{1-e^{\complexunit{}2\pi j /N}}
-		-\gamma_{l,j} \right|^2
-		+ \left| \theta_0+n-\gamma_0 \right|^2
-		\\
-		&=\underset{|n|\leq (N-1)/2}{\arg\min}
-		\sum_{0<|j|\leq (N-1)/2}
-		\left| \left( \theta_{i,j}+ \frac{1}{1-e^{\complexunit{}2\pi j /N}} \right) e^{\complexunit{}2\pi j n/N} 
-		- \left( \gamma_{l,j}+\frac{1}{1-e^{\complexunit{}2\pi j /N}} \right)  \right|^2 
-		+\\
-		&\hspace{11cm} \left| \theta_0+n-\gamma_0 \right|^2
-		\\
-		&\overset{\triangle}{=}
-		\underset{|n|\leq (N-1)/2}{\arg\min}\sum_{0<|j|\leq (N-1)/2}\left| \theta_{i,j}' e^{\complexunit{}2\pi j n/N} - {\gamma_{l,j}'}  \right|^2
-		+ \left| \theta_0+n-\gamma_0 \right|^2
-		,
-		\end{aligned}
-		\end{equation}
-		where $n=N\cdot\tau/2T$,
-		$\theta_{i,j}$ and $\gamma_{l,j}$,
-		$j=  -(N-1)/2,\cdots,(N-1)/2 $, are the discrete Fourier coefficients of $\tilde F^*_{N_i}$ and $\hat F^*_l$,
-		$N$ is the length of discretized version of $\tilde F^*_{N_i}$ and $\hat F^*_l$.
-		% Grid search can be used to solve problem \eqref{eq:aligned distance}.
-		\\
-		Gradient descent can be used to solve the problem. 
-		The gradient is shown below:
-		% Gradient:
-		\begin{equation}
-		\begin{split}
-		\nabla_{n_i} = \frac{4\pi}{N}\cdot 
-		\sum_{0<|j|\leq (N-1)/2} j\cdot 
-		\text{Im} \left( {\theta_{i,j}'}\overline{{\gamma_{i,j}'}}e^{\complexunit2\pi n_i j/N} \right) 
-		+ 2n_0+2 \text{Re}\left( \theta_0-\gamma_0 \right) .
-		\end{split}
-		\end{equation}
-		The learning rate was set as $0.01$, the initialization of $n_i$ was set to be the last estimated $\hat n_i$.
+	% 	In the re-cluster step, the distance $d(\tilde F_{N_i}, \hat F_l)$ for each pair of node $i$ and cluster $l$ is evaluated by solving the problem
+	% 	\begin{equation}
+	% 	\begin{aligned}\label{eq:aligned distance}
+	% 	\hat n_{i,l}&=
+	% 	\underset{|n|\leq (N-1)/2}{\arg\min}
+	% 	\sum_{0<|j|\leq (N-1)/2}
+	% 	\left| \theta_{i,j}e^{\complexunit 2\pi j n/N}+
+	% 	\frac{e^{\complexunit{}2\pi j n/N}-1}{1-e^{\complexunit{}2\pi j /N}}
+	% 	-\gamma_{l,j} \right|^2
+	% 	+ \left| \theta_0+n-\gamma_0 \right|^2
+	% 	\\
+	% 	&=\underset{|n|\leq (N-1)/2}{\arg\min}
+	% 	\sum_{0<|j|\leq (N-1)/2}
+	% 	\left| \left( \theta_{i,j}+ \frac{1}{1-e^{\complexunit{}2\pi j /N}} \right) e^{\complexunit{}2\pi j n/N} 
+	% 	- \left( \gamma_{l,j}+\frac{1}{1-e^{\complexunit{}2\pi j /N}} \right)  \right|^2 
+	% 	+\\
+	% 	&\hspace{11cm} \left| \theta_0+n-\gamma_0 \right|^2
+	% 	\\
+	% 	&\overset{\triangle}{=}
+	% 	\underset{|n|\leq (N-1)/2}{\arg\min}\sum_{0<|j|\leq (N-1)/2}\left| \theta_{i,j}' e^{\complexunit{}2\pi j n/N} - {\gamma_{l,j}'}  \right|^2
+	% 	+ \left| \theta_0+n-\gamma_0 \right|^2
+	% 	,
+	% 	\end{aligned}
+	% 	\end{equation}
+	% 	where $n=N\cdot\tau/2T$,
+	% 	$\theta_{i,j}$ and $\gamma_{l,j}$,
+	% 	$j=  -(N-1)/2,\cdots,(N-1)/2 $, are the discrete Fourier coefficients of $\tilde F^*_{N_i}$ and $\hat F^*_l$,
+	% 	$N$ is the length of discretized version of $\tilde F^*_{N_i}$ and $\hat F^*_l$.
+	% 	% Grid search can be used to solve problem \eqref{eq:aligned distance}.
+	% 	\\
+	% 	Gradient descent can be used to solve the problem. 
+	% 	The gradient is shown below:
+	% 	% Gradient:
+	% 	\begin{equation}
+	% 	\begin{split}
+	% 	\nabla_{n_i} = \frac{4\pi}{N}\cdot 
+	% 	\sum_{0<|j|\leq (N-1)/2} j\cdot 
+	% 	\text{Im} \left( {\theta_{i,j}'}\overline{{\gamma_{i,j}'}}e^{\complexunit2\pi n_i j/N} \right) 
+	% 	+ 2n_0+2 \text{Re}\left( \theta_0-\gamma_0 \right) .
+	% 	\end{split}
+	% 	\end{equation}
+	% 	The learning rate was set as $0.01$, the initialization of $n_i$ was set to be the last estimated $\hat n_i$.
 		
 
 
-		In the re-center step, let $\left\{ \theta_{i,j} \right\}_{j\in \mathbb{Z}}$ and $S_\tau\circ\tilde{F}^*_{N_i}(t)$ be defined the same as above.
-		The Fourier coefficients of $S_\tau\circ\tilde{F}^*_{N_i}(t)$ are
-		\begin{align*}
-		\theta_{i,j}e^{\complexunit 2\pi j n/N}+
-		\frac{1}{1-e^{\complexunit{}2\pi j /N}}
-		\left( e^{\complexunit{}2\pi j n/N}-1 \right) 
-		\overset{\triangle}{=}
-		\theta_{i,j}' e^{\complexunit{}2\pi j n/N}-C. 
-		\end{align*}
-		Then
-		$\left\{ \hat \tau_i \right\}_{i=1}^n = \left\{ \hat n_i\cdot 2T/N \right\}_{i=1}^n$ can be obtained by 
-		\begin{align*}
-		\left\{ \hat n_i \right\}_{i\in\Gamma_l} &= 
-		\underset{\min_{i\in\Gamma_l} \left\{ n_i \right\}=0}{\arg\min}
-		\frac{1}{|\Gamma_l|}
-		\sum_{i\in\Gamma_l}
-		\sum_{j=1}^N 
-		\left| 
-		\theta_{i,j}' e^{\complexunit{}2\pi j n_i/N} -
-		\frac{1}{|\Gamma_l|}\sum_{i'\in\Gamma_l}\theta_{i',j}' e^{\complexunit{}2\pi j n_{i'}/N}  
-		\right|^2 
-		.
-		\end{align*}
-		Using gradient descent over all $\left\{ n_i \right\}_{i\in\Gamma_l}$ is expensive, thus we adopt the following two-step estimation procedure:
-		\begin{itemize}
-			\item Estimate the mean distribution function $\hat F^*_l(t)$.
-			\item Estimate $\left\{ \hat n_i \right\}_{i\in\Gamma_l}$ by aligning each $\tilde F^*_{N_i}(t) $ with $\hat F^*_l(t)$.
-		\end{itemize}
-		The initialization of $\hat F^*_l(t)$ can be any randomly chosen $\tilde F^*_{N_i}(t) $.
+	% 	In the re-center step, let $\left\{ \theta_{i,j} \right\}_{j\in \mathbb{Z}}$ and $S_\tau\circ\tilde{F}^*_{N_i}(t)$ be defined the same as above.
+	% 	The Fourier coefficients of $S_\tau\circ\tilde{F}^*_{N_i}(t)$ are
+	% 	\begin{align*}
+	% 	\theta_{i,j}e^{\complexunit 2\pi j n/N}+
+	% 	\frac{1}{1-e^{\complexunit{}2\pi j /N}}
+	% 	\left( e^{\complexunit{}2\pi j n/N}-1 \right) 
+	% 	\overset{\triangle}{=}
+	% 	\theta_{i,j}' e^{\complexunit{}2\pi j n/N}-C. 
+	% 	\end{align*}
+	% 	Then
+	% 	$\left\{ \hat \tau_i \right\}_{i=1}^n = \left\{ \hat n_i\cdot 2T/N \right\}_{i=1}^n$ can be obtained by 
+	% 	\begin{align*}
+	% 	\left\{ \hat n_i \right\}_{i\in\Gamma_l} &= 
+	% 	\underset{\min_{i\in\Gamma_l} \left\{ n_i \right\}=0}{\arg\min}
+	% 	\frac{1}{|\Gamma_l|}
+	% 	\sum_{i\in\Gamma_l}
+	% 	\sum_{j=1}^N 
+	% 	\left| 
+	% 	\theta_{i,j}' e^{\complexunit{}2\pi j n_i/N} -
+	% 	\frac{1}{|\Gamma_l|}\sum_{i'\in\Gamma_l}\theta_{i',j}' e^{\complexunit{}2\pi j n_{i'}/N}  
+	% 	\right|^2 
+	% 	.
+	% 	\end{align*}
+	% 	Using gradient descent over all $\left\{ n_i \right\}_{i\in\Gamma_l}$ is expensive, thus we adopt the following two-step estimation procedure:
+	% 	\begin{itemize}
+	% 		\item Estimate the mean distribution function $\hat F^*_l(t)$.
+	% 		\item Estimate $\left\{ \hat n_i \right\}_{i\in\Gamma_l}$ by aligning each $\tilde F^*_{N_i}(t) $ with $\hat F^*_l(t)$.
+	% 	\end{itemize}
+	% 	The initialization of $\hat F^*_l(t)$ can be any randomly chosen $\tilde F^*_{N_i}(t) $.
 
-		% gradient:
-		% \begin{align*}
-		%  \frac{\partial L}{\partial \tau_i} = 
-		%  \frac{1}{|\Gamma_l|^2}
-		%  \sum_{|j|\leq m} 4\pi j
-		%  \left( 
-		%  	\text{Im}\left( \theta_{i,j}' e^{\complexunit{}2\pi j \tau_i}\cdot\overline{A_j}\right)+
-		%  	\left(\frac{1}{|\Gamma_l|}-2\right) \text{Im}(A_j)\cdot 2 \text{Re}\left( \theta_{i,j}' e^{\complexunit{}2\pi j \tau_i}   \right) 
-		%  \right) ,
-		%  \end{align*}
-		%  where $A_j=\frac{1}{|\Gamma_l|}\sum_{i\in\Gamma_l}\theta_{i,j}'e^{\complexunit{}2\pi j \tau_i} $.
+	% 	% gradient:
+	% 	% \begin{align*}
+	% 	%  \frac{\partial L}{\partial \tau_i} = 
+	% 	%  \frac{1}{|\Gamma_l|^2}
+	% 	%  \sum_{|j|\leq m} 4\pi j
+	% 	%  \left( 
+	% 	%  	\text{Im}\left( \theta_{i,j}' e^{\complexunit{}2\pi j \tau_i}\cdot\overline{A_j}\right)+
+	% 	%  	\left(\frac{1}{|\Gamma_l|}-2\right) \text{Im}(A_j)\cdot 2 \text{Re}\left( \theta_{i,j}' e^{\complexunit{}2\pi j \tau_i}   \right) 
+	% 	%  \right) ,
+	% 	%  \end{align*}
+	% 	%  where $A_j=\frac{1}{|\Gamma_l|}\sum_{i\in\Gamma_l}\theta_{i,j}'e^{\complexunit{}2\pi j \tau_i} $.
 
-		Finally, the mean distribution function is estimated as the average of shifted empirical distribution functions.		  
-
-
-
-		\subsubsection*{Initialization}
-			The k-means++ method is applied for choosing initial mean curves.
-
-		\subsubsection*{Choosing $k$}
-			
+	% 	Finally, the mean distribution function is estimated as the average of shifted empirical distribution functions.		  
 
 
 

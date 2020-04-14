@@ -10,123 +10,118 @@ sapply(file.sources, source)
 total_time = 50
 time_unit = 0.05
 t = seq(0, total_time, 0.05)
-pp = TRUE
 
-r = results3[[1]]
+r = results2[[1]]
 
-f_list = r$f_list
-f_center_list = r$f_center_list
-clusters = r$clusters
-# clusters = r$clusters_old
-n0_mat = r$n0_mat
-dist_mat = r$dist_mat
-n0_vec = r$n0_vec
 network = r$network
 edge_time_mat = network$edge_time_mat
-nodes_mat = network$nodes_mat
-pdf_list = network$pdf_list
-membership_true = network$membership_true
+node_loc_mat = network$node_loc_mat
 tau_vec = network$tau_vec
+tau_mat = network$tau_mat
+true_pdf_fun_list = network$true_pdf_fun_list
+membership_true = network$membership_true
+t_vec = network$t_vec
+dist_thres = network$dist_thres
+pairwise_dist = network$pairwise_dist
+
+clusters_true = mem2clus(membership_true)
 
 
-membership_est = unlist(clusters)
-for (j in 1:length(clusters)) {
-  membership_est[clusters[[j]]] = j
-}
+clus_result = r$clus_result
+clusters_est = clus_result$clusters
+center_pdf_array = clus_result$center_pdf_array
+clusters_specc = clus_result$clusters_specc
+clusters_specc_exaclus = clus_result$clusters_specc_exaclus
+
+membership_est = clus2mem(clusters_est)
+membership_specc = clus2mem(clusters_specc)
+membership_specc_exaclus = clus2mem(clusters_specc_exaclus)
+
+
 
 par(mar=c(2.5,2.5,.5,.5))
 
 # ARI ---------------------------------------------------------------------
 
-
-plot_jitter_boxplot(ARI=c(ARI3_old, ARI3),group=c(rep('',length(ARI3_old)),rep('cont.cluster',length(ARI3))))
-plot_jitter_boxplot(ARI3_cont)
-
-membership_true1 = results1[[1]]$network$membership_true
-ARI1 = get_ARI(membership_true1, results1, length(membership_true1))
-
-
-membership_true2 = results2[[1]]$network$membership_true
-ARI2 = get_ARI(membership_true2, results2, length(membership_true2))
-ARI2_old = get_ARI(membership_true2, results2, length(membership_true2), clusters_old = TRUE)
-
-
-
-membership_true3 = results3[[1]]$network$membership_true
-ARI3 = get_ARI(membership_true3, results3, length(membership_true3))
-ARI3_old = get_ARI(membership_true3, results3, length(membership_true3), clusters_old = TRUE)
-ARI3_cont = get_ARI(membership_true3, results3_cont, length(membership_true3))
-
-
-
-membership_true4 = results4[[1]]$network$membership_true
-ARI4 = get_ARI(membership_true4, results4, length(membership_true4))
-
-
-# plot center_pdf_array ------------------------------------------
-
-
-plot(cmdscale(dist_mat), pch=membership_true, col=membership_est)
-plot_pattern_matrix(clusters, edge_time_mat, n0_mat) # plot_center_pdf_array
-
-
-# over-cluster
-k=6
-W = exp(-dist_mat^2/median(dist_mat)^2)
-membership_overclus = spectral_clustering(W, k)
-plot(cmdscale(dist_mat), pch=membership_true, col=membership_overclus)
-
-clusters_overclus = list()
-for (i in 1:k) {
-  clusters_overclus[[i]] = which(membership_overclus==i)
-}
-
-# merge clusters, and plot clustering result in 2D plot.
-clusters_merged = merge_clusters(clusters_overclus, edge_time_mat, n0_mat, 3)
-
-membership_merged = unlist(clusters_merged)
-for (j in 1:length(clusters_merged)) {
-  membership_merged[clusters_merged[[j]]] = j
-}
-plot(cmdscale(dist_mat), pch=membership_true, col=membership_merged)
-
-
-plot_pattern_matrix(clusters_overclus, edge_time_mat, n0_mat)
-plot_pattern_matrix(clusters_merged, edge_time_mat, n0_mat)
-
-
-# compare exact-clustering results and over-clustering results ---------------------------------------------------
-
-k_trueclus = 3
-k_overclus = 6
-results = results3
-ARI = ARI3
+results = results2
 
 membership_true = results[[1]]$network$membership_true
+clusters_list = lapply(results, function(x)x$clus_result$clusters)
+ARI = get_ARI(membership_true, clusters_list)
 
-results_merge = vector("list", length(results)) 
-for (i in 1:length(results)) {
-  dist_mat = results[[i]]$dist_mat
-  edge_time_mat = results[[i]]$network$edge_time_mat
-  n0_mat = results[[i]]$n0_mat
-  
-  W = exp(-dist_mat^2/median(dist_mat)^2)
-  membership_overclus = spectral_clustering(W, k_overclus)
-  
-  clusters_overclus = list()
-  for (j in 1:k_overclus) {
-    clusters_overclus[[j]] = which(membership_overclus==j)
+clusters_list_specc = lapply(results, function(x)x$clus_result$clusters_specc)
+ARI_specc = get_ARI(membership_true, clusters_list_specc)
+
+clusters_list_specc_exaclus = lapply(results, function(x)x$clus_result$clusters_specc_exaclus)
+ARI_specc_exact = get_ARI(membership_true, clusters_list_specc_exaclus)
+
+plot_jitter_boxplot(ARI=c(ARI_specc, ARI_specc_exact, ARI),
+                    group=c(rep('spec (k=5) and merge',length(ARI_specc)),
+                            rep('spec (k=3)',length(ARI_specc_exact)), 
+                            rep('spec and k-means',length(ARI))) )
+
+
+
+
+# Show estimated center_pdf_array (for one subject) ------------------------------------------
+
+# need to find permutation of clusters that matches the est_pdf_array and true_pdf_array
+
+pdf_true_array = fun2pdfarray(true_pdf_fun_list, tau_mat, membership_true)
+plot_pdf_array(center_pdf_array, pdf_true_array)
+
+
+
+# Confidence band of center_pdf_array -------------------------------------
+
+results = results2
+pdf_true_array = fun2pdfarray(results[[1]]$network$true_pdf_fun_list, 
+                              results[[1]]$network$tau_mat, results[[1]]$network$membership_true)
+pdf_array_list = lapply(results, function(r)r$clus_result$center_pdf_array)
+clusters_list = lapply(results, function(x)x$clus_result$clusters)
+
+# permutate clusters and pdf_array's for each subject
+res = match_clusters(clusters_list = clusters_list, pdf_array_list = pdf_array_list, 
+                     pdf_true_array = pdf_true_array)
+clusters_list = res$clusters_list
+pdf_array_list = res$pdf_array_list
+
+
+alpha = 0.05
+N_clus = dim(pdf_true_array)[1]
+pdf_upper_array = array(dim = dim(pdf_true_array))
+pdf_lower_array = array(dim = dim(pdf_true_array))
+for (q in 1:N_clus) {
+  for (l in 1:N_clus) {
+    ql_pdf_mat = sapply(pdf_array_list, function(x)x[q,l,]) # len(t_vec)*n
+    pdf_upper_array[q,l,] = apply(ql_pdf_mat, 1, quantile, 1-alpha/2)
+    pdf_lower_array[q,l,] = apply(ql_pdf_mat, 1, quantile, alpha/2)
   }
-  results_merge[[i]] = list(clusters=merge_clusters(clusters_overclus, edge_time_mat, n0_mat, k_trueclus))
 }
 
-ARI_merge = get_ARI(membership_true, results_merge)
-jitter_boxplot(c(ARI, ARI_merge), group = c(rep(paste('k=',k_trueclus,sep=''),length(ARI)),rep(paste('k=',k_overclus,' and merge',sep=''),length(ARI_merge))))
-
-# plot(ARI, ARI_merge,xlim=c(0,1),ylim=c(0,1))
-# abline(a=0,b=1,col='red')
+plot_pdf_array(pdf_upper_array, pdf_true_array = pdf_true_array, pdf_array_2 = pdf_lower_array)
 
 
+
+# Explain over-clustering -------------------------------------------------
+
+par(mar=c(0,0,0,0))
+
+X = cmdscale(dist_mat, k=4)
+tmp = tsne::tsne(X, k=2)
+tsne.2->tmp
+
+plot(tmp)
+plot(tmp, pch=membership_true, col=membership_specc_exaclus)
+plot(tmp, pch=membership_true, col=membership_overclus)
+plot(tmp, pch=membership_true, col=membership_specc)
+
+tmp->tsne.2
+
+
+
+
+# Explain node types --------------------------------------------------
 
 
 
@@ -134,11 +129,6 @@ jitter_boxplot(c(ARI, ARI_merge), group = c(rep(paste('k=',k_trueclus,sep=''),le
 
 # Plot nodes locations with cluster results -------------------------------
 
-
-membership_est = unlist(clusters)
-for (j in 1:length(clusters)) {
-  membership_est[clusters[[j]]] = j
-}
 
 
 { radius_thres1 = 2
@@ -181,36 +171,4 @@ for (j in 1:length(clusters)) {
   # points( y_center+radius_thres1*sin(angel), x_center+radius_thres1*cos(angel), cex=0.1, col='darkgray')
 }
 
-# plot estimated mean pdf’s with true pdf's -------------------------------
-
-n0_vec = rep(0, length(f_list))
-for (i in 1:length(clusters)) {
-  n0_vec[clusters[[i]]] = n0_mat[clusters[[i]], clusters[[i]][1]] - min(n0_mat[clusters[[i]], clusters[[i]][1]])
-}
-res = re_center_gd(f_list, clusters, n0_vec=n0_vec, 0.02, pp=pp)
-f_center_list = res$f_center_list
-n0_vec  = res$n0_vec
-
-for (l in 1:length(clusters)) {
-  f_center = f_center_list[[l]]
-
-  if (pp)   {
-    pdf_center = tail(f_center,length(t))
-    plot(t, pdf_center, col = 'red', type='l', xlim = c(0,50), ylim=c(0,.4))
-  }
-  else   {
-    pdf_center = obtain_pdf(tail(f_center,length(t)), t, bw=1)$density
-    plot(pdf_center, col = 'red', xlim = c(0,50), ylim=c(0,.4), main = '')
-  }
-  
-  for (i in (clusters[[l]])) {
-    lines(t, shift(pdf_list[[i]], n0_vec[i], pad=0))
-  }
-  
-  if (pp) lines(t, pdf_center, col = 'red', xlim = c(0,50), ylim=c(0,.4))
-  else lines(pdf_center, col = 'red', xlim = c(0,50), ylim=c(0,.4))
-}
-
-  
-#   -----------------------------------------------------------------------
 

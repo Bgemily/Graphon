@@ -1,6 +1,6 @@
 
 # compute distance between two pdf_array
-get_dist_betw_pdfarray = function(pdf_array_1, pdf_array_2, symmetric=FALSE, weights=NA){ 
+get_dist_betw_pdfarray = function(pdf_array_1, pdf_array_2, symmetric=FALSE, weights=NULL){ 
   if(symmetric){
     ### assuming the connecting pattern matrix is symmetric and square. Used for brute-force search of permutation.
     dist = 0
@@ -29,9 +29,9 @@ get_dist_betw_pdfarray = function(pdf_array_1, pdf_array_2, symmetric=FALSE, wei
       }
     }
     
-    if(is.na(weights)) dist = mean(dist_mat)
+    if(is.null(weights)) dist = mean(dist_mat)
     else dist = sum(dist_mat*weights)
-    
+
     return(list(dist = dist, n0_mat = n0_BetwSubj_mat))
   }
   

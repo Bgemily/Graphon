@@ -9,7 +9,7 @@ get_center_pdf_array_mulsubj = function(edge_time_mat_list, clusters_list, n0_ve
   pdf_array = array(dim=c(N_clus, N_clus, length(t_vec)))
   for (i in 1:N_clus) {
     for (j in 1:N_clus) {
-      tmp = function(edge_time_mat, clusters) edge_time_mat[clusters[[i]], clusters[[j]]]
+      tmp = function(edge_time_mat, clusters) edge_time_mat[clusters[[i]], clusters[[j]], drop=F]
       edge_time_submat_list = mapply(tmp, edge_time_mat_list, clusters_list, SIMPLIFY = FALSE)
       
       tau_i_vec_list = mapply(function(n0_vec, clusters) time_unit * n0_vec[clusters[[i]]], n0_vec_list, clusters_list, SIMPLIFY = FALSE)

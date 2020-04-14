@@ -1,4 +1,4 @@
-gener_edge_time_mat = function(pdfNrdsamp_fun_list, tau_mat, clus_true, clus_size_vec, pairwise_dist, dist_thres) { # need to add seed?
+gener_edge_time_mat = function(pdfNrdsamp_fun_list, tau_mat, clus_true, clus_size_vec, pairwise_dist, dist_thres, t_max=50) { # need to add seed?
   if (!isSymmetric(tau_mat))
     stop('tau_mat should be symmetric.')
   
@@ -15,6 +15,8 @@ gener_edge_time_mat = function(pdfNrdsamp_fun_list, tau_mat, clus_true, clus_siz
   edge_time_mat[lower.tri(edge_time_mat)] = t(edge_time_mat)[lower.tri(edge_time_mat)] # make it symmetric
   edge_time_mat = edge_time_mat + tau_mat # add time shifts 
   edge_time_mat[pairwise_dist>dist_thres] = Inf # nodes too far away from each other cannot be connected
+  
+  edge_time_mat[edge_time_mat>t_max] = Inf
   
   if (!isSymmetric(edge_time_mat))
     stop("Constructed edge_time_mat is not symmetric.")

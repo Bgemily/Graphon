@@ -1,16 +1,39 @@
 
 # match clusters so that *clusters are of the same order* across subjects
-match_clusters = function(edge_time_mat_list, clusters_list, n0_vec_list, t_vec=seq(0, 50, 0.05), bw=1){
+match_clusters = function(edge_time_mat_list=NULL, clusters_list, n0_vec_list=NULL, pdf_array_list=NULL, pdf_true_array=NULL, t_vec=seq(0, 50, 0.05), bw=1){
   N_subj = length(clusters_list)
   
   if (N_subj==1) return(clusters_list)
   
-  pdf_array_list = mapply(get_center_pdf_array, edge_time_mat_list, clusters_list, n0_vec_list, list(t_vec), list(bw), SIMPLIFY = FALSE)  
-  
-  for (s in 2:N_subj) {
-    permn = find_permn(pdf_array_1=pdf_array_list[[1]], pdf_array_2=pdf_array_list[[s]])$permn
-    clusters_list[[s]] = clusters_list[[s]][permn]
+  if (is.null(pdf_array_list))
+    pdf_array_list = mapply(get_center_pdf_array, edge_time_mat_list, clusters_list, n0_vec_list, list(t_vec), list(bw), SIMPLIFY = FALSE)  
+  if (is.null(pdf_true_array)){
+    # warning: have not consider the case that pdf_array_list[[1]] has *less N_clus* than others, 
+    # or pdf_array_list[[1]] is not a good estimate of pdf_true_array
+    pdf_true_array = pdf_array_list[[1]] # use the first pdf_array as standard 
   }
   
-  return(clusters_list)
+  
+  # Make all pdf_array have the same size as pdf_true_array
+  subj_id = which(lapply(pdf_array_list, function(x)dim(x)[1]) < dim(pdf_true_array)[1])
+  if (length(subj_id)>0){
+    for (i in subj_id) {
+      pdf_array = pdf_array_list[[i]]
+      tmp = array(0, dim(pdf_true_array))
+      tmp[1:dim(pdf_array)[1], 1:dim(pdf_array)[2], ] = pdf_array
+      pdf_array_list[[i]] = tmp
+    }
+  }
+  
+  
+  # find permutations
+  permn_list = list() 
+  for (s in 1:N_subj) {
+    permn = find_permn(pdf_array_1=pdf_true_array, pdf_array_2=pdf_array_list[[s]])$permn
+    clusters_list[[s]] = clusters_list[[s]][permn]
+    permn_list[[s]] = permn
+    pdf_array_list[[s]] = pdf_array_list[[s]][permn, permn, ]
+  }
+  
+  return(list(clusters_list=clusters_list, permn_list=permn_list, pdf_array_list=pdf_array_list))
 }
