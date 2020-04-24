@@ -19,7 +19,7 @@ where $\mathbf{C}\in [0,1]^{k\times k}$ denotes the  connecting probability matr
 
 
 
-\subsection{Dynamic generalization of the stochastic block model}
+\subsection{Dynamic stochastic block model for point processes}
 % Things to be written in this section:
 % Assume that the edges will not disappear once constructed,
 
@@ -27,68 +27,113 @@ where $\mathbf{C}\in [0,1]^{k\times k}$ denotes the  connecting probability matr
 % For convenience, we denote $N_{i,\cdot}(\cdot)$ by $N_i(\cdot)$, and $\lambda_{i,\cdot}(\cdot)$ by $\lambda_{N_i}(\cdot)$. 
 
 
-In a growing network where the edges appear over time, 
-the edge between a pair of nodes $i$ and $j$ can be represented by $N_{i,j}(\cdot)$ with intensify function
+We consider a developing network where pairwise connections between $n$ nodes are observed during time interval $[0,T]$.
+Each node belongs to one of $k$ groups denoted by $\Gamma_1, \cdots, \Gamma_k$, and the membership for node $i$ is denoted by $z_i$.
+We assume that the connection between nodes are completely determined by their group memberships.
+Specifically, the connection between node $i$ and $j$ is modeled by a point process $N_{i,j}(\cdot)$ with intensity function
 \begin{align*}
-\lambda_{i,j}(t)=\lambda_{z_i,z_j}(t), \qquad t\in[0,T],\quad i,j=1,\cdots,n, 
+\lambda_{i,j}(t) = \lambda_{z_i,z_j}(t), 
+\qquad t\in[0,T],\quad i,j=1,\cdots,n, 
 \end{align*}
-where $[0,T]$ is overall time period,
-$\lambda_{z_i,z_j}(\cdot)$ is the connecting intensity function between cluster $z_i$ and $z_j$. 
 Similar to the stochastic block model, we set $\lambda_{i,i}(\cdot)\equiv 0$ for $i=1,\cdots,n$.
 % Add more rigorous definition of point process and intensity function.
 
 
-In practice, there are usually more restrictions to the network. 
-Motivated by the neuronal network (see \cite{Wan2019} for detail) where neurons become active in different time and only connect with neighbor neurons, we incorporate the time delay and spatial location of each node and propose the following model:
+\subsubsection*{Objective function}
+
+We propose the following least-square loss function that measures the overall distance between the observed connection distributions and the true ones for each pair of clusters
+
+\begin{align}
+	\min_{\{\Gamma_q\}_{q\in[k]}, \{f_{q,l}\}_{q,l\in[k]}} 
+	\sum_{q,l\in[k]}
+	w_{q,l}\cdot
+	d^2(N_{\Gamma_q, \Gamma_l}, f_{q,l}),
+	\label{eq: objective function}
+\end{align}
+where $w_{q,l}$ is the weight associated with connection between cluster $\Gamma_q$ and $\Gamma_l$, $N_{\Gamma_q, \Gamma_l}(\cdot)=\sum_{i\in\Gamma_q,j\in\Gamma_l}N_{i,j}(\cdot)$ is the aggregated point process representing connection between $\Gamma_q$ and $\Gamma_l$. 
+The distance $d(N, f)$ is defined as
 \begin{align*}
-\lambda_{i,j}(t)
-=\lambda_{z_i,z_j}(t-\tau_{i,j})
-\cdot \mathbf{1}_{\left\{ d_{i,j}\leq d^* \right\}}, 
-\qquad t\in[0,T],\quad i,j=1,\cdots,n, 
+d(N, f) = d(F_N, F) = \left( \int |F_N(t) - F(t)|^2 \text{d}t \right) ^{1/2}.
 \end{align*}
-where $T$ and $\lambda_{z_i,z_j}$ is defined as before, $\tau_{i,j}$ is the time delay caused by both node $i$ and node $j$, $d_{i,j}$ is the spatial distance between node $i$ and $j$, and the node $i$ and $j$ can be connected only if $d_{i,j}\leq d^*$.
-\\
-For the convenience of estimation, we make the following assumptions.
-\begin{assumption}\label{asp:time lag}
-$\tau_{i,j}$ only depends on node $i$, that is,
-$\tau_{i,j}=\tau_i $ for all $j\neq i, i=1,\cdots,n$.
-\end{assumption}
-% This also makes sense in practice because [XXX].
+where $F_N$ is the empirical cumulative distribution function of the point process $N(\cdot)$, and $F$ is the cumulative distribution function corresponding to $f$.
 
 
-\noindent With Assumption \ref{asp:time lag}, 
-we may consider the integrated point process ${N}_{i}(\cdot):=\sum_{j\neq i}N_{i,j}(\cdot)$
-and write its intensity function as
+
+\subsubsection*{Incorporating time delay and spatial information}
+There are additional challenges arose in real problems.
+In the neuronal network, neurons have different active time, and only connect with neurons near them.
+To incorporate such restrictions, we assume the intensity functions take the following form
 \begin{align*}
-\lambda_{N_i}(t) &= \sum_{l=1}^k \left( \lambda_{z_i,l}(t-\tau_i)\cdot \sum_{j\in\Gamma_l,j\neq i}\mathbf{1}_{\left\{ d_{i,j}\leq d^* \right\}} \right) \\
-&=: \sum_{l=1}^k  \lambda_{z_i,l}(t-\tau_i)\cdot w_{i,l}.
+\lambda_{i,j}(t) = \lambda_{z_i,z_j}(t-\tau_{i,j})\cdot \mathbf{1}_{\{d_{i,j}\leq d^*\}}, 
+\quad t\in[0,T], \quad i,j=1,\cdots,n,
 \end{align*}
-Here $w_{i,l}$ is the number of nodes from cluster $l$ that is in the neighborhood of node $i$.
+here $\lambda_{z_i,z_j}$ is extend by zero outside $[0,T]$.
 
-\noindent We also assume that the nodes are distributed uniformly in the sense that $w_{i,l}$ and $w_{j,l}$ are identically distributed for any nodes $i, j$ from the same cluster.
-More formally, we have the following assumption.
+With this model, we can adapt our objective function \eqref{eq: objective function} as
+\begin{align}
+	\min_{\substack{\{\Gamma_q\}_{q\in[k]},\\ \{f_{q,l}\}_{q,l\in[k]},\\ \{\tau_{i,j}\}_{i,j\in[n]}}} 
+	\sum_{q,l\in[k]}
+	w_{q,l}\cdot
+	\tilde d^2(\tilde N_{\Gamma_q, \Gamma_l}, f_{q,l}),
+	\label{eq: objective function 2}
+\end{align}
+where $\tilde N_{\Gamma_q, \Gamma_l}(\cdot)=\sum_{i\in\Gamma_q,j\in\Gamma_l}N_{i,j}(\cdot+\tau_{i,j})$ is the point process between cluster $\Gamma_q$ and $\Gamma_l$ after aligning all events by their time delays, and the distance function $\tilde d$ is the shift-invariant version of $d$ defined as
+\begin{align*}
+\tilde d(N, f) = \tilde d(F_N, F) = \inf_{\tau} \left( \int |F_N(t-\tau) - F(t)|^2 \text{d}t \right) ^{1/2},
+\end{align*}
+For notation convenience, we will use $d$ to represent this distance function in the rest of this paper.
 
-\begin{assumption}\label{asp:same distr}
-For any $l=1,\cdots,k$, $\left\{ w_{i,l} \right\}_{i\in\Gamma_l}$ are i.i.d. with mean $\bar w_{z_i,l}$ and variance $\sigma^2<\infty$.
-% $w_{i,l}=\bar w_{z_i,l}+\epsilon_{i,l}$ where $\left\{ \epsilon_{i,l} \right\}_{i\in\Gamma_l,l=1,\cdots,k}$ are i.i.d. random variables with mean $0$ and variance $\sigma^2<\infty$.
-\end{assumption}
-\noindent
-By Assumption \ref{asp:same distr},
-$\lambda_{N_i}(t+\tau_i)\overset{d}{=}\lambda_{N_j}(t+\tau_j)$ for node $i,j$ with $z_i=z_j$.
-And hence we can define the mean intensify function for each group $\lambda_l(t)\overset{\triangle}{=}\mathbb{E}\lambda_{N_i}(t+\tau_i),i\in\Gamma_l$.
-% for node $i,j$ in the cluster $l$ (i.e. $z_i=z_j=l$).
-We aim at estimating the clusters $\mathbf{z}$, the mean intensity functions $\left\{ \lambda_{l}(\cdot) \right\}_{l=1}^k$, and the time delays $\left\{ \tau_i \right\}_{i=1}^n$.
 
-% \subsubsection*{Minor comments}
 
-% Hoeffding's inequality might be useful later. (If $\epsilon_{1},\cdots,\epsilon_d\overset{i.i.d}{\sim}\text{sub-G}(\tau_0)$ and $\mathbb{E}\epsilon_{i}=0$, then $\mathbb{P}(\langle a,\epsilon\rangle\geq t)\leq \exp \left\{ -t^2/(2\|a\|_2^2\tau_0^2) \right\}$ for any $a\in \mathbb{R}^d$.)
 
-% Let $\mathbf{F}_{k\times k} = [f_{q,l}(\cdot)]_{q,l\in \left\{ 1,\cdots,k \right\}}$, $\mathbf W_{n\times k} = [w_{i,l}]_{i\in \left\{ 1,\cdots,n \right\}, l\in \left\{ 1,\cdots,k \right\}}$, $\mathbf{Z}\in \left\{ 0,1 \right\}^{n\times k}$ with $\mathbf Z_{i,l}=1$ if $z_i=l$ and $0$ otherwise. Then
+
+
+
+
+% \subsection*{Previous writing}
+
+% In practice, there are usually more restrictions to the network. 
+% Motivated by the neuronal network (see \cite{Wan2019} for detail) where neurons become active in different time and only connect with neighbor neurons, we incorporate the time delay and spatial location of each node and propose the following model:
 % \begin{align*}
-% \begin{bmatrix}
-% \lambda_{N_1}(\cdot+\tau_1)\\
-% \vdots\\
-% \lambda_{N_n}(\cdot+\tau_n)
-% \end{bmatrix}=\text{diag}\left( \mathbf{ZFW}^\top \right) .
+% \lambda_{i,j}(t)
+% =\lambda_{z_i,z_j}(t-\tau_{i,j})
+% \cdot \mathbf{1}_{\left\{ d_{i,j}\leq d^* \right\}}, 
+% \qquad t\in[0,T],\quad i,j=1,\cdots,n, 
 % \end{align*}
+% where $T$ and $\lambda_{z_i,z_j}$ is defined as before, $\tau_{i,j}$ is the time delay caused by both node $i$ and node $j$, $d_{i,j}$ is the spatial distance between node $i$ and $j$, and the node $i$ and $j$ can be connected only if $d_{i,j}\leq d^*$.
+% \\
+% For the convenience of estimation, we make the following assumptions.
+% \begin{assumption}\label{asp:time lag}
+% $\tau_{i,j}$ only depends on node $i$, that is,
+% $\tau_{i,j}=\tau_i $ for all $j\neq i, i=1,\cdots,n$.
+% \end{assumption}
+% % This also makes sense in practice because [XXX].
+
+
+% \noindent With Assumption \ref{asp:time lag}, 
+% we may consider the integrated point process ${N}_{i}(\cdot):=\sum_{j\neq i}N_{i,j}(\cdot)$
+% and write its intensity function as
+% \begin{align*}
+% \lambda_{N_i}(t) &= \sum_{l=1}^k \left( \lambda_{z_i,l}(t-\tau_i)\cdot \sum_{j\in\Gamma_l,j\neq i}\mathbf{1}_{\left\{ d_{i,j}\leq d^* \right\}} \right) \\
+% &=: \sum_{l=1}^k  \lambda_{z_i,l}(t-\tau_i)\cdot w_{i,l}.
+% \end{align*}
+% Here $w_{i,l}$ is the number of nodes from cluster $l$ that is in the neighborhood of node $i$.
+
+% \noindent We also assume that the nodes are distributed uniformly in the sense that $w_{i,l}$ and $w_{j,l}$ are identically distributed for any nodes $i, j$ from the same cluster.
+% More formally, we have the following assumption.
+
+% \begin{assumption}\label{asp:same distr}
+% For any $l=1,\cdots,k$, $\left\{ w_{i,l} \right\}_{i\in\Gamma_l}$ are i.i.d. with mean $\bar w_{z_i,l}$ and variance $\sigma^2<\infty$.
+% % $w_{i,l}=\bar w_{z_i,l}+\epsilon_{i,l}$ where $\left\{ \epsilon_{i,l} \right\}_{i\in\Gamma_l,l=1,\cdots,k}$ are i.i.d. random variables with mean $0$ and variance $\sigma^2<\infty$.
+% \end{assumption}
+% \noindent
+% By Assumption \ref{asp:same distr},
+% $\lambda_{N_i}(t+\tau_i)\overset{d}{=}\lambda_{N_j}(t+\tau_j)$ for node $i,j$ with $z_i=z_j$.
+% And hence we can define the mean intensify function for each group $\lambda_l(t)\overset{\triangle}{=}\mathbb{E}\lambda_{N_i}(t+\tau_i),i\in\Gamma_l$.
+% % for node $i,j$ in the cluster $l$ (i.e. $z_i=z_j=l$).
+% We aim at estimating the clusters $\mathbf{z}$, the mean intensity functions $\left\{ \lambda_{l}(\cdot) \right\}_{l=1}^k$, and the time delays $\left\{ \tau_i \right\}_{i=1}^n$.
+
+
+
+
 

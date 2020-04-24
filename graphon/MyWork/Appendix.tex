@@ -4,23 +4,219 @@
 
 \section{Appendix section}\label{app}
 
+\subsection{Derivation of distance between pdfs and cdfs}
+Suppose a pdf $f$ is defined on $[0,T]$.
+Extend $f$ by zero to $[-T,0]$, and define the shifted pdf $S_\tau \circ f(\cdot)$ by 
+
+\begin{align}\label{eq:def of shifted curve}
+	S_\tau\circ f(t)=
+	\begin{cases}
+	0, &t\in[-T,-\tau)\\
+	f(t+ \tau), &t\in[-\tau,T-\tau)\\
+	0,& t\in [T-\tau,T]
+	\end{cases}.
+\end{align}
+
+Suppose the extended $f$ (defined on $[-T,T]$) is represented by $X_{-(N-1)/2},\cdots,X_{(N-1)/2}$, the Fourier coefficients are
+\begin{align*}
+	\theta_j = \sum_{k=\frac{-(N-1)}{2}}^{\frac{N-1}{2}} X_k \cdot \exp\{-\complexunit{}2\pi ({k}/{N})j\} , \quad j=-\frac{(N-1)}{2}, \cdots, \frac{(N-1)}{2}.
+\end{align*}
+Inverse transformation
+\begin{align*}
+X_k = \frac{1}{N} \sum_{j=\frac{-(N-1)}{2}}^{\frac{N-1}{2}} \theta_j \cdot \exp\{\complexunit{}2\pi ({j}/{N})k\} , \quad k=-\frac{(N-1)}{2}, \cdots, \frac{(N-1)}{2}.
+\end{align*}
+\\
+The Fourier coefficients of $S_\tau \circ f$ is
+\begin{align*}
+	\theta_j' 
+	&= \sum_{k=\frac{-(N-1)}{2}}^{\frac{N-1}{2}-n_0} X_{k+n_0} \cdot \exp\{-\complexunit{}2\pi ({k}/{N})j\} + 
+	\sum_{k=\frac{(N-1)}{2}-n_0+1}^{\frac{N-1}{2}} 0 \\
+	&= \sum_{k=\frac{-(N-1)}{2}+n_0}^{\frac{N-1}{2}} X_{k} 
+	\cdot \exp\{-\complexunit{}2\pi ({(k-n_0)}/{N})j\} 
+	+ \sum_{k=\frac{-(N-1)}{2}}^{\frac{-(N-1)}{2}+n_0-1} 0 \\
+	&= \sum_{k=\frac{-(N-1)}{2}}^{\frac{N-1}{2}} X_{k} \cdot 
+	\exp\{-\complexunit{}2\pi ({(k-n_0)}/{N})j\} \\
+	&= \theta_j \cdot \exp \{ \complexunit{}2\pi (n_0/N)j \}.
+\end{align*}
+
+Suppose another pdf $g$ is also defined on $[0,T]$ and extended to $[-T,T]$ with Fourier coefficients $\gamma_j$, $ j=-\frac{(N-1)}{2}, \cdots, \frac{(N-1)}{2}$. The shift-invariant distance between $f$ and $g$ is then 
+\begin{align*}
+	 d(f, g) 
+	 &= \min\Big\{ \inf_{\tau\in[0,T]} 
+	 \left( \int_{-T}^T\big| S_\tau\circ f(t)-g(t) \big|^2 \text{d}t \right)^{1/2}, \\
+	 & \qquad \quad \quad \inf_{\tau\in[0,T]}\left( \int_{-T}^T
+	 \big| f(t)-S_\tau\circ g(t) \big|^2 \text{d}t \right)^{1/2} \Big\} \\
+	 &= \min\left\{ \inf_{\tau\in[0,T]} 
+	 \left( 
+	 	\frac{2T}{N} \sum_{k=\frac{-(N-1)}{2}}^{\frac{N-1}{2}} |X_k'-Y_k|^2
+	 \right)^{1/2}, 
+	  \inf_{\tau\in[0,T]}\left( 
+	  \frac{2T}{N} \sum_{k=\frac{-(N-1)}{2}}^{\frac{N-1}{2}} |X_k-Y_k'|^2
+	 \right)^{1/2} \right\} \\
+	 &= \min \left\{ 
+	 	\min_{0\leq n_0\leq (N-1)/2} 
+	 	\left(\frac{2T}{N}\frac{N}{N^2} 
+	 		 	\sum_{j=\frac{-(N-1)}{2}}^{\frac{N-1}{2}}
+	 		 	|\theta_j' - \gamma_j|^2 \right)^{1/2} ,
+	 	\min_{0\leq n_0\leq (N-1)/2} 
+	 	\left(\frac{2T}{N}\frac{N}{N^2} 
+	 		 	\sum_{j=\frac{-(N-1)}{2}}^{\frac{N-1}{2}}
+	 		 	|\theta_j - \gamma_j'|^2 \right)^{1/2}
+	  \right\} \\
+	  &= \min \Big\{ 
+	 	\min_{0\leq n_0\leq (N-1)/2} 
+	 	\Big(\frac{2T}{N^2}\sum_{j=\frac{-(N-1)}{2}}^{\frac{N-1}{2}}
+	 		 	|\theta_j \cdot \exp \{ \complexunit{}2\pi (n_0/N)j \} - \gamma_j|^2 \Big)^{1/2}, \\
+	 	& \quad \quad \quad \quad \quad 
+	 	\min_{0\leq n_0\leq (N-1)/2} 
+	 	\Big(\frac{2T}{N^2}\sum_{j=\frac{-(N-1)}{2}}^{\frac{N-1}{2}}
+	 	|\theta_j - \gamma_j \cdot \exp \{ \complexunit{}2\pi (n_0/N)j \}|^2 \Big)^{1/2}
+	  \Big\}.
+\end{align*}
+Here $n_0 = N\cdot \tau / 2T$.
+
+For loss function 
+\begin{align*}
+L(n_0) = \sum_{j=\frac{-(N-1)}{2}}^{\frac{N-1}{2}}
+	 		 	|\theta_j \cdot \exp \{ \complexunit{}2\pi (n_0/N)j \} - \gamma_j|^2,
+\end{align*}
+the gradient is
+\begin{align*}
+	\nabla_{n_0} = \frac{4\pi}{N}\cdot 
+	\sum_{|j|\leq (N-1)/2} j\cdot 
+	\text{Im} \left( {\theta_j}\overline{{\gamma_j}}e^{\complexunit2\pi n_0 j/N} \right) 
+	.
+\end{align*}
+
+
+
+For cdf $F$ and $G$, define the shifted (towards left) cdf as
+
+
+\begin{align}\label{eq:def of shifted curve}
+	S_\tau\circ F(t)=
+	\begin{cases}
+	0, &t\in[-T,-\tau)\\
+	F(t+ \tau), &t\in[-\tau,T-\tau)\\
+	1,& t\in [T-\tau,T]
+	\end{cases}.
+\end{align}
+
+The Fourier coefficients of $S_\tau \circ F$ is
+\begin{align*}
+	\theta_j' 
+	&= \sum_{k=\frac{-(N-1)}{2}}^{\frac{N-1}{2}-n_0} X_{k+n_0} \cdot \exp\{-\complexunit{}2\pi ({k}/{N})j\} + 
+	\sum_{k=\frac{(N-1)}{2}-n_0+1}^{\frac{N-1}{2}} 1 \cdot \exp\{-\complexunit{}2\pi ({k}/{N})j\} \\
+	&= \sum_{k=\frac{-(N-1)}{2}+n_0}^{\frac{N-1}{2}} X_{k} 
+	\cdot \exp\{-\complexunit{}2\pi ({(k-n_0)}/{N})j\} 
+	+ \sum_{k=\frac{-(N-1)}{2}}^{\frac{-(N-1)}{2}+n_0-1} 0 
+	+ \sum_{k=\frac{(N-1)}{2}-n_0+1}^{\frac{N-1}{2}} 1 \cdot \exp\{-\complexunit{}2\pi ({k}/{N})j\}
+	\\
+	&= \sum_{k=\frac{-(N-1)}{2}}^{\frac{N-1}{2}} X_{k} \cdot 
+	\exp\{-\complexunit{}2\pi ({(k-n_0)}/{N})j\} 
+	+ \sum_{k=\frac{(N-1)}{2}-n_0+1}^{\frac{N-1}{2}} 1 \cdot \exp\{-\complexunit{}2\pi ({k}/{N})j\}
+	\\
+	&= \theta_j \cdot \exp \{ \complexunit{}2\pi (n_0/N)j \} + \frac{e^{\complexunit{}2\pi j (n_0/N)}-1}{1-e^{\complexunit{}2\pi j /N}} \cdot \mathbf{1}_{\left\{ j\neq0 \right\}} + n_0 \cdot \mathbf{1}_{\left\{ j=0 \right\}}
+	.
+\end{align*}
+
+The shift-invariant distance between $F$ and $G$ is then 
+\begin{align*}
+	 d(F, G) 
+	 &= \min\Big\{ \inf_{\tau\in[0,T]} 
+	 \left( \int_{-T}^T\big| S_\tau\circ F(t)-G(t) \big|^2 \text{d}t \right)^{1/2}, \\
+	 & \qquad \quad \quad \inf_{\tau\in[0,T]}\left( \int_{-T}^T
+	 \big| F(t)-S_\tau\circ G(t) \big|^2 \text{d}t \right)^{1/2} \Big\} \\
+	 &= \min\left\{ \inf_{\tau\in[0,T]} 
+	 \left( 
+	 	\frac{2T}{N} \sum_{k=\frac{-(N-1)}{2}}^{\frac{N-1}{2}} |X_k'-Y_k|^2
+	 \right)^{1/2}, 
+	  \inf_{\tau\in[0,T]}\left( 
+	  \frac{2T}{N} \sum_{k=\frac{-(N-1)}{2}}^{\frac{N-1}{2}} |X_k-Y_k'|^2
+	 \right)^{1/2} \right\} \\
+	 &= \min \left\{ 
+	 	\min_{0\leq n_0\leq (N-1)/2} 
+	 	\left(\frac{2T}{N}\frac{N}{N^2} 
+	 		 	\sum_{j=\frac{-(N-1)}{2}}^{\frac{N-1}{2}}
+	 		 	|\theta_j' - \gamma_j|^2 \right)^{1/2} ,
+	 	\min_{0\leq n_0\leq (N-1)/2} 
+	 	\left(\frac{2T}{N}\frac{N}{N^2} 
+	 		 	\sum_{j=\frac{-(N-1)}{2}}^{\frac{N-1}{2}}
+	 		 	|\theta_j - \gamma_j'|^2 \right)^{1/2}
+	  \right\} \\
+	  &= \min \Big\{ 
+	 	\min_{0\leq n_0\leq (N-1)/2} 
+	 	\Big(\frac{2T}{N^2}
+	 		\Big[\sum_{0<|j|\leq (N-1)/2}
+				\left| \theta_{i,j}e^{\complexunit 2\pi j n/N}+
+				\frac{e^{\complexunit{}2\pi j n/N}-1}{1-e^{\complexunit{}2\pi j /N}}
+				-\gamma_{l,j} \right|^2
+				+ \left| \theta_0+n-\gamma_0 \right|^2 \Big]
+	 	\Big)^{1/2}, \\
+	 	& \quad \quad \quad \quad \quad 
+	 	\min_{0\leq n_0\leq (N-1)/2} 
+	 	\Big(\frac{2T}{N^2}
+	 		[\cdots] 
+	 	\Big)^{1/2}
+	  \Big\}.
+\end{align*}
+
+\noindent
+Loss function
+\begin{equation*}
+		\begin{aligned}\label{eq:aligned distance}
+		L(n_0)&=
+		\sum_{0<|j|\leq (N-1)/2}
+		\left| \theta_{j}e^{\complexunit 2\pi j (n_0/N)}+
+		\frac{e^{\complexunit{}2\pi j (n_0/N)}-1}{1-e^{\complexunit{}2\pi j /N}}
+		-\gamma_{j} \right|^2
+		+ \left| \theta_0+n_0-\gamma_0 \right|^2
+		\\
+		&=
+		\sum_{0<|j|\leq (N-1)/2}
+		\left| \left( \theta_{j}+ \frac{1}{1-e^{\complexunit{}2\pi j /N}} \right) e^{\complexunit{}2\pi j (n_0/N)} 
+		- \left( \gamma_{j}+\frac{1}{1-e^{\complexunit{}2\pi j /N}} \right)  \right|^2 
+		+\\
+		&\hspace{11cm} \left| \theta_0+n_0-\gamma_0 \right|^2
+		\\
+		&\overset{\triangle}{=}
+		\sum_{0<|j|\leq (N-1)/2}\left| \theta_{j}'' e^{\complexunit{}2\pi j (n_0/N)} - {\gamma_{j}''}  \right|^2
+		+ \left| \theta_0+n_0-\gamma_0 \right|^2
+		.
+\end{aligned}
+\end{equation*}
+\noindent
+Gradient:
+	\begin{equation}
+		\begin{split}
+		\nabla_{n_0} = \frac{4\pi}{N}\cdot 
+		\sum_{0<|j|\leq (N-1)/2} j\cdot 
+		\text{Im} \left( {\theta_j''}\overline{{\gamma_j''}}e^{\complexunit2\pi n_0 j/N} \right) 
+		+ 2n_0+2 \text{Re}\left( \theta_0-\gamma_0 \right) .
+		\end{split}
+		\end{equation}
+
+
+
+
+
 TO DO:
 \begin{enumerate}
 	% \item Refactor the code. [by 4/14]
 	% \item Understand the algorithm by constructing challenge cases. [May]
 	% \item Re-write Simulation section, polish visualization. [by 4/14]
-	\item Re-write Method section. [by 4/21]
+	\item Complete Method section. More visualization. [by 4/21]
 	\item Reading: basic knowledge about point process, and shift operation. [by 4/21] %, identifiability.
 	\item Literature review: SBM, best permutation algorithm, SIM, etc. [by 4/21]
+	% \item Start proposal and slides. [by 4/21]
 	\item Proposal. [draft, by 04/28]
 	\item Slides. [draft, by 04/28]
-	\item Theory. [05/1-28, if time permits]
+	\item Theory. [May, if time permits]
 	\item Apply algorithm of Matias' paper.
 	\item Real data. 
 	
 \end{enumerate}
 
-\subsection{Plots}
 
 
 

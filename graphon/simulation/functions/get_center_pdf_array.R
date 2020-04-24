@@ -1,15 +1,15 @@
 
 
 # obtain connecting pattern (pdf of shifted events) for each pair of clusters
-get_center_pdf_array = function(edge_time_mat, clusters, n0_vec, t_vec=seq(0, 50, 0.05), bw=1){  
+get_center_pdf_array = function(edge_time_mat, clusters, n0_vec, t_vec=seq(0, 50, 0.05), bw=1, clusters_row=clusters){  
   time_unit = t_vec[2]-t_vec[1]
-  pdf_array = array(dim=c(length(clusters),length(clusters),length(t_vec)))
-  for (i in 1:length(clusters)) {
+  pdf_array = array(dim=c(length(clusters_row),length(clusters),length(t_vec)))
+  for (i in 1:length(clusters_row)) {
     for (j in 1:length(clusters)) {
-      edge_time_submat = edge_time_mat[clusters[[i]], clusters[[j]], drop=F]
+      edge_time_submat = edge_time_mat[clusters_row[[i]], clusters[[j]], drop=F]
       
       
-      tau_i_vec = time_unit * n0_vec[clusters[[i]]]
+      tau_i_vec = time_unit * n0_vec[clusters_row[[i]]]
       tau_j_vec = time_unit * n0_vec[clusters[[j]]]
       
       

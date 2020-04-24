@@ -1,7 +1,7 @@
 
 
 # find the optimal permutation
-find_permn = function(pdf_array_1, pdf_array_2){
+find_permn = function(pdf_array_1, pdf_array_2, t_unit = 0.05){
   if (dim(pdf_array_1)[1]!=dim(pdf_array_2)[1]) {
     stop("Shapes of pdf_array_1 and pdf_array_2 should be the same!")
   }
@@ -10,7 +10,7 @@ find_permn = function(pdf_array_1, pdf_array_2){
   
   min_dist = Inf
   for (permn in permn_list) {
-    res = get_dist_betw_pdfarray(pdf_array_1, pdf_array_2[permn, permn, ], symmetric=TRUE)
+    res = get_dist_betw_pdfarray(pdf_array_1[permn, permn, ], pdf_array_2, symmetric=TRUE, t_unit = t_unit)
     dist = res$dist
     n0_BetwSubj_mat = res$n0_mat
     

@@ -2,6 +2,7 @@
 # match clusters so that *clusters are of the same order* across subjects
 match_clusters = function(edge_time_mat_list=NULL, clusters_list, n0_vec_list=NULL, pdf_array_list=NULL, pdf_true_array=NULL, t_vec=seq(0, 50, 0.05), bw=1){
   N_subj = length(clusters_list)
+  t_unit = t_vec[2] - t_vec[1]
   
   if (N_subj==1) return(clusters_list)
   
@@ -26,13 +27,20 @@ match_clusters = function(edge_time_mat_list=NULL, clusters_list, n0_vec_list=NU
   }
   
   
-  # find permutations
+  # find permutations, and align pdf_array across subjects
   permn_list = list() 
   for (s in 1:N_subj) {
-    permn = find_permn(pdf_array_1=pdf_true_array, pdf_array_2=pdf_array_list[[s]])$permn
+    res = find_permn(pdf_array_1=pdf_array_list[[s]], pdf_array_2=pdf_true_array, t_unit = t_unit)
+    permn = res$permn
     clusters_list[[s]] = clusters_list[[s]][permn]
     permn_list[[s]] = permn
     pdf_array_list[[s]] = pdf_array_list[[s]][permn, permn, ]
+    
+    n0_mat = res$n0_mat
+    index_mat = matrix(1:length(n0_mat), dim(n0_mat))
+    tmp.pdf.array = apply(index_mat, c(1,2), function(i){index = which(index_mat==i, arr.ind = TRUE); shift(f_origin = pdf_array_list[[s]][index[1], index[2], ], 
+                                                                   n0 = n0_mat[index[1], index[2]], pp = TRUE)})
+    pdf_array_list[[s]] = aperm(tmp.pdf.array, perm = c(2:ncol(n0_mat),1))
   }
   
   return(list(clusters_list=clusters_list, permn_list=permn_list, pdf_array_list=pdf_array_list))

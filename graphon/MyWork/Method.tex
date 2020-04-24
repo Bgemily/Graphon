@@ -3,25 +3,31 @@
 
 \section{Method} \label{sec:method}
 
-\subsection{Shift-invariant distance between curves}
-We aim to minimize the following loss function
-\begin{align}
-\min_{\mathbf{z}} \sum_{i=1}^n \left(  \sum_{q=1}^k \alpha_{i,q} \cdot d(\hat f_{i,q}, \hat f_{z_i,q}) \right),
-\label{eq:loss function}
-\end{align}
-where $\alpha_{i,q}$ is the weight measuring the reliability of the distance  $d(\hat f_{i,q}, \hat f_{z_i,q})$. 
-The distance function $d(f, g)$ is defined as
-\begin{align}
-d(f,g)=\inf_{\tau\in[-T,T]} \left( \int_{-T}^{2T} |f(t-\tau)-g(t)|^2 \text{d}t \right)^{1/2} ,
-\label{eq:distance}
-\end{align}
-which is invariant to shifts of curves and measures the difference between shapes of curves.
+\subsection{Evaluating the distance function}
+In practice, the distance  between a point process $N$ and a probability distribution function $f$ is 
+evaluated by computing distance between their (smoothed) probability distribution functions, because the distance between cumulative distribution functions can be misleading in some certain cases. 
+We illustrate this through figure \ref{pic: pdf better}. Although the black dash pdf is closer to the green pdf than the red pdf, it is closer to the red curve in terms of cdf.
 
 
+\begin{figure}[H]
+\includegraphics[width=0.49\textwidth]{../simulation/plots/pdf_vs_cdf_c}
+\includegraphics[width=0.49\textwidth]{../simulation/plots/pdf_vs_cdf_d}
+\caption{ Distance between cdfs is misleading. Top left: pdf to be shifted (black dash line) and target pdf (green and red solid line). Top right: corresponding cdf. Bottom left: distance between pdfs as a function of shift. Bottom right: distance between cdfs as a function of shift.}
+\label{pic: pdf better}
+\end{figure}
 
 
-\subsection{Aligning curves}
-We use the shape-invariant method proposed by \citet{Bigot2013} to evaluate the distance defined in \eqref{eq:distance}.
+However, as shown in figure \ref{pic: cdf better}, aligning cdf can help us to locate the minimizer of distance function, especially when their is a flat area between two pdfs.
+
+\begin{figure}[H]
+\includegraphics[width=0.49\textwidth]{../simulation/plots/pdf_vs_cdf_a}
+\includegraphics[width=0.49\textwidth]{../simulation/plots/pdf_vs_cdf_b}
+\caption{ cdf can help to locate the minimizer. Top left: pdf to be shifted (dash line) and target pdf (solid line). Top right: corresponding cdfs. Bottom left: distance between pdfs as a function of shift. Bottom right: distance between cdfs as a function of shift.}
+\label{pic: cdf better}
+\end{figure}
+
+Based on these properties of cdf and pdf, we align pdfs using gradient descent algorithm with initialization obtained by aligning their corresponding cdfs. 
+We use the shape-invariant method proposed by \citet{Bigot2013}.
 The idea is to find the optimal shift that aligns $f$ and $g$ best in the Fourier domain.
 Let $\theta_j$ and $\gamma_j, j=-(N-1)/2,\cdots,(N-1)/2$ be the discrete Fourier coefficients of $f$ and $g$, where $N$ is the length of discretized $f$ and $g$. The time shift parameter $\tau$ can be estimated by solving the following problem by gradient descent
 
@@ -36,41 +42,179 @@ Let $\theta_j$ and $\gamma_j, j=-(N-1)/2,\cdots,(N-1)/2$ be the discrete Fourier
 	\end{aligned}
 	\end{equation}
 where $n=N\cdot\tau/2T$.
+Initialization is given by the alignment result of their cdfs.
+For details see \ref{app}.
 
-The objective function \eqref{eq:time shift} may have a large plane when the supports of $f$ and $g$ are far away from each other, in which case a good initialization is crucial.
-To address this problem, we compute and align the corresponding cumulative distribution functions, and the $\hat\tau$ leading to the best alignment is then used as the initialization of the gradient descent for solving \eqref{eq:time shift}.
-
-\noindent [Write down the loss function for aligning cdf?]
+\noindent
+[add details for obtaining smooth pdf.]
 
 
 
 
 \subsection{Algorithm}
-We propose to iteratively update the group membership $\mathbf{z}$ and the connecting patterns $\{\hat f_{i,q}\}_{i\in[n],q\in[k]} \text{ and } \{\hat f_{l,q}\}_{l,q\in[k]}$.
+[Jump from estimating $\tau_{i,j}$'s to $\tau_i$'s.]
 
-Given current clustering $\mathbf{z}$ a
-The algorithm is summarized as follows. Initialization step will be discussed in the next section.
+\noindent
+We iterate between two main steps: re-center step and re-cluster step.
+In the re-center step, we update connecting patterns  based on current clustering  and time shifts; 
+while in the re-cluster step, we update the clusters
+and time shifts based on updated connecting patterns.
+
+\subsubsection{Re-center step}
+% In this step, we estimate connecting patterns  between each pair of clusters $\left\{ f_{q,l} \right\}_{q,l\in[k]}$.
+Based on current estimation of clusters $\{  \Gamma_q^{(c)} \}_{q\in[k]}$, we can obtain an (unaligned) point process for each pair of clusters by aggregating connecting times over all pair of nodes in the corresponding two clusters
+\begin{align*}
+N_{\Gamma_q^{(c)}, \Gamma_l^{(c)}}(\cdot) = \sum_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}} N_{i,j}(\cdot).
+\end{align*}
+Incorporating estimated time shifts $\{  \tau_i^{(c)} \}_{i\in [n]}$ yields two possible alignment: 
+(a) $\tilde N_{\Gamma_q^{(c)}, \Gamma_l^{(c)}}(\cdot) = \sum_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}} N_{i,j}(\cdot+\tau_i^{(c)})$ 
+and (b) $\tilde N_{\Gamma_q^{(c)}, \Gamma_l^{(c)}}(\cdot) = \sum_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}} N_{i,j}(\cdot+\tau_j^{(c)})$.
+We use the variance of the shifted events as a measure of goodness-of-alignment --- the one producing the smaller variance is adopted.
+To be more specific, let 
+\begin{align*}
+\text{var}_1 &= \text{var}\left[\{ T_{i,j}-\tau_i^{(c)} \}_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}}\right],
+\\
+\text{var}_2 &= \text{var}\left[\{ T_{i,j}-\tau_j^{(c)} \}_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}}\right],
+\end{align*}
+where 
+$T_{i,j}$ denotes the edging time between node $i$ and $j$ ($T_{i,j}=\infty$ if there is no edge).
+Then
+\begin{align}
+f_{q,l}^{(u)} &= 
+\begin{cases}
+\text{density}\left(\{T_{i,j}-\tau_i^{(c)} \}_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}}\right), \text{ if}~ \text{var}_1 < \text{var}_2,
+\\
+\text{density}\left(\{T_{i,j}-\tau_j^{(c)} \}_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}}\right), \text{ otherwise}.
+\end{cases}
+\label{eq: update connecting patterns}
+\end{align}
+\noindent
+[Add how to deal with negative event time after alignment.]
+
+
+
+\subsubsection{Re-cluster step}
+% In this step we use the updated connecting patterns $\{f_{q,l}^{(u)}\}_{q,l\in[k]}$ to update clusters $\{\Gamma_q\}_{q\in[k]}$ and $\left\{  \tau_i \right\}_{i\in [n]}$.
+Given $\{f_{q,l}^{(u)}\}_{q,l\in[k]}$ and $\{\Gamma_q^{(c)}\}_{q\in[k]}$, we propose to solve a simplified version of the objective function in \eqref{eq: objective function 2}
+\begin{align}
+	\min_{\substack{\{\Gamma_q\}_{q\in[k]},\\  \{\tau_{i,j}\}_{i,j\in[n]}}} 
+	\sum_{q,l\in[k]}
+	w_{q,l}\cdot
+	 d^2(\tilde N_{\Gamma_q, \Gamma_l^{(c)}}, f_{q,l}^{(u)}).
+	 \label{eq: simplified obj func}
+\end{align}
+Setting the weights to be $w_{q,l}\propto \text{deg}(\Gamma_q,\Gamma_l^{(c)}) $, we derive an upper bound of \eqref{eq: simplified obj func} 
+\begin{align*}
+	\sum_{q,l\in[k]}
+	% \frac{\text{deg}(\Gamma_q,\Gamma_l)}{\sum_{q,l}\text{deg}(\Gamma_q,\Gamma_l)}
+	&\text{deg}(\Gamma_q,\Gamma_l^{(c)})
+	\cdot
+	 d^2(\tilde N_{\Gamma_q, \Gamma_l^{(c)}}, f_{q,l}^{(u)})
+	 \\
+	&\leq
+	\sum_{q,l\in[k]}
+	% \frac{\text{deg}(\Gamma_q,\Gamma_l)}{\sum_{q,l}\text{deg}(\Gamma_q,\Gamma_l)}
+	\text{deg}(\Gamma_q,\Gamma_l^{(c)})
+	\cdot
+	\left[ \sum_{i\in\Gamma_q}\frac{\text{deg}(i,\Gamma_l^{(c)})}{\text{deg}(\Gamma_q,\Gamma_l^{(c)})} \cdot
+	 d^2 \Big( \tilde N_{i, \Gamma_l^{(c)}}, f_{q,l}^{(u)} \Big)  \right] 
+	 \\
+	 &= \sum_{q}\sum_{i\in\Gamma_q} 
+	 \left[ \sum_{l} \text{deg}(i, \Gamma_l^{(c)}) \cdot d^2 \Big( \tilde N_{i, \Gamma_l^{(c)}}, f_{q,l}^{(u)} \Big) \right] 
+	 \\
+	 &\leq \sum_i \left[ \sum_{l} \sqrt{\text{deg}(i, \Gamma_l^{(c)})} \cdot d \Big( \tilde N_{i, \Gamma_l^{(c)}}, f_{z_i,l}^{(u)} \Big) \right]^2.
+	 % \label{eq: simplified obj func}
+\end{align*}
+The first inequality is obtained by applying Jensen's inequality.
+\\
+This upper bound leads to our re-cluster step
+\begin{align}
+z_i^{(u)} 
+=
+\arg\min_{q\in[k], } \sum_{l} \sqrt{\text{deg}(i, \Gamma_l^{(c)})} \cdot d \Big( \tilde N_{i, \Gamma_l^{(c)}}, f_{q,l}^{(u)} \Big).
+\label{eq: update clusters}
+\end{align}
+
+
+\subsubsection*{Update time shifts}
+Based on current clusters, we are able to get the unaligned connecting point process $N_{i,\Gamma_q^{(u)}}$ between each node $i$ and each cluster $\Gamma_q^{(u)}$.
+We will align nodes from the same cluster and set the minimum time shifts in each cluster as zero for identifiability reason.
+
+For each cluster $\Gamma_q^{(u)}$, randomly select a node $i^*\in\Gamma_q^{(u)}$ as a point of reference. 
+The time lag between node $i\in\Gamma_q^{(u)}$ and $i^*$ is then determined by 
+\begin{align}
+\tau_{(i,i^*),l} &=  \arg\min_{\tau} d(N_{i,\Gamma_l^{(u)}}(\cdot+\tau), N_{i^*,\Gamma_l^{(u)}}(\cdot)) , \quad l\in[k],
+\\
+\tau_{i,i^*} &= \max \Big( \big|\max_{l\in[k], l\neq q} \tau_{(i,i^*),l}\big|, \big|\min_{l\in[k], l\neq q} \tau_{(i,i^*),l}\big| \Big).
+\label{eq: align i and i^*}
+\end{align}
+\noindent [Add explanation.]
+\\
+Finally, the time shifts are updated as
+\begin{align}
+\tau_{i}^{(u)} = \tau_{i,i^*} - \min_{i\in\Gamma_q^{(u)}} \tau_{i,i^*}, \quad i\in\Gamma_q^{(u)}.
+\label{eq: update time shifts}
+\end{align}
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Initialization}
+
+Naive k-means algorithm is applied to obtain initialization of clusterings and time shifts.
+Time shifts are obtained by aligning each aggregated point process with the first point process, followed by shifting all nodes together so that the minimum time shift is zero.
+Clustering 
+$\{  \Gamma_q^{(c)} \}_{q\in[k]}$ is then initialized by applying k-means++ algorithm to 
+\begin{align*}
+\begin{bmatrix}
+T_{1,\cdot}-\tau_1^{(c)}\\
+T_{2,\cdot}-\tau_2^{(c)}\\
+\vdots\\
+T_{n,\cdot}-\tau_n^{(c)}
+\end{bmatrix}.
+\end{align*}
+
+
+
+
+\subsection{Summary of algorithm}
+
+The algorithm is summarized as following. 
 
 \begin{algorithm}[H]
 \SetAlgoLined
- Set $s=0$\;
- Initialize $\mathbf{z}^{[0]}$ and $\mathbf{\tau}^{[0]}$\;
-\While{not converge}{
-  	Update $\{\hat f_{i,q}^{[s+1]}\}_{i\in[n],q\in[k]}$ and $\{\hat f_{l,q}^{[s+1]}\}_{l,q\in[k]}$ with $\mathbf{z}=\mathbf{z}^{[s]}$ and $\tau=\tau^{[0]}$ \;
-  	Compute $\{\alpha_{i,q}\}_{i\in[n],q\in[k]}$ with $\mathbf{z}=\mathbf{z}^{[s]}$\;
-  	Update $\mathbf{z}^{[s+1]}$ with $\{\hat f_{i,q}^{[s+1]}\}_{i\in[n],q\in[k]}$, $\{\hat f_{l,q}^{[s+1]}\}_{l,q\in[k]}$ and $\{\alpha_{i,q}\}_{i\in[n],q\in[k]}$\;
-  	Evaluate the stopping criterion\;
-  	$s\leftarrow s+1 $\;
+ Initialize $\{  \Gamma_q^{(c)} \}_{q\in[k]}$ and $\{  \tau_i^{(c)} \}_{i\in [n]}$\;
+\While{$\{\Gamma_q^{(c)}\}_{q\in[k]} \neq \{\Gamma_q^{(u)}\}_{q\in[k]}$}{
+  	Update $\{f_{q,l}^{(u)}\}_{q,l\in[k]}$ via \eqref{eq: update connecting patterns} with $\{\Gamma_q^{(c)}\}_{q\in[k]}$ and $\{\tau_i^{(c)}\}_{i\in[n]}$ 
+  	\;
+  	Update $\{\Gamma_q^{(u)}\}_{q\in[k]}$ via \eqref{eq: update clusters} with $\{f_{q,l}^{(u)}\}_{q,l\in[k]}$, $\{\Gamma_q^{(c)}\}_{q\in[k]}$ and $\{\tau_i^{(c)}\}_{i\in[n]}$ 
+  	\;
+  	Update $\{\tau_i^{(u)}\}_{i\in[n]}$ via \eqref{eq: update time shifts} with $\{\Gamma_q^{(u)}\}_{q\in[k]}$
+  	\;
+  	Evaluate the stopping criterion
+  	\;
+  	$\{f_{q,l}^{(c)}\}_{q,l\in[k]} \leftarrow \{f_{q,l}^{(u)}\}_{q,l\in[k]} $
+  	\;
+  	$\{\Gamma_q^{(c)}\}_{q\in[k]} \leftarrow \{\Gamma_q^{(u)}\}_{q\in[k]} $
+  	\;
+  	$\{\tau_i^{(c)}\}_{i\in[n]} \leftarrow \{\tau_i^{(u)}\}_{i\in[n]} $
+  	\;
  }
- Update $\tau^{[1]}$ with $\mathbf{z^{[s]}}$ and $\{\hat f_{i,q}^{[s]}\}_{i\in[n],q\in[k]}$\;
-\KwOut{$\mathbf{z^{[s]}}$, $\{\hat f_{l,q}^{[s]}\}_{l,q\in[k]}$.}
+
+\KwOut{$\{f_{q,l}^{(c)}\}_{q,l\in[k]}$, $\{\Gamma_q^{(c)}\}_{q\in[k]}$, $\{\tau_i^{(c)}\}_{i\in[n]} $.}
  \caption{ [name of algorithm]}
 \end{algorithm}
 
 
 
-\subsection{Initialization: spectral clustering}
-Spectral clustering algorithm is used to obtain the initial clustering and time shifts.
+
 
 		
 		% \subsubsection*{k-means in point processes}

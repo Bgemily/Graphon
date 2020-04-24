@@ -4,14 +4,14 @@
 
 
 \begin{figure}[H]
-\includegraphics[width=\textwidth]{../simulation/plots/center_pdfarray_confband}
-\caption{Connecting patterns.}
+\includegraphics[width=\textwidth]{../simulation/plots/conn_pattern}
+\caption{ Estimated connecting patterns (ten trials). Dash line: average curves of estimated connecting patterns. Red line: true connecting patterns.}
 \end{figure}
 
 
 
 \begin{figure}[H]
-\includegraphics[width=.8\textwidth]{../simulation/plots/Boxplot_cmpr}
+\includegraphics[width=.8\textwidth]{../simulation/plots/violin_cmpr}
 \caption{Clustering result.}
 \end{figure}
 
@@ -22,10 +22,6 @@
 \caption{}
 \end{subfigure}
 \begin{subfigure}{.49\textwidth}
-\includegraphics[width=\textwidth]{../simulation/plots/overclus_c}
-\caption{}
-\end{subfigure}
-\begin{subfigure}{.49\textwidth}
 \includegraphics[width=\textwidth]{../simulation/plots/overclus_b}
 \caption{}
 \end{subfigure}
@@ -33,10 +29,17 @@
 \includegraphics[width=\textwidth]{../simulation/plots/overclus_d}
 \caption{}
 \end{subfigure}
-\caption{(a): 2 dimensional representation of aggregated point processes.
-(b): Result of spectral clustering with three clusters.
-(c): Result of spectral clustering with five clusters.
-(d): Result of merging the five clusters into three. }
+\begin{subfigure}{.49\textwidth}
+\includegraphics[width=\textwidth]{../simulation/plots/overclus_c}
+\caption{}
+\end{subfigure}
+\caption{
+2D representation by t-SNE.
+(a) Aggregated point processes with  estimated three clusters.
+(b) Aggregated point processes with estimated five clusters.
+(c) Point processes incorporated clustering results from (a).
+(d) Point processes incorporated clustering results from (b). }
+\label{fig: explain overclustering}
 \end{figure}
 
 

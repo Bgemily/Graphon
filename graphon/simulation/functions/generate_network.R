@@ -5,7 +5,7 @@
 generate_network1 = function(SEED=0, total_time=50)
 {
   
-  set.seed(SEED)
+  # set.seed(SEED)
   
   t_vec = seq(0, total_time, 0.05)
   dist_thres = 2
@@ -79,8 +79,8 @@ generate_network1 = function(SEED=0, total_time=50)
 
 generate_network2 = function(SEED=0, total_time=50)
 {
-  set.seed(SEED)
-  
+  # set.seed(SEED)
+  # 
   t_vec = seq(0, total_time, 0.05)
   dist_thres = 2
   N_clus = 3
@@ -154,7 +154,7 @@ generate_network2 = function(SEED=0, total_time=50)
 
 generate_network3 = function(SEED=0, total_time=50)
 {
-  set.seed(SEED)
+  # set.seed(SEED)
   
   t_vec = seq(0, total_time, 0.05)
   dist_thres = 2
@@ -219,7 +219,7 @@ generate_network3 = function(SEED=0, total_time=50)
 
 generate_network4 = function(SEED=0, total_time=50)
 {
-  set.seed(SEED)
+  # set.seed(SEED)
   
   t_vec = seq(0, total_time, 0.05)
   dist_thres = 2
