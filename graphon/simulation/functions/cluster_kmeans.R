@@ -5,7 +5,10 @@ cluster_kmeans = function(edge_time_mat, clusters, n0_vec, center_pdf_array=NULL
   
   N_node = nrow(edge_time_mat); 
   N_clus = length(clusters)
-  if(!is.null(center_pdf_array)) N_clus = dim(center_pdf_array)[1]
+  if(!is.null(center_pdf_array) && length(clusters)!=dim(center_pdf_array)[2]) 
+    stop("dim(center_pdf_array)[2] and length(clusters) should match.")
+  else if(!is.null(center_pdf_array) && length(clusters)!=dim(center_pdf_array)[1])
+    N_clus = dim(center_pdf_array)[1]
   
   t_unit = t_vec[2]-t_vec[1]
   

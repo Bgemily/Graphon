@@ -11,7 +11,7 @@ total_time = 50
 time_unit = 0.05
 t = seq(0, total_time, 0.05)
 
-r = results2[[1]]
+r = results2[[31]]
 
 network = r$network
 edge_time_mat = network$edge_time_mat
@@ -45,43 +45,53 @@ par(mar=c(2.5,2.5,.5,.5))
 
 
 results = results2
-
 membership_true = results[[1]]$network$membership_true
+
 clusters_list = lapply(results, function(x)x$clus_result$clusters)
 ARI = get_ARI(membership_true, clusters_list)
 
-clusters_list_overclus = lapply(results, function(x)x$clus_result$res_overclus$clusters)
-ARI_overclus = get_ARI(membership_true, clusters_list_overclus)
-
-clusters_list_exaclus = lapply(results, function(x)x$clus_result$res_overclus$clusters_exaclus)
+clusters_list_exaclus = lapply(results, function(x)x$clus_result$clusters_history[[1]])
 ARI_exaclus = get_ARI(membership_true, clusters_list_exaclus)
 
+clusters_list_overclus_1 = lapply(results, function(x)x$clus_result$clusters_history[[4]])
+ARI_overclus_1 = get_ARI(membership_true, clusters_list_overclus_1)
+clusters_list_overclus_2 = lapply(results, function(x)x$clus_result$clusters_history[[6]])
+ARI_overclus_2 = get_ARI(membership_true, clusters_list_overclus_2)
+clusters_list_overclus_3 = lapply(results, function(x)x$clus_result$clusters_history[[8]])
+ARI_overclus_3 = get_ARI(membership_true, clusters_list_overclus_3)
 
 
-plot_jitter_boxplot = function(ARI, group=1)
+
+
+
+plot_jitter_boxplot = function(data)
 {  
-  # par(mar=c(.5,.5,2.5,2.5))
   library(ggplot2)
-  data_frame = data.frame(ARI, group=group)
-  p = ggplot(data_frame, aes(x=group, y=ARI)) + 
-    geom_violin(fill='lightgrey') + geom_boxplot(width=0.1,outlier.size = 0.5) + 
-    labs(title = NULL, x=NULL) + NULL
-    # scale_fill_discrete(name="Experimental\nCondition",
-    #                     breaks=c("1", "2", "3"),
-    #                     labels=c("Control", "Treatment 1", "Treatment 2"))
+  library(dplyr)
+  library(viridis)
+  data = reshape2::melt(data, id.vars=NULL, variable.name="name")
+  sample_size = data %>% group_by(name) %>% summarize(num=n())
+  data %>%
+    left_join(sample_size) %>%
+    mutate(myaxis = paste0(name, "\n", "n=", num)) %>%
+    ggplot( aes(x=myaxis, y=value, fill=name)) +
+    geom_violin(width=1.4) +
+    geom_boxplot(width=0.1, color="grey", alpha=0.2) +
+    scale_fill_viridis(discrete = TRUE) +
+    theme_light() +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=11)
+    ) +
+    ggtitle("") +
+    ylab("ARI")
   
-  # coord_flip()
-  # stat_summary(fun.data = mean_cl_normal, fun.args = list(), geom="pointrange", color='red')
-  # p + geom_jitter(size=.3, position=position_jitter(width=.1, height=0))
-  p 
 }
 
-plot_jitter_boxplot(ARI=c(ARI_overclus,ARI_exaclus, ARI),
-                    group=c(rep('over',length(ARI_overclus)),
-                            rep('exact',length(ARI_exaclus)),
-                            rep('result',length(ARI))) )
+plot_jitter_boxplot(data=data.frame(ARI_exaclus, ARI_overclus_1, ARI_overclus_2, ARI_overclus_3 , ARI))
 
 
+plot_jitter_boxplot(data=data.frame(ARI_overclus_3.3, ARI_overclus_3.4, ARI_overclus_3.5, ARI_overclus_3.6))
 
 
 
@@ -94,7 +104,7 @@ pdf_array_list = lapply(results, function(r)r$clus_result$center_pdf_array)
 clusters_list = lapply(results, function(x)x$clus_result$clusters)
 
 # permutate clusters and pdf_array's for each subject
-index = 51:60
+index = 1:10+50
 res = match_clusters(clusters_list = clusters_list[index], pdf_array_list = pdf_array_list[index],
                      pdf_true_array = pdf_true_array)
 clusters_list = res$clusters_list
@@ -110,7 +120,7 @@ plot_pdf_array(pdf_array_list = pdf_array_list, pdf_true_array = pdf_true_array)
 
 par(mar=c(0.1,0.1,0.1,0.1), xaxt="n", yaxt='n')
 
-r = results2[[5]]
+r = results2[[1]]
 edge_time_mat = r$network$edge_time_mat
 t_vec = r$network$t_vec
 bw = 1
@@ -131,9 +141,12 @@ n0_vec_init = est_n0_vec(edge_time_mat = edge_time_mat, clusters = list(c(1:N_no
 aligned_pdf_mat = t(sapply(1:N_node, function(i)shift(node_pdf_array[i,1,], n0_vec_init[i], pp=TRUE)))
 dist_mat = rdist::pdist(aligned_pdf_mat)
 
-X = cmdscale(dist_mat, k=4)
-set.seed(90)
-tsne = tsne::tsne(X, k=2)
+# X = cmdscale(dist_mat, k=4)
+# set.seed(90)
+# tsne = tsne::tsne(X, k=2)
+
+set.seed(81)
+tsne = Rtsne::Rtsne(dist_mat, is_distance=TRUE, perplexity=20)$Y
 plot(tsne, pch=membership_true, col=membership_exaclus)
 plot(tsne, pch=membership_true, col=membership_overclus)
 
@@ -144,12 +157,28 @@ node_pdf_array2 = get_node_pdf_array(edge_time_mat = edge_time_mat, clusters = c
 degree_mat = get_node_degree_mat(edge_time_mat = edge_time_mat, clusters = clusters_overclus)
 dist_mat2 = pairwise_dist_mat(node_pdf_array2, degree_mat = degree_mat)$dist_mat
 
-X2 = cmdscale(dist_mat2, k=4)
+# X2 = cmdscale(dist_mat2, k=4)
+# set.seed(90)
+# tsne2 = tsne::tsne(X2, k=2)
 
-set.seed(90)
-tsne2 = tsne::tsne(X2, k=2)
+set.seed(81)
+tsne2 = Rtsne::Rtsne(dist_mat2, is_distance=TRUE, perplexity=20)$Y
 plot(tsne2, pch=membership_true, col=membership_overclus)
 plot(tsne2, pch=membership_true, col=membership_merged)
+
+
+
+n0_vec = est_n0_vec(edge_time_mat = edge_time_mat, clusters = clusters_est, t_vec = t_vec, bw = bw)
+node_pdf_array3 = get_node_pdf_array(edge_time_mat = edge_time_mat, clusters = clusters_exaclus, 
+                                     n0_vec = n0_vec, t_vec = t_vec, bw = bw)
+degree_mat = get_node_degree_mat(edge_time_mat = edge_time_mat, clusters = clusters_exaclus)
+dist_mat3 = pairwise_dist_mat(node_pdf_array3, degree_mat = degree_mat)$dist_mat
+
+set.seed(81)
+tsne3 = Rtsne::Rtsne(dist_mat3, is_distance=TRUE, perplexity=15)$Y
+plot(tsne3, pch=membership_true, col=membership_overclus)
+plot(tsne3, pch=membership_true, col=membership_merged)
+
 
 
 

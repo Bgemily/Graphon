@@ -16,34 +16,10 @@ cluster_kmeans_overclus = function(edge_time_mat, clusters, n0_vec, N_overclus, 
   res_overclus = kmeanspp(data_mat = aligned_pdf_mat, N_clus = N_overclus, MaxIter = MaxIter, N_trial = N_trial)
   clusters_overclus = res_overclus$clusters 
   
-  
+  n0_vec = est_n0_vec(edge_time_mat = edge_time_mat, clusters = clusters_overclus, t_vec = t_vec, bw = bw)  
   
   # merge clusters
-  if (N_overclus>N_clus){
-    
-    # get center_pdf_array (: N_overclus * N_overclus)
-    n0_vec = est_n0_vec(edge_time_mat = edge_time_mat, clusters = clusters_overclus, t_vec = t_vec, bw = bw)
-    center_pdf_array = get_center_pdf_array(edge_time_mat, clusters_overclus, n0_vec, t_vec, bw)
-    
-    # get pairwise distance between clusters
-    clus_degree_mat = get_clus_degree_mat(edge_time_mat, clusters_overclus)
-    dist_mat = pairwise_dist_mat(center_pdf_array, degree_mat = clus_degree_mat)$dist_mat
-    
-    # cluster over-specified clusters via k-medoids
-    clus_membership = cluster::pam(x = dist_mat, k = N_clus)$cluster
-    
-    # merge clusters
-    node_membership_overclus = clus2mem(clusters_overclus)
-    membership = numeric(nrow(edge_time_mat))
-    for (i in 1:length(membership)) {
-      membership[i] = clus_membership[node_membership_overclus[i]]
-    }
-    clusters = mem2clus(membership)
-  }
-  else{ # else if N_overclus == N_clus
-    clusters = clusters_overclus
-  }
-  
+  clusters = merge_clusters(edge_time_mat = edge_time_mat, clusters = clusters_overclus, n0_vec = n0_vec, N_clus = N_clus, t_vec = t_vec, bw = bw)
   
   # udpate n0_vec
   n0_vec = est_n0_vec(edge_time_mat = edge_time_mat, clusters = clusters, t_vec = t_vec, bw = bw)  
