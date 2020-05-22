@@ -4,7 +4,7 @@
 cluster_specc = function(edge_time_mat, clusters, n0_vec, N_clus, t_vec=seq(0,50,0.05), bw=1){
   
   pdf_array = get_node_pdf_array( edge_time_mat=edge_time_mat, clusters=clusters, n0_vec=n0_vec, t_vec=t_vec, bw=bw)
-  degree_mat = get_node_degree_mat(edge_time_mat, clusters)
+  degree_mat = get_node_degree_mat(edge_time_mat, clusters, intensity=TRUE)
   
   res = pairwise_corr_mat(pdf_array, degree_mat = degree_mat)
   

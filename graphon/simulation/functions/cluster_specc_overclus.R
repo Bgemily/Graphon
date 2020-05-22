@@ -20,7 +20,7 @@ cluster_specc_overclus = function(edge_time_mat, clusters, n0_mat, N_overclus, N
   n0_vec = get_n0_vec(n0_mat, clusters_overclus)
   center_pdf_array = get_center_pdf_array(edge_time_mat, clusters_overclus, n0_vec, t_vec, bw)
   
-  clus_degree_mat = get_clus_degree_mat(edge_time_mat, clusters_overclus)
+  clus_degree_mat = get_clus_degree_mat(edge_time_mat, clusters_overclus, intensity=TRUE)
   
   # merge clusters
   res = pairwise_corr_mat(center_pdf_array, degree_mat = clus_degree_mat)

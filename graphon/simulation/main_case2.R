@@ -46,5 +46,5 @@ save.image(paste0('case2_NSim', NSim, '_Noverclus', N_overclus, '_', now, '.Rdat
 SEED_vec = seq(189,110765,length.out=100)
 i=1
 SEED = SEED_vec[i]
-main(case=2, SEED=SEED, N_clus=3, N_overclus=5, MaxIter = 5, bw=1)->r
+main(case=2, SEED=SEED, N_clus=3, N_overclus=3, MaxIter = 5, bw=1)->r
 tmp$clus_result$clusters

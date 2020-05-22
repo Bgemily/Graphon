@@ -1,7 +1,7 @@
 
 
 # k-means clustering
-cluster_kmeans = function(edge_time_mat, clusters, n0_vec, center_pdf_array=NULL, t_vec=seq(0, 50, 0.05), bw=1){
+cluster_kmeans = function(edge_time_mat, clusters, n0_vec, center_pdf_array=NULL, t_vec=seq(0, 50, 0.05), bw=1, intensity=TRUE){
   
   N_node = nrow(edge_time_mat); 
   N_clus = length(clusters)
@@ -21,7 +21,7 @@ cluster_kmeans = function(edge_time_mat, clusters, n0_vec, center_pdf_array=NULL
   }
   
   # update membership
-  degree_mat = get_node_degree_mat(edge_time_mat, clusters)
+  degree_mat = get_node_degree_mat(edge_time_mat, clusters, intensity=intensity) 
   membership = numeric(N_node)
   dist_to_centr_vec = numeric(N_node)
   for (i in 1:N_node) {

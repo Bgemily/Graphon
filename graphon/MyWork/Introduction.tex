@@ -3,6 +3,7 @@
 
 \section{Introduction}
 
+
 % \subsection*{Motivation}
 Dynamic networks emerge in many area,
 such as the neuronal network in the brain during disease[] or learning tasks[], 
@@ -49,17 +50,19 @@ To incorporate such uniqueness, we propose a generalized stochastic block model 
 	The stochastic block model is first proposed by \citet{Holland1983}.
 	It has many dynamic extensions,
 	\citet{Yang2011,Xu2014a,Matias2016,Xu2015} use the Markov chain to model the time-varying  connecting probabilities and/or the clustering matrix. 
-	EM algorithm or iterative optimization algorithm is commonly used for inference.
-
-	 \citet{Matias2018} adapt the stochastic block model to the context of recurrent interaction events in continuous time, 
+	(Varitional) EM algorithm is commonly used for inference.
+	\citet{Matias2018} adapt the stochastic block model to the context of recurrent interaction events in continuous time, 
 	where the recurrent events are modeled by Poisson processes with intensities determined by the nodes' group memberships. 
-	The maximum likelihood estimator is proposed, but no theoretical analysis is available in the paper. 
+	A semiparametric version of the variational EM algorithm is proposed, where the maximization over intensities is obtained by a histogram approach and/or a kernel estimator.
+
+	There are many other fitting methods of the stochastic block model that have been proposed, including spectral clustering \citet{Liu2018}, convex relaxation \citet{Li2018,Chen2014}, semidefinite programming relaxation \citet{Amini2018}, low-rank approximation \citet{Le2016b} etc.
 
 	Optimal rate of convergence is also studied.
 	\citet{Gao2015a} provides an optimal rate under the mean squared error for the stochastic block model.
 	\citet{Pensky2019a} 
-	% proposes a vectorization technique to simplify the tensor estimation in the dynamic network setting, and 
 	derives a penalized least square estimator in a dynamic network setting, and shows that the estimator satisfies an oracle inequality and  attains the minimax lower bound for the risk.
+
+
 
 
 	% \item Convex relaxation methods for community detection have been studied in \citet{Li2018,Li2017,Peng2005}.

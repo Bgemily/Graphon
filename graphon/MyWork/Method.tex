@@ -51,112 +51,110 @@ For details see \ref{app}.
 
 
 
-\subsection{Algorithm}
-[Jump from estimating $\tau_{i,j}$'s to $\tau_i$'s.]
+\subsection{Main steps}
+We iterate between three main steps: re-center step, re-cluster step, and re-align step.
+In the re-center step, we update connecting patterns based on current clustering  and time lags; 
+in the re-cluster step, we update the clusters based on updated connecting patterns and current time lags;
+in the re-align step, we update time lags based on updated clusters.
 
-\noindent
-We iterate between two main steps: re-center step and re-cluster step.
-In the re-center step, we update connecting patterns  based on current clustering  and time shifts; 
-while in the re-cluster step, we update the clusters
-and time shifts based on updated connecting patterns.
-
-\subsubsection{Re-center step}
-% In this step, we estimate connecting patterns  between each pair of clusters $\left\{ f_{q,l} \right\}_{q,l\in[k]}$.
-Based on current estimation of clusters $\{  \Gamma_q^{(c)} \}_{q\in[k]}$, we can obtain an (unaligned) point process for each pair of clusters by aggregating connecting times over all pair of nodes in the corresponding two clusters
-\begin{align*}
-N_{\Gamma_q^{(c)}, \Gamma_l^{(c)}}(\cdot) = \sum_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}} N_{i,j}(\cdot).
-\end{align*}
-Incorporating estimated time shifts $\{  \tau_i^{(c)} \}_{i\in [n]}$ yields two possible alignment: 
-(a) $\tilde N_{\Gamma_q^{(c)}, \Gamma_l^{(c)}}(\cdot) = \sum_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}} N_{i,j}(\cdot+\tau_i^{(c)})$ 
-and (b) $\tilde N_{\Gamma_q^{(c)}, \Gamma_l^{(c)}}(\cdot) = \sum_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}} N_{i,j}(\cdot+\tau_j^{(c)})$.
-We use the variance of the shifted events as a measure of goodness-of-alignment --- the one producing the smaller variance is adopted.
-To be more specific, let 
-\begin{align*}
-\text{var}_1 &= \text{var}\left[\{ T_{i,j}-\tau_i^{(c)} \}_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}}\right],
-\\
-\text{var}_2 &= \text{var}\left[\{ T_{i,j}-\tau_j^{(c)} \}_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}}\right],
-\end{align*}
-where 
-$T_{i,j}$ denotes the edging time between node $i$ and $j$ ($T_{i,j}=\infty$ if there is no edge).
-Then
+\subsubsection*{Re-center step}
+% In this step, we estimate connecting patterns  between each pair of clusters $\left\{ p_{q,l} \right\}_{q,l\in[k]}$.
+Based on current estimation of clusters $\{  \Gamma_q^{(c)} \}_{q\in[k]}$ and time shifts $\{\tau^{(c)}_{i,j}\}_{i,j\in[n]}$, 
+we can obtain shifted event times $t^{(c)}_{i,j} = \tilde t_{i,j}-\tau^{(c)}_{i,j}$.
+Let $N_{q,l}$ be a point process with events at time $T_{q,l}\equiv\{t_{i,j}^{(c)}: t_{i,j}^{(c)}<\infty, {i\in\Gamma_q^{(c)},j\in\Gamma_l^{(c)} }\}$,
+the connecting patterns are then estimated by kernel density estimation
 \begin{align}
-f_{q,l}^{(u)} &= 
-\begin{cases}
-\text{density}\left(\{T_{i,j}-\tau_i^{(c)} \}_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}}\right), \text{ if}~ \text{var}_1 < \text{var}_2,
-\\
-\text{density}\left(\{T_{i,j}-\tau_j^{(c)} \}_{i\in\Gamma_q^{(c)}, j\in\Gamma_l^{(c)}}\right), \text{ otherwise}.
-\end{cases}
-\label{eq: update connecting patterns}
+p_{q,l}^{(u)}(t) &= \frac{1}{h |T_{q,l}|}\sum_{t'\in T_{q,l}} K(\frac{t-t'}{h})
+\label{eq: update connecting patterns},
 \end{align}
-\noindent
-[Add how to deal with negative event time after alignment.]
+where $K$ is a kernel function and $h$ is the bandwidth.
 
 
 
-\subsubsection{Re-cluster step}
-% In this step we use the updated connecting patterns $\{f_{q,l}^{(u)}\}_{q,l\in[k]}$ to update clusters $\{\Gamma_q\}_{q\in[k]}$ and $\left\{  \tau_i \right\}_{i\in [n]}$.
-Given $\{f_{q,l}^{(u)}\}_{q,l\in[k]}$ and $\{\Gamma_q^{(c)}\}_{q\in[k]}$, we propose to solve a simplified version of the objective function in \eqref{eq: objective function 2}
-\begin{align}
-	\min_{\substack{\{\Gamma_q\}_{q\in[k]},\\  \{\tau_{i,j}\}_{i,j\in[n]}}} 
-	\sum_{q,l\in[k]}
-	w_{q,l}\cdot
-	 d^2(\tilde N_{\Gamma_q, \Gamma_l^{(c)}}, f_{q,l}^{(u)}).
-	 \label{eq: simplified obj func}
-\end{align}
-Setting the weights to be $w_{q,l}\propto \text{deg}(\Gamma_q,\Gamma_l^{(c)}) $, we derive an upper bound of \eqref{eq: simplified obj func} 
+\subsubsection*{Re-cluster step}
+% In this step we use the updated connecting patterns $\{p_{q,l}^{(u)}\}_{q,l\in[k]}$ to update clusters $\{\Gamma_q\}_{q\in[k]}$ and $\left\{  \tau_i \right\}_{i\in [n]}$.
+Given $\{p_{q,l}^{(u)}\}_{q,l\in[k]}$ and $\{\tau^{(c)}_{i,j}\}_{i,j\in[n]}$,
+we need to solve 
 \begin{align*}
-	\sum_{q,l\in[k]}
-	% \frac{\text{deg}(\Gamma_q,\Gamma_l)}{\sum_{q,l}\text{deg}(\Gamma_q,\Gamma_l)}
-	&\text{deg}(\Gamma_q,\Gamma_l^{(c)})
-	\cdot
-	 d^2(\tilde N_{\Gamma_q, \Gamma_l^{(c)}}, f_{q,l}^{(u)})
-	 \\
-	&\leq
-	\sum_{q,l\in[k]}
-	% \frac{\text{deg}(\Gamma_q,\Gamma_l)}{\sum_{q,l}\text{deg}(\Gamma_q,\Gamma_l)}
-	\text{deg}(\Gamma_q,\Gamma_l^{(c)})
-	\cdot
-	\left[ \sum_{i\in\Gamma_q}\frac{\text{deg}(i,\Gamma_l^{(c)})}{\text{deg}(\Gamma_q,\Gamma_l^{(c)})} \cdot
-	 d^2 \Big( \tilde N_{i, \Gamma_l^{(c)}}, f_{q,l}^{(u)} \Big)  \right] 
-	 \\
-	 &= \sum_{q}\sum_{i\in\Gamma_q} 
-	 \left[ \sum_{l} \text{deg}(i, \Gamma_l^{(c)}) \cdot d^2 \Big( \tilde N_{i, \Gamma_l^{(c)}}, f_{q,l}^{(u)} \Big) \right] 
-	 \\
-	 &\leq \sum_i \left[ \sum_{l} \sqrt{\text{deg}(i, \Gamma_l^{(c)})} \cdot d \Big( \tilde N_{i, \Gamma_l^{(c)}}, f_{z_i,l}^{(u)} \Big) \right]^2.
-	 % \label{eq: simplified obj func}
+z_i^{(u)} 
+=
+\arg\min_{q\in[k]} \sum_{l} w_{i,l} \cdot \|f_{i,l} - p^{(u)}_{q,l} \|_2^2, \qquad i=1,\cdots,n .
 \end{align*}
-The first inequality is obtained by applying Jensen's inequality.
-\\
-This upper bound leads to our re-cluster step
+Recall that $f_{i,l} $ is the density of $\{t_{i,j}^{(c)}=\tilde t_{i,j}-\tau_{i,j}^{(c)} : t_{i,j}^{(c)}<\infty, {j\in\Gamma_l\}}$ depending on the cluster $\Gamma_l$ that is to be estimated, so the estimation of $z_i^{(u)}$ is not straightforward. 
+To handle this problem, we propose to evaluate $f_{i,l} $ by computing the density of $\{t_{i,j}^{(c)}: t_{i,j}^{(c)}<\infty, {j\in\Gamma_l^{(c)}\}}$.
+The optimization problem then becomes
+\begin{align*}
+z_i^{(u)} 
+=
+\arg\min_{q\in[k]} \sum_{l} w_{i,l} \cdot \|f_{i,l^{(c)}} - p^{(u)}_{q,l} \|_2^2, \qquad i=1,\cdots,n .
+\end{align*}
+Furthermore, to rule out the effect of time lag between $f_{i,l^{(c)}}$ and $p^{(u)}_{q,l} $ and only consider the distance between shapes, 
+we substitute the $\ell_2$-distance by its shift-invariant version $d(f, g) = \inf_\tau \|f(\cdot+\tau)-g\|_2 $ and write down the final optimization problem
 \begin{align}
 z_i^{(u)} 
 =
-\arg\min_{q\in[k], } \sum_{l} \sqrt{\text{deg}(i, \Gamma_l^{(c)})} \cdot d \Big( \tilde N_{i, \Gamma_l^{(c)}}, f_{q,l}^{(u)} \Big).
+\arg\min_{q\in[k]} \sum_{l} w_{i,l} \cdot d(f_{i,l^{(c)}}, p^{(u)}_{q,l})^2, \qquad i=1,\cdots,n .
 \label{eq: update clusters}
 \end{align}
+The evaluation of this shift-invariant distance will be discussed later.
+Computing and comparing all the desired distances will solve this problem.
 
 
-\subsubsection*{Update time shifts}
-Based on current clusters, we are able to get the unaligned connecting point process $N_{i,\Gamma_q^{(u)}}$ between each node $i$ and each cluster $\Gamma_q^{(u)}$.
-We will align nodes from the same cluster and set the minimum time shifts in each cluster as zero for identifiability reason.
+
+
+\subsubsection*{Re-align step}
+Recall the structure of $\tau$ in \eqref{eq: structure of tau}. 
+Based on current clusters, we will estimate $\mathbf{v }^{(u)}$ and $\mathbf{L}^{(u)}$ which determines $\tau^{(u)}$.
 
 For each cluster $\Gamma_q^{(u)}$, randomly select a node $i^*\in\Gamma_q^{(u)}$ as a point of reference. 
-The time lag between node $i\in\Gamma_q^{(u)}$ and $i^*$ is then determined by 
+By aligning node $i\in\Gamma_q^{(u)}$ and $i^*$ with respect to each cluster,
+their time lag $v_i^{(u)}-v_{i^*}^{(u)}$ has $k$ possible values
+\begin{align*}
+	\Delta v_{(i,i^*),l} 
+	&=  \arg\min_{\tau} 
+	\| \tilde f_{i,l^{(u)}}(\cdot+\tau) 
+	- \tilde f_{i^*,l^{(u)}}(\cdot)\|_2 , \quad l\in[k],
+\end{align*}
+where $\tilde f_{i,l^{(u)}}$ is the density of $\{\tilde t_{i,j}: \tilde t_{i,j}<\infty, j\in\Gamma_l^{(u)} \}$.
+We will use the one with the largest magnitude as the estimated time lag:
 \begin{align}
-\tau_{(i,i^*),l} &=  \arg\min_{\tau} d(N_{i,\Gamma_l^{(u)}}(\cdot+\tau), N_{i^*,\Gamma_l^{(u)}}(\cdot)) , \quad l\in[k],
-\\
-\tau_{i,i^*} &= \max \Big( \big|\max_{l\in[k], l\neq q} \tau_{(i,i^*),l}\big|, \big|\min_{l\in[k], l\neq q} \tau_{(i,i^*),l}\big| \Big).
+v_i^{(u)}-v_{i^*}^{(u)} 
+&= \Delta v_{(i,i^*),l_0} ,  \text{ where }  l_0 = \arg\max_{l\in[k]} |\Delta v_{(i,i^*),l}|.
 \label{eq: align i and i^*}
 \end{align}
-\noindent [Add explanation.]
+The reason behind this is the following. 
+If $L_{q,l}=0$, the connection between node $i/i^*$ and cluster $\Gamma_l$ is led by nodes in $\Gamma_l$, and $\tilde t_{i,j}=t_{i,j}+v_i$, $\tilde t_{i^*,j}=t_{i^*,j}+v_{i^*}\overset{d}{=}t_{i,j}+v_{i^*}$ for $j\in\Gamma_l$, 
+as a result $\Delta v_{(i,i^*),l}$ will be close to $v_i - v_{i^*}$; 
+% while if $L_{q,l}=1$, 
+% $\tilde t_{i,j}=t_{i,j}+v_j$ and $\tilde t_{i^*,j}=t_{i^*,j}+v_{j}\overset{d}{=}t_{i,j}+v_{j}=\tilde t_{i,j}$ for $j\in\Gamma_l$, 
+otherwise $\Delta v_{(i,i^*),l}$ will be close to zero.
+Thus non-zero values are considered as valid estimation of time lags.
 \\
+Setting $\min\{v_i^{(u)}\}_{i\in\Gamma_q^{(u)}}$ as zero yields estimated $\{v_i^{(u)}\}_{i\in\Gamma_q^{(u)}}$. 
+
+$\mathbf{L}$ is then updated by comparing within group variances.
+For cluster pair $(q,l)$, 
+let 
+\begin{align*}
+\text{var}_1 &= \text{var}\left[\{ \tilde t_{i,j}-v_i^{(u)} \}_{i\in\Gamma_q^{(u)}, j\in\Gamma_l^{(u)}}\right],
+\\
+\text{var}_2 &= \text{var}\left[\{ \tilde t_{i,j}-v_j^{(u)} \}_{i\in\Gamma_q^{(u)}, j\in\Gamma_l^{(u)}}\right],
+\end{align*}
+then
+\begin{align}
+L_{q,l}^{(u)} = \mathbf{1}\{\text{var}_1 < \text{var}_2\}.
+\end{align}
+
+
 Finally, the time shifts are updated as
 \begin{align}
-\tau_{i}^{(u)} = \tau_{i,i^*} - \min_{i\in\Gamma_q^{(u)}} \tau_{i,i^*}, \quad i\in\Gamma_q^{(u)}.
+\tau_{i,j}^{(u)} = v_i^{(u)} \mathbf{1} \{L_{q,l}^{(u)}=0\} + v_j^{(u)} \mathbf{1} \{L_{q,l}^{(u)}=1\}
+.
 \label{eq: update time shifts}
 \end{align}
 
 
+% [Add how to deal with negative event time after alignment.]
 
 
 
@@ -168,18 +166,19 @@ Finally, the time shifts are updated as
 
 \subsection{Initialization}
 
-Naive k-means algorithm is applied to obtain initialization of clusterings and time shifts.
-Time shifts are obtained by aligning each aggregated point process with the first point process, followed by shifting all nodes together so that the minimum time shift is zero.
+Estimate $\{v_i^{(0)}\}_{i\in[n]}$ based on $\Gamma_1^{(0)}=[n]$.
+Initialize time lags by $\tau_{i,j}^{(c)}=v_i^{(0)}$.
 Clustering 
 $\{  \Gamma_q^{(c)} \}_{q\in[k]}$ is then initialized by applying k-means++ algorithm to 
 \begin{align*}
 \begin{bmatrix}
-T_{1,\cdot}-\tau_1^{(c)}\\
-T_{2,\cdot}-\tau_2^{(c)}\\
+f_{1}\\
+f_2\\
 \vdots\\
-T_{n,\cdot}-\tau_n^{(c)}
-\end{bmatrix}.
+f_n
+\end{bmatrix},
 \end{align*}
+where $f_i$ is the density of $\{\tilde t_{i,j} - v_i^{(0)}: \tilde t_{i,j}<\infty, j\in[n]\}$.
 
 
 
@@ -190,25 +189,25 @@ The algorithm is summarized as following.
 
 \begin{algorithm}[H]
 \SetAlgoLined
- Initialize $\{  \Gamma_q^{(c)} \}_{q\in[k]}$ and $\{  \tau_i^{(c)} \}_{i\in [n]}$\;
+ Initialize $\{  \Gamma_q^{(c)} \}_{q\in[k]}$ and $\{  \tau_{i,j}^{(c)} \}_{i,j\in [n]}$\;
 \While{$\{\Gamma_q^{(c)}\}_{q\in[k]} \neq \{\Gamma_q^{(u)}\}_{q\in[k]}$}{
-  	Update $\{f_{q,l}^{(u)}\}_{q,l\in[k]}$ via \eqref{eq: update connecting patterns} with $\{\Gamma_q^{(c)}\}_{q\in[k]}$ and $\{\tau_i^{(c)}\}_{i\in[n]}$ 
+  	Update $\{p_{q,l}^{(u)}\}_{q,l\in[k]}$ via \eqref{eq: update connecting patterns} with $\{\Gamma_q^{(c)}\}_{q\in[k]}$ and $\{\tau_{i,j}^{(c)}\}_{i\in[n]}$ 
   	\;
-  	Update $\{\Gamma_q^{(u)}\}_{q\in[k]}$ via \eqref{eq: update clusters} with $\{f_{q,l}^{(u)}\}_{q,l\in[k]}$, $\{\Gamma_q^{(c)}\}_{q\in[k]}$ and $\{\tau_i^{(c)}\}_{i\in[n]}$ 
+  	Update $\{\Gamma_q^{(u)}\}_{q\in[k]}$ via \eqref{eq: update clusters} with $\{p_{q,l}^{(u)}\}_{q,l\in[k]}$, $\{\Gamma_q^{(c)}\}_{q\in[k]}$ and $\{\tau_{i,j}^{(c)}\}_{i\in[n]}$ 
   	\;
-  	Update $\{\tau_i^{(u)}\}_{i\in[n]}$ via \eqref{eq: update time shifts} with $\{\Gamma_q^{(u)}\}_{q\in[k]}$
+  	Update $\{\tau_{i,j}^{(u)}\}_{i\in[n]}$ via \eqref{eq: update time shifts} with $\{\Gamma_q^{(u)}\}_{q\in[k]}$
   	\;
   	Evaluate the stopping criterion
   	\;
-  	$\{f_{q,l}^{(c)}\}_{q,l\in[k]} \leftarrow \{f_{q,l}^{(u)}\}_{q,l\in[k]} $
+  	$\{p_{q,l}^{(c)}\}_{q,l\in[k]} \leftarrow \{p_{q,l}^{(u)}\}_{q,l\in[k]} $
   	\;
   	$\{\Gamma_q^{(c)}\}_{q\in[k]} \leftarrow \{\Gamma_q^{(u)}\}_{q\in[k]} $
   	\;
-  	$\{\tau_i^{(c)}\}_{i\in[n]} \leftarrow \{\tau_i^{(u)}\}_{i\in[n]} $
+  	$\{\tau_{i,j}^{(c)}\}_{i\in[n]} \leftarrow \{\tau_{i,j}^{(u)}\}_{i\in[n]} $
   	\;
  }
 
-\KwOut{$\{f_{q,l}^{(c)}\}_{q,l\in[k]}$, $\{\Gamma_q^{(c)}\}_{q\in[k]}$, $\{\tau_i^{(c)}\}_{i\in[n]} $.}
+\KwOut{$\{p_{q,l}^{(c)}\}_{q,l\in[k]}$, $\{\Gamma_q^{(c)}\}_{q\in[k]}$, $\{\tau_{i,j}^{(c)}\}_{i\in[n]} $.}
  \caption{ [name of algorithm]}
 \end{algorithm}
 
