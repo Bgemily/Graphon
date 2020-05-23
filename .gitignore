@@ -7,7 +7,8 @@ Stage1/
 Stage2/
 *.mat
 *.Rdata
-
+*.csv
+*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
