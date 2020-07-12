@@ -1,5 +1,5 @@
 
-plot_pdf_array = function(pdf_array_list, pdf_true_array = NULL, t_vec = seq(0, 50, 0.05))
+plot_pdf_array = function(pdf_array_list, pdf_true_array = NULL, t_vec = seq(0, 50, 0.05), y_lim=c(0, 0.4))
 {
   if (!is.list(pdf_array_list))
     pdf_array_list = list(pdf_array_list)
@@ -15,11 +15,11 @@ plot_pdf_array = function(pdf_array_list, pdf_true_array = NULL, t_vec = seq(0, 
   #     stop("size of pdf_array and pdf_true_array should match.")
   #   
   #   # find permutation for pdf_array
-  #   permn_list = lapply(pdf_array_list, function(pdf_array)find_permn(pdf_array, pdf_true_array, t_unit = t_unit)$permn)
+  #   permn_list = lapply(pdf_array_list, function(pdf_array)find_permn(pdf_array, pdf_true_array, t_unit = t_unit, t_vec=t_vec)$permn)
   #   pdf_array_list = mapply(function(pdf_array, permn)pdf_array[permn,permn,], pdf_array_list, permn_list, SIMPLIFY = FALSE)
   # }
   # else if (k1==k2){
-  #   permn_list = lapply(pdf_array_list, function(pdf_array)find_permn(pdf_array, pdf_true_array, t_unit = t_unit)$permn)
+  #   permn_list = lapply(pdf_array_list, function(pdf_array)find_permn(pdf_array, pdf_true_array, t_unit = t_unit, t_vec=t_vec)$permn)
   #   pdf_array_list = mapply(function(pdf_array, permn)pdf_array[permn,permn,], pdf_array_list, permn_list, SIMPLIFY = FALSE)
   # }
   # 
@@ -43,10 +43,10 @@ plot_pdf_array = function(pdf_array_list, pdf_true_array = NULL, t_vec = seq(0, 
   ggplot(big.df, aes(t, value, group=variable, color=col.group, alpha=col.group, size=col.group, linetype=col.group)) +
     geom_line() + 
     scale_color_manual(values = c("Estimate"="black","True"="red", "Mean"="black"), name=NULL) + 
-    scale_alpha_manual(values=c("Estimate"=0.2,"True"=1, "Mean"=1), name=NULL) +
+    scale_alpha_manual(values=c("Estimate"=0.5,"True"=1, "Mean"=0.7), name=NULL) +
     scale_size_manual(values=c("Estimate"=0.2,"True"=0.7, "Mean"=0.4), name=NULL)+
-    scale_linetype_manual(values = c("Estimate"=1,"True"=1, "Mean"=1)) + 
-    ylim(c(0, 0.4)) +
+    scale_linetype_manual(values = c("Estimate"=3,"True"=1, "Mean"=2)) + 
+    ylim(y_lim) +
     facet_wrap(~clus.pair) +
     xlab("Time") + ylab(NULL) +
     theme_bw() +

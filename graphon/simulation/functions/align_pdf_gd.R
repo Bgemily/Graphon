@@ -81,22 +81,22 @@ align_curves_gd_ = function(f_origin, f_shift, n0, step_size, MaxIter=1000, stop
   while (dist_redu>stopping_redu && iter_count<MaxIter) {
     iter_count = iter_count+1
     
-    gd = gradient(theta_prime, gamma_prime, n0, pp=pp); 
+    gd = gradient(theta_prime = theta_prime, gamma_prime = gamma_prime, n0 = n0, pp=pp); 
     n0 = n0 - step_size*gd
     n0 = round(n0) 
     
     if(n0<0) { 
       n0 = 0; 
-      dist_curr = distance(theta_prime, gamma_prime, n0, pp=pp, t_unit = t_unit)
+      dist_curr = distance(theta_prime = theta_prime, gamma_prime = gamma_prime, n0 = n0, pp=pp, t_unit = t_unit)
       break 
     }
     if(n0>length(f_origin)) { 
       n0 = length(f_origin); 
-      dist_curr = distance(theta_prime, gamma_prime, n0, pp=pp, t_unit = t_unit)
+      dist_curr = distance(theta_prime = theta_prime, gamma_prime = gamma_prime, n0 = n0, pp=pp, t_unit = t_unit)
       break 
     }
     
-    dist_upd = distance(theta_prime, gamma_prime, n0, pp=pp, t_unit = t_unit)
+    dist_upd = distance(theta_prime = theta_prime, gamma_prime = gamma_prime, n0 = n0, pp=pp, t_unit = t_unit)
     dist_redu = (dist_curr-dist_upd)/dist_upd
     if (is.na(dist_redu)) dist_redu = 0
     dist_curr = dist_upd
@@ -115,15 +115,19 @@ align_curves_gd = function(f1, f2, n0, step_size, MaxIter=1000, stopping_redu=0.
 
   
   if (n0 <= 0) {
-    r = align_curves_gd_(f2, f1, -n0, step_size, MaxIter, stopping_redu, pp=pp, t_unit=t_unit)
+    r = align_curves_gd_(f_origin = f2, f_shift = f1, n0 = -n0, step_size = step_size, MaxIter = MaxIter, 
+                         stopping_redu = stopping_redu, pp=pp, t_unit=t_unit)
     if(r$n0>0)  {return(list(n0 = -r$n0, dist_min = r$dist_min))}
-    else {return(align_curves_gd_(f1, f2, 0, step_size, MaxIter, stopping_redu, pp=pp, t_unit=t_unit))}
+    else {return(align_curves_gd_(f_origin = f1, f_shift = f2, n0 = 0, step_size = step_size, MaxIter = MaxIter, 
+                                  stopping_redu = stopping_redu, pp=pp, t_unit=t_unit))}
   }
   else{
-    r = align_curves_gd_(f1, f2, n0, step_size, MaxIter, stopping_redu, pp=pp, t_unit=t_unit)
+    r = align_curves_gd_(f_origin = f1, f_shift = f2, n0 = n0, step_size = step_size, MaxIter = MaxIter, 
+                         stopping_redu = stopping_redu, pp=pp, t_unit=t_unit)
     if(r$n0>0) {return(r)}
     else {
-      r = (align_curves_gd_(f2, f1, 0, step_size, MaxIter, stopping_redu, pp=pp, t_unit=t_unit))
+      r = (align_curves_gd_(f_origin = f2, f_shift = f1, n0 = 0, step_size = step_size, MaxIter = MaxIter, 
+                            stopping_redu = stopping_redu, pp=pp, t_unit=t_unit))
       return(list(n0 = -r$n0, dist_min = r$dist_min))
     }
   }
@@ -137,9 +141,11 @@ align_pdf_gd = function(pdf1, pdf2, n0=0, step_size=0.02, MaxIter=1000, stopping
   else{
     cdf1 = cumsum(pdf1)/sum(pdf1)
     cdf2 = cumsum(pdf2)/sum(pdf2)
-    n0_init = align_curves_gd(cdf1, cdf2, n0, step_size, MaxIter, stopping_redu, pp=FALSE, t_unit=t_unit)$n0
+    n0_init = align_curves_gd(f1 = cdf1, f2 = cdf2, n0 = n0, step_size = step_size, MaxIter = MaxIter, 
+                              stopping_redu = stopping_redu, pp=FALSE, t_unit=t_unit)$n0
   }
-  res = align_curves_gd(pdf1, pdf2, n0_init, step_size, MaxIter, stopping_redu, pp=TRUE, t_unit=t_unit)
+  res = align_curves_gd(f1 = pdf1, f2 = pdf2, n0 = n0_init, step_size = step_size, MaxIter = MaxIter, 
+                          stopping_redu = stopping_redu, pp=TRUE, t_unit=t_unit)
   return(list(n0 = res$n0, dist_min = res$dist_min))
 }
 

@@ -78,6 +78,7 @@ plot_jitter_boxplot = function(data)
     geom_violin(width=1, alpha=0.3) +
     geom_boxplot(width=0.3, alpha=0.7) +
     scale_fill_viridis(discrete = TRUE) +
+    ylim(c(0,1))+
     theme_light() +
     theme(
       axis.title = element_blank(),
@@ -106,8 +107,23 @@ plot_jitter_boxplot(data=data.frame(ARI))
 # Plot estimated connecting patterns -------------------------------------
 
 results = results2
-pdf_true_array = fun2pdfarray(results[[1]]$network$true_pdf_fun_list, 
-                              results[[1]]$network$tau_mat, results[[1]]$network$membership_true)
+
+
+pdf_true_array = fun2pdfarray(true_pdf_fun_list = results[[1]]$network$true_pdf_fun_list,
+                               tau_mat = results[[1]]$network$tau_mat, 
+                              membership_true = results[[1]]$network$membership_true,
+                              t_vec = r$network$t_vec)
+# times pdf_true_array by connecting probabilities
+r = results[[2]]
+edge_time_mat = r$network$edge_time_mat
+clus_degree = get_clus_degree_mat(edge_time_mat = edge_time_mat, clusters = mem2clus(r$network$membership_true))
+for (q in 1:dim(pdf_true_array)[1]) {
+  for (l in 1:dim(pdf_true_array)[2]) {
+    pdf_true_array[q,l, ] = pdf_true_array[q,l, ] * clus_degree[q,l] / (sum(r$network$membership_true==q)*sum(r$network$membership_true==l)*(1-0.5*I(q==l)))
+  }
+}
+
+
 pdf_array_list = lapply(results, function(r)r$clus_result$center_pdf_array)
 clusters_list = lapply(results, function(x)x$clus_result$clusters)
 
@@ -120,13 +136,37 @@ pdf_array_list = res$pdf_array_list
 
 
 
-plot_pdf_array(pdf_array_list = pdf_array_list, pdf_true_array = pdf_true_array) 
+
+r = results[[1]]
+plot_pdf_array(pdf_array_list = pdf_array_list[index], pdf_true_array = pdf_true_array, 
+               t_vec = r$network$t_vec, y_lim = c(0,0.25)) 
+plot_pdf_array(pdf_array_list = center_pdf_array, pdf_true_array = pdf_true_array, 
+               t_vec = r$network$t_vec, y_lim = c(0,0.25)) 
+
+
+
+
+
+# Plot estimated connecting patterns (real data) -------------------------------------
+
+results = list(result)
+
+
+pdf_array_list = lapply(results, function(r)r$clus_result$center_pdf_array)
+
+
+r = results[[1]]
+plot_pdf_array(pdf_array_list = pdf_array_list, pdf_true_array = NULL, 
+               t_vec = r$network$t_vec, y_lim = c(0,0.02)) 
+
+
+write.csv(clus2mem(result$clus_result$clusters), paste('../processed_FunctionalData/',path,'/MembShip.csv',sep=''),col.names=F)
 
 
 
 # Over-clustering -------------------------------------------------
 
-r = results2[[1]]
+r = results2[[29]]
 edge_time_mat = r$network$edge_time_mat
 t_vec = r$network$t_vec
 bw = 1
@@ -185,8 +225,8 @@ get_pairwise_dist = function(edge_time_mat, clusters, t_vec=seq(0, 50, 0.05), bw
   n0_vec = est_n0_vec(edge_time_mat = edge_time_mat, clusters = clusters, t_vec = t_vec, bw = bw)
   node_pdf_array = get_node_pdf_array(edge_time_mat = edge_time_mat, clusters = clusters, 
                                        n0_vec = n0_vec, t_vec = t_vec, bw = bw)
-  degree_mat = get_node_degree_mat(edge_time_mat = edge_time_mat, clusters = clusters, intensity=TRUE)
-  dist_mat = pairwise_dist_mat(node_pdf_array, degree_mat = degree_mat)$dist_mat
+  degree_mat = get_node_degree_mat(edge_time_mat = edge_time_mat, clusters = clusters)
+  dist_mat = pairwise_dist_mat(pdf_array = node_pdf_array, degree_mat = degree_mat, t_unit = 0.05)$dist_mat
   return(dist_mat)
 }
 
@@ -370,6 +410,27 @@ grid.draw(rbind(ggplotGrob(p1), ggplotGrob(p3), size = "last"))
 
 
 # Plot nodes locations with cluster results -------------------------------
+
+library(R.matlab)
+
+path.list=list.files('/Users/bgemily/Documents/Academic/SC/graphon/FunctionalData/');
+
+for(k in 1:length(path.list)){
+  path=path.list[[k]]
+  dat<- readMat(paste('/Users/bgemily/Documents/Academic/SC/graphon/FunctionalData/',
+                      path,'/profile.mat',sep=''));
+  
+  dat.activity=dat$profile.all;
+  n.neurons = dim(dat.activity)[1]; 
+  n.timeframes=dim(dat.activity)[2];
+  
+  write.csv(dat.dFF,paste('./FunctionalData/',path,'/dFF.csv',sep=''),col.names=F)
+}
+
+
+
+
+
 
 
 

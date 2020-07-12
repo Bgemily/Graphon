@@ -2,8 +2,9 @@
 
 main = function(case, SEED, N_clus, N_overclus=N_clus, MaxIter=30, N_subj=1, bw=1)
 {
-  total_time = 50
-  t_vec = seq(0, total_time, 0.05)
+  total_time_rescaled = 50
+  total_time = 60
+  t_vec = seq(0, total_time_rescaled, 0.05) 
   N_trial = 10
   
   set.seed(SEED)
@@ -16,6 +17,8 @@ main = function(case, SEED, N_clus, N_overclus=N_clus, MaxIter=30, N_subj=1, bw=
   
   network = del_iso_nodes(network)
   edge_time_mat = network$edge_time_mat
+  
+  edge_time_mat = edge_time_mat/total_time*total_time_rescaled
   
   res = do_cluster(edge_time_mat = edge_time_mat, N_clus = N_clus, N_overclus = N_overclus, 
                    MaxIter = MaxIter, N_trial = N_trial, t_vec = t_vec, bw = bw)
