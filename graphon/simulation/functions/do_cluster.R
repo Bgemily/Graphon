@@ -5,60 +5,17 @@ do_cluster = function(edge_time_mat, N_clus, N_overclus=N_clus, MaxIter=10, N_tr
   t_unit = t_vec[2] - t_vec[1]
   N_node = nrow(edge_time_mat)
   
-  # # init by k-medoids
-  # N_node = nrow(edge_time_mat)
-  # node_pdf_array = get_node_pdf_array(edge_time_mat = edge_time_mat, clusters = list(c(1:N_node)), 
-  #                                     n0_vec = numeric(N_node), t_vec = t_vec, bw = bw)
-  # n0_vec_init = est_n0_vec(edge_time_mat = edge_time_mat, clusters = list(c(1:N_node)), t_vec = t_vec, bw = bw)
-  # aligned_pdf_mat = t(sapply(1:N_node, function(i)shift(node_pdf_array[i,1,], n0_vec_init[i], pp=TRUE)))
-  # dist_mat = rdist::pdist(aligned_pdf_mat)
-  # clusters = mem2clus(cluster::pam(x = dist_mat, k = N_overclus, diss=TRUE)$cluster)
-  # n0_vec = est_n0_vec(edge_time_mat = edge_time_mat, clusters = clusters, t_vec = t_vec, bw = bw)
-  # res_overclus=NULL
-  # 
-  # # cluster by k-medoids
-  # clusters_history = list(clusters)
-  # clusters_old = NULL
-  # n_iter=0
-  # while (!identical(clusters, clusters_old) & n_iter<=MaxIter){
-  #   node_pdf_array = get_node_pdf_array(edge_time_mat = edge_time_mat, clusters = clusters, 
-  #                                        n0_vec = n0_vec, t_vec = t_vec, bw = bw)
-  #   degree_mat = get_node_degree_mat(edge_time_mat = edge_time_mat, clusters = clusters)
-  #   dist_mat = pairwise_dist_mat(node_pdf_array, degree_mat = degree_mat, t_vec=t_vec)$dist_mat
-  #   
-  #   clusters = mem2clus(cluster::pam(x = dist_mat, k = N_clus, diss=TRUE)$cluster)
-  #   n0_vec = est_n0_vec(edge_time_mat = edge_time_mat, clusters = clusters, t_vec = t_vec, bw = bw)
-  #   
-  #   n_iter = n_iter+1
-  #   clusters_history = c(clusters_history, list(clusters))
-  # }
-  # 
-  
-
-
-  # # over-clustering via kmeanspp and no merge
-  # clusters = list(c(1:nrow(edge_time_mat)))
-  # n0_vec = numeric(nrow(edge_time_mat))
-  # 
-  # res_overclus = cluster_kmeans_overclus(edge_time_mat, clusters, n0_vec, N_overclus, N_clus = N_overclus,
-  #                                       MaxIter = MaxIter, N_trial = N_trial, t_vec=t_vec, bw=bw)
-  # 
-  # clusters = res_overclus$clusters
-  # n0_vec = res_overclus$n0_vec
-  
-  
-  
-  # naive initialization via kmeanspp
+  # initialize clusters via kmeanspp, initialize n0_mat 
   node_pdf_array = get_node_pdf_array(edge_time_mat = edge_time_mat, clusters = list(c(1:N_node)), 
                                       n0_vec = numeric(N_node), n0_mat = matrix(0,N_node,N_node), t_vec = t_vec, bw = bw)
   n0_vec_init = est_n0_vec(edge_time_mat = edge_time_mat, clusters = list(c(1:N_node)), t_vec = t_vec, bw = bw)
   aligned_pdf_mat = t(sapply(1:N_node, function(i)shift(node_pdf_array[i,1,], n0_vec_init[i], pp=TRUE)))
   
-  # exact-clustering
-  res_exaclus = kmeanspp(data_mat = aligned_pdf_mat, N_clus = N_clus, MaxIter = MaxIter, N_trial = N_trial)
-  clusters_history = list(res_exaclus$clusters)
-  
-  # over-clustering
+  ## exact-clustering
+  # res_exaclus = kmeanspp(data_mat = aligned_pdf_mat, N_clus = N_clus, MaxIter = MaxIter, N_trial = N_trial)
+  # clusters_history = list(res_exaclus$clusters)
+
+  ## over-clustering
   res_overclus = kmeanspp(data_mat = aligned_pdf_mat, N_clus = N_overclus, MaxIter = MaxIter, N_trial = N_trial)
   clusters = res_overclus$clusters
   res = est_n0_mat(edge_time_mat = edge_time_mat, clusters = clusters, t_vec = t_vec, bw = bw)

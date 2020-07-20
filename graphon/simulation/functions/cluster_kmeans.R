@@ -3,7 +3,7 @@
 # k-means clustering
 cluster_kmeans = function(edge_time_mat, clusters, n0_vec, n0_mat=NULL, center_pdf_array=NULL, t_vec=seq(0, 50, 0.05), bw=1, intensity=TRUE){
   
-  n0_mat = NULL ###### change this to use new method
+  # n0_mat = NULL ###### change this to use new method
   
   N_node = nrow(edge_time_mat); 
   N_clus = length(clusters)

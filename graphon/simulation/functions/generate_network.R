@@ -125,8 +125,8 @@ generate_network2 = function(SEED=0, total_time=50)
       clus_size_q = clus_size_vec[q]; clus_size_l = clus_size_vec[l]
       if (q==l){
         tmp = mapply(min, matrix(tau_vec[clus_q], clus_size_q, clus_size_l), t(matrix(tau_vec[clus_l], clus_size_l, clus_size_q)))
-        # tau_mat[clus_q, clus_l] = matrix(tmp, nrow = clus_size_q)
-        tau_mat[clus_q, clus_l] = 0
+        tau_mat[clus_q, clus_l] = matrix(tmp, nrow = clus_size_q)
+        # tau_mat[clus_q, clus_l] = 0
       }
       else if (q<l)
         tau_mat[clus_q, clus_l] = matrix(tau_vec[clus_q], clus_size_q, clus_size_l) 

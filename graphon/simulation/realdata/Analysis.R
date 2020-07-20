@@ -4,9 +4,9 @@ path.list=list.files('../processed_FunctionalData/');
 
 
 conn.interval=200; # =50 seconds at 4 Hz
-rho=0.4; # an arbitrary threshold...
+rho=0.5; # an arbitrary threshold...
 
-window_length = 1200 # = 5min at 4 Hz
+window_length = 240 # = 1min at 4 Hz
 window_step = 240 # = 1min at 4Hz
 
 # Calculate the covariance matrix 
@@ -47,9 +47,10 @@ for(k in 1:length(path.list)){
   # glassopath(s=cov.tmp)
   
   # Thresholding the correlation matrix to obtain the connectivity matrix 
+  # nodes are considered as connected if their mean correlation in next 5 min is larger than the threshold
   adj.full=cor.full;
-  for(i in 1:n.intervals){
-    adj.full[i,,]=cor.full[i,,]>rho;
+  for(i in 1:(n.intervals-4)){
+    adj.full[i,,]=apply(cor.full[i:(min(i+4,n.intervals)),,,drop=F], c(2,3), mean)>rho;
   }
   
   # Find the minimum connecting time for the neurons 
@@ -69,7 +70,7 @@ for(k in 1:length(path.list)){
 
 ## Load the edge time matrix
 path.list=list.files('./FunctionalData/');
-path=path.list[[8]];
+path=path.list[[1]];
 edge.time=as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/EdgeTime.csv',sep='')))
 edge.time=edge.time[,-1]
 
