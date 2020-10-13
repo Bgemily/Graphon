@@ -198,6 +198,116 @@ Gradient:
 
 
 
+For cdf $F$ and $G$ whose values at $T$ are less than $1$, define the shifted (towards left) cdf as
+
+
+\begin{align}\label{eq:def of shifted curve}
+	S_\tau\circ F(t)=
+	\begin{cases}
+	0, &t\in[-T,-\tau)\\
+	F(t+ \tau), &t\in[-\tau,T-\tau)\\
+	F(T),& t\in [T-\tau,T]
+	\end{cases}.
+\end{align}
+
+The Fourier coefficients of $S_\tau \circ F$ is
+\begin{align*}
+	\theta_j' 
+	&= \sum_{k=\frac{-(N-1)}{2}}^{\frac{N-1}{2}-n_0} X_{k+n_0} \cdot \exp\{-\complexunit{}2\pi ({k}/{N})j\} + 
+	\sum_{k=\frac{(N-1)}{2}-n_0+1}^{\frac{N-1}{2}} F(T) \cdot \exp\{-\complexunit{}2\pi ({k}/{N})j\} \\
+	&= \sum_{k=\frac{-(N-1)}{2}+n_0}^{\frac{N-1}{2}} X_{k} 
+	\cdot \exp\{-\complexunit{}2\pi ({(k-n_0)}/{N})j\} 
+	+ \sum_{k=\frac{-(N-1)}{2}}^{\frac{-(N-1)}{2}+n_0-1} 0 
+	+ \sum_{k=\frac{(N-1)}{2}-n_0+1}^{\frac{N-1}{2}} F(T) \cdot \exp\{-\complexunit{}2\pi ({k}/{N})j\}
+	\\
+	&= \sum_{k=\frac{-(N-1)}{2}}^{\frac{N-1}{2}} X_{k} \cdot 
+	\exp\{-\complexunit{}2\pi ({(k-n_0)}/{N})j\} 
+	+ \sum_{k=\frac{(N-1)}{2}-n_0+1}^{\frac{N-1}{2}} F(T) \cdot \exp\{-\complexunit{}2\pi ({k}/{N})j\}
+	\\
+	&= \theta_j \cdot \exp \{ \complexunit{}2\pi (n_0/N)j \} + \frac{e^{\complexunit{}2\pi j (n_0/N)}-1}{1-e^{\complexunit{}2\pi j /N}} \cdot \mathbf{1}_{\left\{ j\neq0 \right\}}\cdot F(T) + n_0 \cdot \mathbf{1}_{\left\{ j=0 \right\}}\cdot F(T)
+	.
+\end{align*}
+
+The shift-invariant distance between $F$ and $G$ is then 
+\begin{align*}
+	 d(F, G) 
+	 &= \min\Big\{ \inf_{\tau\in[0,T]} 
+	 \left( \int_{-T}^T\big| S_\tau\circ F(t)-G(t) \big|^2 \text{d}t \right)^{1/2}, \\
+	 & \qquad \quad \quad \inf_{\tau\in[0,T]}\left( \int_{-T}^T
+	 \big| F(t)-S_\tau\circ G(t) \big|^2 \text{d}t \right)^{1/2} \Big\} \\
+	 &= \min\left\{ \inf_{\tau\in[0,T]} 
+	 \left( 
+	 	\frac{2T}{N} \sum_{k=\frac{-(N-1)}{2}}^{\frac{N-1}{2}} |X_k'-Y_k|^2
+	 \right)^{1/2}, 
+	  \inf_{\tau\in[0,T]}\left( 
+	  \frac{2T}{N} \sum_{k=\frac{-(N-1)}{2}}^{\frac{N-1}{2}} |X_k-Y_k'|^2
+	 \right)^{1/2} \right\} \\
+	 &= \min \left\{ 
+	 	\min_{0\leq n_0\leq (N-1)/2} 
+	 	\left(\frac{2T}{N}\frac{N}{N^2} 
+	 		 	\sum_{j=\frac{-(N-1)}{2}}^{\frac{N-1}{2}}
+	 		 	|\theta_j' - \gamma_j|^2 \right)^{1/2} ,
+	 	\min_{0\leq n_0\leq (N-1)/2} 
+	 	\left(\frac{2T}{N}\frac{N}{N^2} 
+	 		 	\sum_{j=\frac{-(N-1)}{2}}^{\frac{N-1}{2}}
+	 		 	|\theta_j - \gamma_j'|^2 \right)^{1/2}
+	  \right\} \\
+	  &= \min \Big\{ 
+	 	\min_{0\leq n_0\leq (N-1)/2} 
+	 	\Big(\frac{2T}{N^2}
+	 		\Big[\sum_{0<|j|\leq (N-1)/2}
+				\left| \theta_{i,j}e^{\complexunit 2\pi j n_0/N}+
+				\frac{e^{\complexunit{}2\pi j n_0/N}-1}{1-e^{\complexunit{}2\pi j /N}} \cdot F(T)
+				-\gamma_{j} \right|^2 \\
+				& \quad \quad \quad \quad \quad \qquad \qquad \qquad
+				+ \left| \theta_0+n_0\cdot F(T)-\gamma_0 \right|^2 \Big]
+	 	\Big)^{1/2}, \\
+	 	& \quad \quad \quad \quad \quad 
+	 	\min_{0\leq n_0\leq (N-1)/2} 
+	 	\Big(\frac{2T}{N^2}
+	 		[\cdots] 
+	 	\Big)^{1/2}
+	  \Big\}.
+\end{align*}
+
+\noindent
+Loss function
+\begin{equation*}
+		\begin{aligned}\label{eq:aligned distance}
+		L(n_0)&=
+		\sum_{0<|j|\leq (N-1)/2}
+		\left| \theta_{j}e^{\complexunit 2\pi j (n_0/N)}+
+		\frac{e^{\complexunit{}2\pi j (n_0/N)}-1}{1-e^{\complexunit{}2\pi j /N}}
+		\cdot F(T)
+		-\gamma_{j} \right|^2
+		+ \left| \theta_0+n_0\cdot F(T)-\gamma_0 \right|^2
+		\\
+		&=
+		\sum_{0<|j|\leq (N-1)/2}
+		\left| \left( \theta_{j}+ \frac{1\cdot F(T)}{1-e^{\complexunit{}2\pi j /N}} \right) e^{\complexunit{}2\pi j (n_0/N)} 
+		- \left( \gamma_{j}+\frac{1\cdot F(T)}{1-e^{\complexunit{}2\pi j /N}} \right)  \right|^2 
+		+\\
+		&\hspace{11cm} \left| \theta_0+n_0\cdot F(T)-\gamma_0 \right|^2
+		\\
+		&\overset{\triangle}{=}
+		\sum_{0<|j|\leq (N-1)/2}\left| \theta_{j}'' e^{\complexunit{}2\pi j (n_0/N)} - {\gamma_{j}''}  \right|^2
+		+ \left| \theta_0+n_0\cdot F(T)-\gamma_0 \right|^2
+		.
+\end{aligned}
+\end{equation*}
+\noindent
+Gradient:
+	\begin{equation}
+		\begin{split}
+		\nabla_{n_0} = \frac{4\pi}{N}\cdot 
+		\sum_{0<|j|\leq (N-1)/2} j\cdot 
+		\text{Im} \left( {\theta_j''}\overline{{\gamma_j''}}e^{\complexunit2\pi n_0 j/N} \right) 
+		+ 2n_0+2 \text{Re}\left( \theta_0-\gamma_0 \right) .
+		\end{split}
+		\end{equation}
+
+
+
 
 
 TO DO:

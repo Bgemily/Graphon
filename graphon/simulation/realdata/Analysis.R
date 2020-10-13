@@ -4,7 +4,7 @@ path.list=list.files('../processed_FunctionalData/');
 
 
 conn.interval=200; # =50 seconds at 4 Hz
-rho=0.5; # an arbitrary threshold...
+rho=0.6; # an arbitrary threshold...
 
 window_length = 240 # = 1min at 4 Hz
 window_step = 240 # = 1min at 4Hz
@@ -68,18 +68,40 @@ for(k in 1:length(path.list)){
   
 }
 
-## Load the edge time matrix
-path.list=list.files('./FunctionalData/');
-path=path.list[[1]];
-edge.time=as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/EdgeTime.csv',sep='')))
-edge.time=edge.time[,-1]
 
-image(edge.time)
 
-bw=10
-plot(density(edge.time[1,-1]),xlim=c(0,340),ylim=c(0,0.02))
-for(i in 2:dim(edge.time)[1]){
-  if(length(which(edge.time[i,-i]<Inf))>=2)
-    lines(density(edge.time[i,-i]))
+######## extract locs.all and mnx
+path.list=list.files('../Zebrafish_spinal_cord_development/FunctionalData/');
+for(k in 1:length(path.list)){
+  path=path.list[[k]]
+  dat=readMat(paste('../Zebrafish_spinal_cord_development/FunctionalData/',path,'/profile.mat',sep=''))
+  
+  locs.all=cbind(dat$x,dat$y,dat$z)
+  mnx = dat$mnx
+  if(!is.null(dat$islet)){
+    islet = dat$islet
+    write.csv(islet, paste('../processed_FunctionalData/',path,'/islet.csv',sep=''),col.names=F)
+  }
+
+  write.csv(locs.all, paste('../processed_FunctionalData/',path,'/locs_all.csv',sep=''),col.names=F)
+  write.csv(mnx, paste('../processed_FunctionalData/',path,'/mnx.csv',sep=''),col.names=F)
+  
+  rm(dat)
+  
 }
-i=16;lines(density(edge.time[i,-i],bw=5), col=2,xlim=c(0,340),ylim=c(0,0.02))
+
+
+######## extract tracks_smoothed
+path.list=list.files('../Zebrafish_spinal_cord_development/FunctionalData/');
+for(k in 1:length(path.list)){
+  path=path.list[[k]]
+  dat=readMat(paste('../Zebrafish_spinal_cord_development/FunctionalData/',path,'/profile.mat',sep=''))
+  
+  tracks_smoothed = dat$tracks.smoothed
+  
+  saveRDS(tracks_smoothed, file = paste('../processed_FunctionalData/',path,'/tracks_smoothed.rds',sep=''))
+  
+  rm(dat)
+  
+}
+

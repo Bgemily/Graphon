@@ -35,26 +35,38 @@ plot_pdf_array = function(pdf_array_list, pdf_true_array = NULL, t_vec = seq(0, 
 
       tmp.df$clus.pair = paste0("(",q,",",l,")")
       
+      tmp.df$fill.col = grDevices::rainbow(300)[floor(tmp.df$t)+1]
+      
       big.df = rbind(big.df, tmp.df)
     }
   }
   
   library(ggplot2)
-  ggplot(big.df, aes(t, value, group=variable, color=col.group, alpha=col.group, size=col.group, linetype=col.group)) +
-    geom_line() + 
-    scale_color_manual(values = c("Estimate"="black","True"="red", "Mean"="black"), name=NULL) + 
+  g <- ggplot(big.df, aes(t, value, group=col.group, color=col.group, alpha=col.group, size=col.group, linetype=col.group)) +
+    geom_line()+
+    # geom_line(color=big.df$fill.col) +
+    scale_color_manual(values = c("Estimate"="black","True"="red", "Mean"="black"), name=NULL,aesthetics = "color") + 
     scale_alpha_manual(values=c("Estimate"=0.5,"True"=1, "Mean"=0.7), name=NULL) +
-    scale_size_manual(values=c("Estimate"=0.2,"True"=0.7, "Mean"=0.4), name=NULL)+
-    scale_linetype_manual(values = c("Estimate"=3,"True"=1, "Mean"=2)) + 
+    scale_size_manual(values=c("Estimate"=0.7,"True"=0.7, "Mean"=0.4), name=NULL)+
+    # scale_alpha_manual(values=c("Estimate"=0,"True"=1, "Mean"=0), name=NULL) +
+    # scale_size_manual(values=c("Estimate"=0,"True"=0.7, "Mean"=0), name=NULL)+
+    scale_linetype_manual(values = c("Estimate"=1,"True"=2, "Mean"=1)) + 
     ylim(y_lim) +
     facet_wrap(~clus.pair) +
     xlab("Time") + ylab(NULL) +
     theme_bw() +
     theme(legend.position = 'none') +
-    theme(strip.background = element_blank(),  strip.text.x = element_blank()) + 
-    geom_text(data=big.df[!duplicated(big.df$clus.pair),], x=Inf, y=Inf, aes(label=clus.pair), size=3, color='black',
-              vjust = "inward", hjust = "inward", 
-             show.legend = FALSE)
+    theme(strip.background = element_blank(),  strip.text.x = element_blank())  
+    # geom_text(data=big.df[!duplicated(big.df$clus.pair),], x=Inf, y=Inf, aes(label=clus.pair), size=3, color='black',
+    #           vjust = "inward", hjust = "inward", 
+    #          show.legend = FALSE)
+    
+  g
   
+  # fill curves with colors
+  # g + geom_rect(data=big.df, 
+  #               mapping=aes(xmin=t,xmax=t+0.3,ymax=value,ymin=0), 
+  #               fill=big.df$fill.col,stat="identity")
 
+  
 }

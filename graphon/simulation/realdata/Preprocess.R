@@ -28,11 +28,11 @@ calculate.dFF<-function(F.trace.full,bsl.prob,length.window){
   return(dFF.full)
 }
 
-path.list=list.files('./FunctionalData/');
+path.list=list.files('../Zebrafish_spinal_cord_development/AblationData/');
 
 for(k in 1:length(path.list)){
   path=path.list[[k]]
-  dat<- readMat(paste('./FunctionalData/',path,'/profile.mat',sep=''));
+  dat<- readMat(paste('../Zebrafish_spinal_cord_development/AblationData/',path,'/profile.mat',sep=''));
   
   dat.activity=dat$profile.all;
   n.neurons = dim(dat.activity)[1]; 
@@ -48,7 +48,7 @@ for(k in 1:length(path.list)){
     dat.dFF[j,]=calculate.dFF(dat.activity[j,],bsl.prob=0.2,length.window=61);
   }
   
-  write.csv(dat.dFF,paste('./FunctionalData/',path,'/dFF.csv',sep=''),col.names=F)
+  write.csv(dat.dFF,paste('../processed_AblationData/',path,'/dFF.csv',sep=''),col.names=F)
 }
 
 

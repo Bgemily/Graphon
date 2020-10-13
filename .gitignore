@@ -1,7 +1,13 @@
 QE/
+graphon/Zebrafish_spinal_cord_development/
 graphon/paper/
 graphon/AblationData/
 graphon/FunctionalData/
+graphon/processed_FunctionalData/
+graphon/MindMap/
+graphon/MatOpt_Simulation/
+graphon/Weekly_Report/
+graphon/simulation/plots/
 
 Stage1/
 Stage2/
@@ -9,6 +15,7 @@ Stage2/
 *.Rdata
 *.csv
 *.txt
+*.rds
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

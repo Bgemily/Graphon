@@ -1,112 +1,289 @@
+
+setwd("/Users/bgemily/Documents/Academic/SC/graphon/simulation")
+
 library(data.table)
 library(R.matlab)
 
 
-path.list=list.files('../Zebrafish_spinal_cord_development/FunctionalData/');
-k=8;
-path=path.list[[k]]
-dat=readMat(paste('../Zebrafish_spinal_cord_development/FunctionalData/',path,'/profile.mat',sep=''))
-
-locs.all=cbind(dat$x,dat$y,dat$z)
-mnx = dat$mnx
-rm(dat)
-
-edge.time=as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/EdgeTime.csv',sep='')))
-edge.time=edge.time[,-1]
+path.list=list.files('../processed_FunctionalData/');
 
 
-avai.inds = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/AvaiNeurons.csv',sep='')))
-avai.inds=avai.inds[,-1];
 
-# member.ship = as.matrix(read.csv(paste('./FunctionalData/',path,'/MembShip.csv',sep='')))
-# member.ship=member.ship[,-1];
-
-dat.dFF=as.matrix(fread(paste('../processed_FunctionalData/',path,'/dFF.csv',sep='')))
-dat.dFF=dat.dFF[,-1]
-reduced.dFF=dat.dFF[avai.inds,];
-
-locs=locs.all[avai.inds,]
-
-# color.list=c('red','blue','green') # Add more colors if you want to
-# 
-# #install.packages("scatterplot3d") # Install
-# library("scatterplot3d") # load
-# scatterplot3d(x=locs[,1], y=locs[,2], z=locs[,3],xlim=range(locs[,1]),ylim=range(locs[,2]),zlim=range(locs[,3]),color=color.list[member.ship],pch=16)
-# 
-# 
-# for (t in seq(120,80,-5)) {
-#   plot(x=locs[,1], y=locs[,2], col=mnx+1,pch=16, xlab = t)
-#   for (i in 1:dim(locs)[1]) {
-#     for (j in 1:dim(locs)[1]) {
-#       if (edge.time[i, j]<t+5 & edge.time[i,j]>1) {
-#         # if (member.ship[i]==2 & member.ship[j]==2 & edge.time[i,j]< Inf) {
-#         lines(x = c(locs[i,1], locs[j,1]), y = c(locs[i,2], locs[j,2]))
-#       }
-#     }
-#   }
-# }
-# 
-# plot(0,xlim=c(0,340),ylim=c(0,0.05))
-# for(i in which(mnx==0)){
-#   if(length(which(edge.time[i,-i]<Inf))>=2)
-#     lines(density(edge.time[i,-i]), col=mnx[i]+1)
-# }
-# 
+# Plot neuron activities at certain time points --------------------------------
 
 
-##### ridgelineplot
-
-library(ggridges)
 library(ggplot2)
-library(reshape2)
+for (k in 1:length(path.list)) {
+  path=path.list[[k]]
 
-# 20min: 4800 
-order.temp = order(locs[,1])
-order.temp = c(order.temp[locs[order.temp,2]<0], order.temp[locs[order.temp,2]>0])
-
-timefield = list(1600+1:240, 19000+1:240, 58000+1:240)
-g.temp = list()
-for (t in timefield) {
-  mat.temp = reduced.dFF[,t]
-  mat.temp = mat.temp[order.temp,]
-  LR=(locs[order.temp,2]<0)
-  df.temp = data.frame(id=1:nrow(mat.temp), mat.temp)
-  df.temp = melt(df.temp, id = "id")
-  g<-ggplot(df.temp, aes(x = variable, y = id, height = value, group=id, fill=LR[id])) +
-    geom_ridgeline(scale=5, size=0.3, min_height=-0.1) +
-    theme(legend.position = "none", axis.text.x=element_blank(), axis.ticks.x = element_blank()) 
-  g.temp = c(g.temp, list(g))
+  edge.time=as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/EdgeTime.csv',sep='')))
+  edge.time=edge.time[,-1]
+  
+  avai.inds = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/AvaiNeurons.csv',sep='')))
+  avai.inds=avai.inds[,-1];
+  
+  # member.ship = as.matrix(read.csv(paste('./processed_FunctionalData/',path,'/MembShip.csv',sep='')))
+  # member.ship=member.ship[,-1];
+  
+  dat.dFF=as.matrix(fread(paste('../processed_FunctionalData/',path,'/dFF.csv',sep='')))
+  dat.dFF=dat.dFF[,-1]
+  reduced.dFF=dat.dFF[avai.inds,];
+  
+  locs.all = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/locs_all.csv',sep='')))
+  locs.all = locs.all[,-1]
+  locs=locs.all[avai.inds,]
+  
+  mnx.all = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/mnx.csv',sep='')))
+  mnx.all = mnx.all[,-1]
+  mnx = mnx.all[avai.inds]
+  
+  # islet = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/islet.csv',sep='')))
+  # islet = islet[,-1]
+  
+  N_timepoints = ncol(reduced.dFF)
+  mins = c(30,120,240)
+  if (N_timepoints<57600) # 4h = 57600 time points
+    mins = c(30, 60, 120, round(N_timepoints/240-5))
+  # g.temp = plot_local_traces(locs=locs, reduced.dFF=reduced.dFF, snapshot_mins=mins, window_length=1)
+  g.temp = plot_local_traces(locs=locs[tmp$id,], reduced.dFF=reduced.dFF[tmp$id,], snapshot_mins=mins, window_length=1,scale=4)
+  g.temp = gridExtra::arrangeGrob(grobs = g.temp, ncol = length(g.temp))
+  grid::grid.draw(g.temp)
+  ggsave(filename = paste0('./plots/',path,'_local_traces.pdf'), plot = g.temp,
+         width = 6, height = 4, units = "in")
 }
-library(gridExtra)
-grid.arrange(g.temp[[1]], g.temp[[2]], g.temp[[3]], ncol = 3)
-
-
-## plot network
-library(igraph)
-adj.tmp = edge.time<=(68000/240+1) & edge.time>1
-adj.tmp = adj.tmp[order.temp, order.temp]
-colnames(adj.tmp) = rownames(adj.tmp) = 1:nrow(edge.time)
-network.tmp = graph_from_adjacency_matrix(adj.tmp, mode="undirected")
-plot(network.tmp, vertex.label=NA, palette=scales::hue_pal()(2), asp=.5, layout=locs[order.temp,], vertex.size=3,  vertex.color=(locs[order.temp,2]<0)+1)
 
 
 
-## Load the edge time matrix
+# Plot neuron activities for whole development process -------------------------
+
+
+for (t in seq(282,0,-3)) {
+  g_tmp = plot_local_traces(locs[tmp_ind,],reduced.dFF[tmp_ind,], edge_time_mat[tmp_ind,tmp_ind],  snapshot_mins = c(t),window_length = 3)
+  g_tmp = gridExtra::arrangeGrob(grobs = g_tmp, ncol = length(g_tmp))
+  ggsave(filename = paste0('./plots/',path,'_traces_','Rside_',t,'.pdf'), plot = g_tmp,
+         width = 8.4, height = 5.35, units = "in")
+}
+
+
+
+# plot network development process ----------------------------------------
+
+
+for (k in 1:length(path.list)) {
+  path=path.list[[k]]
+  
+  edge.time=as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/EdgeTime.csv',sep='')))
+  edge.time=edge.time[,-1]
+  
+  avai.inds = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/AvaiNeurons.csv',sep='')))
+  avai.inds=avai.inds[,-1];
+  
+  member.ship = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/MembShip.csv',sep='')))
+  member.ship=member.ship[,-1];
+  
+  locs.all = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/locs_all.csv',sep='')))
+  locs.all = locs.all[,-1]
+  locs=locs.all[avai.inds,]
+  
+  mnx.all = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/mnx.csv',sep='')))
+  mnx.all = mnx.all[,-1]
+  mnx = mnx.all[avai.inds]
+  
+  # mins = list(c(0,120), c(0,150), c(0,180))
+  max_conn_time = max(edge.time[which(edge.time<Inf)])
+  mins = lapply(seq(60,max_conn_time+15,5), function(t)c(0,t))
+  
+  L_id = which(locs[,2]<0 & rowSums(edge.time[,which(locs[,2]<0)]<Inf)>=2)
+  R_id = which(locs[,2]>0 & rowSums(edge.time[,which(locs[,2]>0)]<Inf)>=2)
+  tmp_id = L_id
+  # plot_network(locs = locs[tmp_id,], edge.time = edge.time[tmp_id,tmp_id], 
+  #              output = "Lside.gif",
+  #              window_list = mins, asp=1, save_plots = T, delay=20)
+  plot_network(locs = cbind(locs[tmp_id,2], -locs[tmp_id,1]), edge.time = edge.time[tmp_id,tmp_id], 
+               output = "animation.gif",
+               window_list = mins, asp=2, alpha=100,
+               save_plots = T, delay=20, 
+               cols = t(col2rgb(1+member.ship[tmp_id]*0)))
+  
+  plot_network(locs = locs[,], edge.time = edge.time[,], 
+               output = "Network.pdf", vertex.size = 3,
+               window_list = list(0), asp=0.3, save_plots = T, delay=20, 
+               cols = t(col2rgb(1+member.ship[])))
+  
+  
+  order.temp = order(locs[,1], decreasing = TRUE)
+  order.temp = c(order.temp[locs[order.temp,2]<0], order.temp[locs[order.temp,2]>0])
+  
+}
+
+
+
+# plot edge time matrix heatmap -------------------------------------------
+
+for (k in 1:length(path.list)) {
+  path=path.list[[k]]
+  
+  edge.time=as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/EdgeTime.csv',sep='')))
+  edge.time=edge.time[,-1]
+  
+  avai.inds = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/AvaiNeurons.csv',sep='')))
+  avai.inds=avai.inds[,-1];
+  
+  member.ship = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/MembShip.csv',sep='')))
+  member.ship=member.ship[,-1];
+  
+  locs.all = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/locs_all.csv',sep='')))
+  locs.all = locs.all[,-1]
+  locs=locs.all[avai.inds,]
+  
+  mnx.all = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/mnx.csv',sep='')))
+  mnx.all = mnx.all[,-1]
+  mnx = mnx.all[avai.inds]
+  
+  
+  L_id = which(locs[,2]<0 & rowSums(edge.time[,which(locs[,2]<0)]<Inf)>=2)
+  R_id = which(locs[,2]>0 & rowSums(edge.time[,which(locs[,2]>0)]<Inf)>=2)
+  tmp_id = R_id
+  tmp_id = tmp_id[order(member.ship[tmp_id])]
+
+  fields::image.plot(edge.time[tmp_id,tmp_id],zlim=c(0,300), col=fields::tim.colors())
+
+}
+
+load(list.files(pattern=path)) #load .rdata
+tmp = L_result
+edge_time_mat = tmp$network$edge_time_mat
+diag(edge_time_mat) = Inf
+tau_mat = tmp$clus_result$n0_mat*tmp$network$t_vec[2]
+edge_time_mat_denoise = edge_time_mat - tau_mat
+diag(edge_time_mat_denoise) = Inf
+edge_time_mat_denoise = edge_time_mat_denoise - min(edge_time_mat_denoise)
+
+
+
+
+
+#  Plot edge time's density  ----------------------------------------------------------------------
+
 
 image(edge.time)
 
 bw=10
-edge.time.tmp = edge.time
-i=2; plot(density(edge.time.tmp[i,-i]),xlim=c(0,340),ylim=c(0,0.04))
-for(i in 2:nrow(edge.time.tmp)){
+edge.time.tmp = edge_time_mat
+i=2; plot(density(edge.time.tmp[i,-i])$x, density(edge.time.tmp[i,-i])$y * (sum(edge.time.tmp[i,-i]<Inf))/(nrow(edge.time.tmp)-1), 
+          lwd=0, type='l',xlim=c(0,340),ylim=c(0,0.004), xlab="time(min)", main="Event Rate", ylab=NA)
+for(i in tmp_ind[1:30]){
   if(length(which(edge.time.tmp[i,-i]<Inf))>=2)
-    lines(density(edge.time.tmp[i,-i]))
+    density = density(edge.time.tmp[i,-i], bw=bw)
+    lines(density$x, density$y * (sum(edge.time.tmp[i,-i]<Inf))/(nrow(edge.time.tmp)-1),
+          xlim=c(0,340),col=i)
 }
-i=order.temp[20];lines(density(edge.time.tmp[i,-i],bw=5), col=2,xlim=c(0,340),ylim=c(0,0.02))
 
 
-act.time = edge.time[,1]
-for (i in 1:nrow(edge.time)) {
-  act.time[i] = min(edge.time[i,-i])
+edge.time.tmp = edge.time
+i=1; plot(ecdf(edge.time.tmp[i,-i])(1:340), 
+          lwd=0, type='l',xlim=c(0,340),ylim=c(0,0.6), xlab="time(min)", main="Event Rate", ylab=NA)
+for(i in 1:nrow(edge.time.tmp)){
+  if(length(which(edge.time.tmp[i,-i]<Inf))>=2)
+    density = density(edge.time.tmp[i,-i], bw=10)
+  lines(ecdf(edge.time.tmp[i,-i])(1:340), 
+        xlim=c(0,340), lwd=0.3)
 }
-hist(act.time[mnx==0])
+
+
+
+# Animation of neuron movement  --------------------------------------------------------------
+
+library(gganimate)
+path = path.list[[7]]
+track_smooth_all = readRDS(paste('../processed_FunctionalData/',path,'/tracks_smoothed.rds',sep=''))
+avai.inds = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/AvaiNeurons.csv',sep='')))
+avai.inds=avai.inds[,-1];
+
+mnx.all = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/mnx.csv',sep='')))
+mnx.all = mnx.all[,-1]
+mnx = mnx.all[avai.inds]
+
+
+track_smooth = track_smooth_all[avai.inds, seq(1,dim(track_smooth_all)[2],1200),]
+
+N_node = dim(track_smooth)[1]
+N_timepoints = dim(track_smooth)[2]
+
+track_smooth_df = matrix(track_smooth, N_node*N_timepoints, dim(track_smooth)[3])
+track_smooth_df = data.frame(x=track_smooth_df[,1],y=track_smooth_df[,2], z=track_smooth_df[,3],
+           time=rep(1:N_timepoints,each=N_node), id=rep(1:N_node,time=N_timepoints))
+
+anim = ggplot(track_smooth_df, aes(x=x,y=y,col=mnx[id]))+
+        geom_point()+
+        transition_time(time) 
+animate(anim, renderer = gifski_renderer())
+# anim_save("func_20150410_xy.gif")
+
+anim = ggplot(track_smooth_df, aes(x=x,y=z,col=mnx[id]))+
+  geom_point()+
+  transition_time(time) 
+animate(anim, renderer = gifski_renderer())
+# anim_save("func_20150410_xz.gif")
+
+
+
+
+# explore the data --------------------------------------------------------
+
+edge_time_mat[tmp_ind,tmp_ind][1:20,1:20]
+
+plot(edge_time_mat[tmp_ind,tmp_ind][1,],type='b',cex=.3,ylim=c(0,300))
+lines(edge_time_mat[tmp_ind,tmp_ind][3,],type='b',cex=.3,col=2)
+lines(edge_time_mat[tmp_ind,tmp_ind][4,],type='b',cex=.3,col=3)
+lines(edge_time_mat[tmp_ind,tmp_ind][33,],type='b',cex=.3,col=4)
+lines(edge_time_mat[tmp_ind,tmp_ind][34,],type='b',cex=.3,col=5)
+lines(edge_time_mat[tmp_ind,tmp_ind][35,],type='b',cex=.3,col=6)
+lines(edge_time_mat[tmp_ind,tmp_ind][25,],type='b',cex=.3,col=7)
+lines(edge_time_mat[tmp_ind,tmp_ind][26,],type='b',cex=.3,col=8)
+
+
+
+
+i=11;
+plot(cor.full[,tmp_ind[13],tmp_ind[i]],type='l',col=1,xlim=c(0,250),ylim=c(0,1)); 
+lines(cor.full[,tmp_ind[9],tmp_ind[i]],type='l',col=2)
+lines(cor.full[,tmp_ind[22],tmp_ind[i]],col="green")
+lines(cor.full[,tmp_ind[24],tmp_ind[i]],col=4)
+lines(cor.full[,tmp_ind[25],tmp_ind[i]],col=5)
+
+plot(cor.full[,23,2],type='l'); 
+col=1
+for (i in c(4,6,8)) {
+  lines(cor.full[,34,tmp_ind[i]],col=rainbow(5)[col])
+  col=col+1
+}
+lines(cor.full[,tmp_ind[4],tmp_ind[8]],col='red')
+
+t=111
+i=c(10,12)
+g_tmp = plot_local_traces(locs[rep(1,length(tmp_ind[i])),],reduced.dFF[tmp_ind[i],], edge_time_mat[tmp_ind[i],tmp_ind[i]],  snapshot_mins = c(t),window_length = 3)
+g_tmp
+cov(reduced.dFF[tmp_ind[1],t*240+1:(1*240)],reduced.dFF[tmp_ind[2],t*240+1:(1*240)])
+
+
+magnitude = c()
+for (t in seq(0,280,1)) {
+  tmp = apply(reduced.dFF[,t*240+1:(1*240)], 1, max)
+  magnitude = cbind(magnitude,tmp)
+}
+
+for (i in L_result$id[L_result$clus_result$clusters[[3]]]) {
+  plot(magnitude[i,],type='l',main=i,col=2)
+}
+plot(magnitude[16,],type='l')
+lines(magnitude[4,],type='l',col="blue")
+
+
+t=50
+magnitude = apply(reduced.dFF[tmp_ind,t*240+1:(3*240)], 1, max)
+which(magnitude>0.2)
+plot(log(magnitude),(rowMeans(cor.full[t,tmp_ind,tmp_ind])))
+
+
+

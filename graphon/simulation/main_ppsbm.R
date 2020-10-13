@@ -11,36 +11,128 @@ sapply(file.sources, source)
 library("optparse")
 
 option_list = list(
-  make_option(c("-n", "--NSim"), type="integer", default=1, help="number of repeated trials"),
-  make_option(c("-k", "--N_overclus"), type="integer", default=5)
+  make_option(c("-n", "--NSim"), type="integer", default=1, 
+              help="number of repeated trials"),
+  make_option(c("-c", "--case"), type="integer", default=2, 
+              help="choose simulation setting"),
+  make_option(c("-k", "--N_clus"), type="integer", default=3, 
+              help="number of clusters"),
+  make_option("--tau", type="integer", default=40),
+  make_option("--split", type="integer", default=10)
 ); 
 
 opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser);
 
 NSim = opt$NSim
-N_overclus = opt$N_overclus
+case = opt$case
+N_clus = opt$N_clus
+tau_std = opt$tau
 
 
 Ncores = 20
 
 # step_size = 0.02
-SEED_vec = seq(189,110765,length.out=NSim)
+set.seed(4831)
 
 
 library(foreach)
 library(doParallel)
 registerDoParallel(cores=Ncores)
 
-results2 <- foreach(i = 1:NSim) %dopar%
-{
-  SEED = SEED_vec[i]
-  apply_ppsbm(case=2, SEED=SEED)
+results1 = list()
+
+
+tau_max_vec = c(20,40,60,80,100,120,140,160,180)
+# tau_std = 40
+conn_prob_vec = c(0.7,0.5,0.4,0.3,0.2,0.19,0.18,0.17,0.16,0.15,0.14,0.13)
+conn_prob_std = 0.3
+SEED = 831
+beta_vec = c(1.6, 1.5, 1.4, 1.3, 1.2, 1.1)
+beta_std = 1.3
+alpha_vec = c(0.5,1,2,3,4,6,8)
+alpha_std = 1
+total_time = 200
+clus_size_vec_list = list(c(30,30,30), c(32,32,26), c(34,34,22), c(36,36,18), 
+                          c(38,38,14), c(40,40,10), c(42,42,6))
+
+seed = 81
+set.seed(seed)
+
+
+NSim_total = NSim
+split = opt$split
+NSim = NSim_total/split
+
+for (. in 1:split) {
+  # for (i in 1:length(tau_max_vec)) {
+  #   tmp <- foreach(j = 1:NSim) %dopar% {
+  #     # SEED = SEED+10
+  #     tryCatch(apply_ppsbm(case=case, Qmin=N_clus,Qmax=N_clus,
+  #                          tau_max = tau_max_vec[i], conn_prob=conn_prob_std, 
+  #                          beta=beta_std, alpha=alpha_std,
+  #                          tau_struc = max, total_time = total_time),
+  #              error = function(x) print(SEED))
+  #   }
+  #   results1[[paste0("tau_max_",tau_max_vec[i])]] = tmp
+  # }
+  
+  # for (i in 1:length(conn_prob_vec)) {
+  #   tmp <- foreach(j = 1:NSim) %dopar% {
+  #     # SEED = SEED+10
+  #     tryCatch(apply_ppsbm(case=case, Qmin=N_clus,Qmax=N_clus,
+  #                          tau_max = tau_std, conn_prob=conn_prob_vec[i],
+  #                          beta=beta_std, alpha=alpha_std,
+  #                          tau_struc = max, total_time = total_time),
+  #              error = function(x) print(SEED))
+  #   }
+  #   results1[[paste0("conn_prob_",conn_prob_vec[i])]] = tmp
+  # }
+  
+  # for (i in 1:length(beta_vec)) {
+  #   tmp <- foreach(j = 1:NSim) %dopar% {
+  #     # SEED = SEED+10
+  #     tryCatch(apply_ppsbm(case=case, Qmin=N_clus,Qmax=N_clus,
+  #                          tau_max = tau_std, conn_prob=conn_prob_std,
+  #                          beta=beta_vec[i], alpha=alpha_std,
+  #                          tau_struc = max, total_time = total_time),
+  #              error = function(x) print(SEED))
+  #   }
+  #   results1[[paste0("beta_",beta_vec[i])]] = tmp
+  # }
+  
+  # for (i in 1:length(alpha_vec)) {
+  #   tmp <- foreach(j = 1:NSim) %dopar% {
+  #     # SEED = SEED+10
+  #     tryCatch(apply_ppsbm(case=case, Qmin=N_clus,Qmax=N_clus,
+  #                          tau_max = tau_std, conn_prob=conn_prob_std,
+  #                          beta=beta_std, alpha=alpha_vec[i],
+  #                          tau_struc = max, total_time = total_time),
+  #              error = function(x) print(SEED))
+  #   }
+  #   results1[[paste0("alpha_",alpha_vec[i])]] = tmp
+  # }
+  
+  for (i in 1:length(clus_size_vec_list)) {
+    tmp <- foreach(j = 1:NSim) %dopar% {
+      # SEED = SEED+10
+      tryCatch(apply_ppsbm(case=case, Qmin=N_clus,Qmax=N_clus,
+                           tau_max = tau_std, conn_prob=conn_prob_std,
+                           beta=beta_std, alpha=alpha_std,
+                           tau_struc = max, total_time = total_time,
+                           clus_size_vec = clus_size_vec_list[[i]]),
+               error = function(x) print(SEED))
+    }
+    results1[[paste0("clus_size_",clus_size_vec_list[i])]] = tmp
+  }
+  
+  
+  now = format(Sys.time(), "%Y%m%d_%H%M%S")
+  save.image(paste0('case',case,'_NSim', NSim, '_ppsbm', '_', now, '.Rdata'))
+  
 }
 
 
-now = format(Sys.time(), "%Y%m%d_%H%M")
-save.image(paste0('case2_NSim', NSim, '_ppsbm', '_', now, '.Rdata'))
 
 # debug
 # SEED_vec = seq(189,110765,length.out=100)
