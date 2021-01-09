@@ -56,7 +56,7 @@ total_time = 200
 clus_size_vec_list = list(c(30,30,30), c(32,32,26), c(34,34,22), c(36,36,18), 
                           c(38,38,14), c(40,40,10), c(42,42,6))
 
-seed = 81
+seed = 811
 set.seed(seed)
 
 
@@ -65,53 +65,53 @@ split = opt$split
 NSim = NSim_total/split
 
 for (. in 1:split) {
-  # for (i in 1:length(tau_max_vec)) {
-  #   tmp <- foreach(j = 1:NSim) %dopar% {
-  #     # SEED = SEED+10
-  #     tryCatch(apply_ppsbm(case=case, Qmin=N_clus,Qmax=N_clus,
-  #                          tau_max = tau_max_vec[i], conn_prob=conn_prob_std, 
-  #                          beta=beta_std, alpha=alpha_std,
-  #                          tau_struc = max, total_time = total_time),
-  #              error = function(x) print(SEED))
-  #   }
-  #   results1[[paste0("tau_max_",tau_max_vec[i])]] = tmp
-  # }
+  for (i in 1:length(tau_max_vec)) {
+    tmp <- foreach(j = 1:NSim) %dopar% {
+      # SEED = SEED+10
+      tryCatch(apply_ppsbm(case=case, Qmin=N_clus,Qmax=N_clus,
+                           tau_max = tau_max_vec[i], conn_prob=conn_prob_std,
+                           beta=beta_std, alpha=alpha_std,
+                           tau_struc = max, total_time = total_time),
+               error = function(x) print(SEED))
+    }
+    results1[[paste0("tau_max_",tau_max_vec[i])]] = tmp
+  }
   
-  # for (i in 1:length(conn_prob_vec)) {
-  #   tmp <- foreach(j = 1:NSim) %dopar% {
-  #     # SEED = SEED+10
-  #     tryCatch(apply_ppsbm(case=case, Qmin=N_clus,Qmax=N_clus,
-  #                          tau_max = tau_std, conn_prob=conn_prob_vec[i],
-  #                          beta=beta_std, alpha=alpha_std,
-  #                          tau_struc = max, total_time = total_time),
-  #              error = function(x) print(SEED))
-  #   }
-  #   results1[[paste0("conn_prob_",conn_prob_vec[i])]] = tmp
-  # }
+  for (i in 1:length(conn_prob_vec)) {
+    tmp <- foreach(j = 1:NSim) %dopar% {
+      # SEED = SEED+10
+      tryCatch(apply_ppsbm(case=case, Qmin=N_clus,Qmax=N_clus,
+                           tau_max = tau_std, conn_prob=conn_prob_vec[i],
+                           beta=beta_std, alpha=alpha_std,
+                           tau_struc = max, total_time = total_time),
+               error = function(x) print(SEED))
+    }
+    results1[[paste0("conn_prob_",conn_prob_vec[i])]] = tmp
+  }
   
-  # for (i in 1:length(beta_vec)) {
-  #   tmp <- foreach(j = 1:NSim) %dopar% {
-  #     # SEED = SEED+10
-  #     tryCatch(apply_ppsbm(case=case, Qmin=N_clus,Qmax=N_clus,
-  #                          tau_max = tau_std, conn_prob=conn_prob_std,
-  #                          beta=beta_vec[i], alpha=alpha_std,
-  #                          tau_struc = max, total_time = total_time),
-  #              error = function(x) print(SEED))
-  #   }
-  #   results1[[paste0("beta_",beta_vec[i])]] = tmp
-  # }
+  for (i in 1:length(beta_vec)) {
+    tmp <- foreach(j = 1:NSim) %dopar% {
+      # SEED = SEED+10
+      tryCatch(apply_ppsbm(case=case, Qmin=N_clus,Qmax=N_clus,
+                           tau_max = tau_std, conn_prob=conn_prob_std,
+                           beta=beta_vec[i], alpha=alpha_std,
+                           tau_struc = max, total_time = total_time),
+               error = function(x) print(SEED))
+    }
+    results1[[paste0("beta_",beta_vec[i])]] = tmp
+  }
   
-  # for (i in 1:length(alpha_vec)) {
-  #   tmp <- foreach(j = 1:NSim) %dopar% {
-  #     # SEED = SEED+10
-  #     tryCatch(apply_ppsbm(case=case, Qmin=N_clus,Qmax=N_clus,
-  #                          tau_max = tau_std, conn_prob=conn_prob_std,
-  #                          beta=beta_std, alpha=alpha_vec[i],
-  #                          tau_struc = max, total_time = total_time),
-  #              error = function(x) print(SEED))
-  #   }
-  #   results1[[paste0("alpha_",alpha_vec[i])]] = tmp
-  # }
+  for (i in 1:length(alpha_vec)) {
+    tmp <- foreach(j = 1:NSim) %dopar% {
+      # SEED = SEED+10
+      tryCatch(apply_ppsbm(case=case, Qmin=N_clus,Qmax=N_clus,
+                           tau_max = tau_std, conn_prob=conn_prob_std,
+                           beta=beta_std, alpha=alpha_vec[i],
+                           tau_struc = max, total_time = total_time),
+               error = function(x) print(SEED))
+    }
+    results1[[paste0("alpha_",alpha_vec[i])]] = tmp
+  }
   
   for (i in 1:length(clus_size_vec_list)) {
     tmp <- foreach(j = 1:NSim) %dopar% {

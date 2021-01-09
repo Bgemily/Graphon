@@ -2,7 +2,7 @@
 ####### plot network (with igraph)
 library(igraph)
 
-plot_network = function(locs, output="./plots/gif/network.gif", edge.time=matrix(Inf,nrow=nrow(locs),ncol=nrow(locs)), 
+plot_network = function(locs, output="./plots/gif/", filename="network.pdf", edge.time=matrix(Inf,nrow=nrow(locs),ncol=nrow(locs)), 
                         cols=rep(0,nrow(locs)), delay=80, vertex.size=5, alpha=255,
                         window_list=list(c(0,0)), asp=.5, save_plots=FALSE, remove=TRUE){
   
@@ -16,7 +16,7 @@ plot_network = function(locs, output="./plots/gif/network.gif", edge.time=matrix
   window = window_list[[length(window_list)]]
   adj.tmp = edge.time<=min(window[2], T_max) & edge.time>=max(window[1], 2)
   network.tmp = graph_from_adjacency_matrix(adj.tmp, mode="undirected")
-  set.seed(16)
+  # set.seed(16)
   coord = layout_with_fr(network.tmp)
   
   i=100
@@ -25,7 +25,7 @@ plot_network = function(locs, output="./plots/gif/network.gif", edge.time=matrix
     
     for (ax in 2:3 ) {
       if(save_plots){
-        pdf(file=paste0('./plots/gif/','ax_',ax,"_", output), 
+        pdf(file=paste0(output,'ax_',ax,"_",filename), 
             width=3, height=3*asp)
         # par(mfrow=c(2,1))
         par(mar=c(1,1,1,1))

@@ -40,15 +40,15 @@ registerDoParallel(cores=Ncores)
 library(data.table)
 # data_folder = "../processed_FunctionalData/"
 
-window_length_vec = seq(480,40,-40) # =seq(10s,120s,10s)
-rho_vec = seq(0.8,0.3,-0.1)
+window_length_vec = seq(240,480,240) # 240:=1min
+rho_vec = seq(0.1,0.8,0.1)
 
 for (window_length in window_length_vec) {
   for (rho in rho_vec) {
     
     path.list=list.files(data_folder);
     # for(k in 1:length(path.list)){
-    for(k in 1:2){
+    for(k in 1:8){
       path=path.list[[k]]
       
       # estimate and save edge_time_mat
@@ -73,6 +73,12 @@ for (window_length in window_length_vec) {
       mnx.all = mnx.all[,-1]
       mnx = mnx.all[avai.inds]
       
+      if(k==4|k==5){
+        islet = as.matrix(read.csv(paste(data_folder,path,'/islet.csv',sep='')))
+        islet = islet[,-1]
+        islet = islet[avai.inds]
+      }
+      
       
       max_time = max(edge_time_mat[which(edge_time_mat<Inf)])
       t_vec = seq(0, max_time+10, length.out = 1000)
@@ -87,6 +93,7 @@ for (window_length in window_length_vec) {
       L_result$network = list(t_vec = t_vec, edge_time_mat = edge_time_mat[L_side,L_side])
       L_result$id=L_side
       
+      
       R_result = list()
       R_result$clus_result = do_cluster(edge_time_mat = edge_time_mat[R_side,R_side], N_clus = N_clus, 
                                         t_vec = t_vec, MaxIter = MaxIter, bw = bw, 
@@ -99,27 +106,76 @@ for (window_length in window_length_vec) {
       membership[L_side] = clus2mem(L_result$clus_result$clusters)
       membership[R_side] = clus2mem(R_result$clus_result$clusters)
       
+      # add neurons with no edge into the result
+      L_result_new = L_result
+      L_result_new$id = which(locs[,2]<0)
+      L_result_new$network$edge_time_mat = edge_time_mat[L_result_new$id,L_result_new$id]
+      L_result_new$clus_result$clusters = mem2clus(membership[L_result_new$id])
+      n0_vec_tmp = numeric(nrow(edge_time_mat))
+      n0_vec_tmp[L_result$id] = L_result$clus_result$n0_vec
+      L_result_new$clus_result$n0_vec = n0_vec_tmp[L_result_new$id]
+      n0_mat_tmp = matrix(0,nrow(edge_time_mat),nrow(edge_time_mat))
+      n0_mat_tmp[L_result$id,L_result$id] = L_result$clus_result$n0_mat
+      L_result_new$clus_result$n0_mat = n0_mat_tmp[L_result_new$id,L_result_new$id]
+      tmp = L_result_new
+      center_pdf_array_tmp = get_center_pdf_array(edge_time_mat = tmp$network$edge_time_mat, clusters = tmp$clus_result$clusters, 
+                                              n0_vec = tmp$clus_result$n0_vec, n0_mat = tmp$clus_result$n0_mat, 
+                                              t_vec = tmp$network$t_vec, bw = bw)
+      order_tmp = order(rowSums(center_pdf_array_tmp), decreasing = T)
+      L_result_new$clus_result$clusters = L_result_new$clus_result$clusters[order_tmp]
+      
+      
+      R_result_new = R_result
+      R_result_new$id = which(locs[,2]>0)
+      R_result_new$network$edge_time_mat = edge_time_mat[R_result_new$id,R_result_new$id]
+      R_result_new$clus_result$clusters = mem2clus(membership[R_result_new$id])
+      n0_vec_tmp = numeric(nrow(edge_time_mat))
+      n0_vec_tmp[R_result$id] = R_result$clus_result$n0_vec
+      R_result_new$clus_result$n0_vec = n0_vec_tmp[R_result_new$id]
+      n0_mat_tmp = matrix(0,nrow(edge_time_mat),nrow(edge_time_mat))
+      n0_mat_tmp[R_result$id,R_result$id] = R_result$clus_result$n0_mat
+      R_result_new$clus_result$n0_mat = n0_mat_tmp[R_result_new$id,R_result_new$id]
+      tmp = R_result_new
+      center_pdf_array_tmp = get_center_pdf_array(edge_time_mat = tmp$network$edge_time_mat, clusters = tmp$clus_result$clusters, 
+                                                  n0_vec = tmp$clus_result$n0_vec, n0_mat = tmp$clus_result$n0_mat, 
+                                                  t_vec = tmp$network$t_vec, bw = bw)
+      order_tmp = order(rowSums(center_pdf_array_tmp),decreasing = T)
+      R_result_new$clus_result$clusters = R_result_new$clus_result$clusters[order_tmp]
+      
+      membership[L_result_new$id] = clus2mem(L_result_new$clus_result$clusters)
+      membership[R_result_new$id] = clus2mem(R_result_new$clus_result$clusters)
+      membership[membership==max(membership)] = 0
+    
       
       now = format(Sys.time(), "%Y%m%d_%H%M")
-      save(list=c("edge_time_mat",'locs','mnx','L_result','R_result','membership'),file=paste0(path, '_Nclus', N_clus, "_win", window_length, "_rho",rho, '_now', now, '.Rdata'))
+      if(k==4|k==5){
+        dir.create(paste0('./real_data_results/',path,'/'),showWarnings = F,recursive = T)
+        save(list=c("edge_time_mat",'locs','mnx','islet','L_result','R_result','membership','L_result_new','R_result_new'),
+             file=paste0('./real_data_results/',path,'/',path, '_Nclus', N_clus, "_win", window_length, "_rho",rho, '_now', now, '.Rdata'))
+      }
+      else{
+        dir.create(paste0('./real_data_results/',path,'/'),showWarnings = F,recursive = T)
+        save(list=c("edge_time_mat",'locs','mnx','L_result','R_result','membership','L_result_new','R_result_new'),
+             file=paste0('./real_data_results/',path,'/',path, '_Nclus', N_clus, "_win", window_length, "_rho",rho, '_now', now, '.Rdata'))
+      }
       
       
       # make plots
-      visual_realdata(L_result, path, suffix=paste0('_Nclus', N_clus, "_win", window_length, 
+      visual_realdata(L_result_new, path, suffix=paste0('_Nclus', N_clus, "_win", window_length, 
                                                     "_rho",rho, '_now', now,"_L.pdf"))
-      visual_realdata(R_result, path, suffix=paste0('_Nclus', N_clus, "_win", window_length, 
+      visual_realdata(R_result_new, path, suffix=paste0('_Nclus', N_clus, "_win", window_length, 
                                                     "_rho",rho, '_now', now,"_R.pdf"))
       
       dat.dFF=as.matrix(fread(paste(data_folder,path,'/dFF.csv',sep='')))
       dat.dFF=dat.dFF[,-1]
       na.inds= is.na(dat.dFF[,1]);
       reduced.dFF=dat.dFF[!na.inds,];
-      visual_realdata_2(result = L_result, path = path, suffix=paste0('_Nclus', N_clus, "_win", window_length, 
-                                                                      "_rho",rho, '_now', now,"_R.pdf"), 
+      visual_realdata_2(result = L_result_new, path = path, suffix=paste0('_Nclus', N_clus, "_win", window_length, 
+                                                                      "_rho",rho, '_now', now,"_L.pdf"), 
                         edge.time = edge.time, locs = locs, reduced.dFF = reduced.dFF, 
                         window_length = window_length, window_step = window_length, 
                         cor.full.ave = cor.full.ave, member.ship = membership)
-      visual_realdata_2(result = R_result, path = path, suffix=paste0('_Nclus', N_clus, "_win", window_length, 
+      visual_realdata_2(result = R_result_new, path = path, suffix=paste0('_Nclus', N_clus, "_win", window_length, 
                                                       "_rho",rho, '_now', now,"_R.pdf"), 
                         edge.time = edge.time, locs = locs, reduced.dFF = reduced.dFF, 
                         window_length = window_length, window_step = window_length, 

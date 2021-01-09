@@ -50,7 +50,7 @@ plot_pdf_array = function(pdf_array_list, pdf_true_array = NULL, t_vec = seq(0, 
     scale_size_manual(values=c("Estimate"=0.7,"True"=0.7, "Mean"=0.4), name=NULL)+
     # scale_alpha_manual(values=c("Estimate"=0,"True"=1, "Mean"=0), name=NULL) +
     # scale_size_manual(values=c("Estimate"=0,"True"=0.7, "Mean"=0), name=NULL)+
-    scale_linetype_manual(values = c("Estimate"=1,"True"=2, "Mean"=1)) + 
+    scale_linetype_manual(values = c("Estimate"=1,"True"=1, "Mean"=1)) + 
     ylim(y_lim) +
     facet_wrap(~clus.pair) +
     xlab("Time") + ylab(NULL) +

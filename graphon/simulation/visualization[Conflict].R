@@ -390,11 +390,7 @@ for(k in 1:length(path.list)){
 }
 
 
-tmp=L_result_new
-islet = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/islet.csv',sep='')))
-islet = islet[,-1]
-
-file_path = "./functions"
+tmp=L_result
 file.sources = list.files(path = file_path, pattern = "*.R$", full.names = TRUE)
 sapply(file.sources, source)
 
@@ -404,137 +400,13 @@ adjs_edge_time_mat = plot_edge_time_mat(edge_time_mat = tmp$network$edge_time_ma
 center_pdf_array = get_center_pdf_array(edge_time_mat = adjs_edge_time_mat, clusters = tmp$clus_result$clusters, 
                                         n0_vec = tmp$clus_result$n0_vec, n0_mat = 0*tmp$clus_result$n0_mat, 
                                         t_vec = tmp$network$t_vec, bw = bw)
-center_pdf_array = center_pdf_array[c(2:4,1),c(2:4,1),]
+center_pdf_array = center_pdf_array[c(2,3,1),c(2,3,1),]
 plot_pdf_array(center_pdf_array[],t_vec = tmp$network$t_vec,y_lim=c(0,0.055))
 
+pdf_array_list = list(center_pdf_array_1,center_pdf_array_2,center_pdf_array_3,center_pdf_array_4)
+plot_pdf_array(pdf_array_list[c(1,3)],t_vec = tmp$network$t_vec,y_lim=c(0,0.055))
+  
 
-##### Calculate islet+/-/NA composition of clusters -----
-
-get_composition_array = function(file_list, Lside=T){
-  array_tmp = array(dim = c(4,7,length(file_list)))
-  for (i in 1:length(file_list)) {
-    file = file_list[i]
-    load(file)
-    if(Lside){
-      tmp=L_result_new
-    }
-    else{
-      tmp=R_result_new
-    }
-    composition_matrix = matrix(0,nrow=length(tmp$clus_result$clusters), ncol=7)
-    for (q in 1:length(tmp$clus_result$clusters)) {
-      tmp_L = L_result_new; tmp_R = R_result_new
-      islet_res = islet[c(tmp_L$id[tmp_L$clus_result$clusters[[q]]],tmp_R$id[tmp_R$clus_result$clusters[[q]]])]
-      composition_matrix[q,2:4] = c(length(which(islet_res==1)), length(which(islet_res==0)), sum(is.na(islet_res))) 
-      composition_matrix[q,1] = length(islet_res)
-      composition_matrix[q,5:7] = composition_matrix[q,2:4]/composition_matrix[q,1]
-    }
-    colnames(composition_matrix) = c("Cluster Size", "MN", "Ventral IN", "CoLA/CoSA", "MN(%)", "Ventral IN(%)", "CoLA/CoSA(%)")
-    rownames(composition_matrix) = c("Cluster 2", "Cluster 1", "Cluster 3", "Iso Nodes")[1:nrow(composition_matrix)]
-    array_tmp[1:nrow(composition_matrix),,i]=composition_matrix
-  }
-  dimnames(array_tmp) <- list(  rownames(composition_matrix), colnames(composition_matrix) ,seq(0.1,0.7,0.1))
-  return(array_tmp[c(2,1,3,4),,])
-}
-
-file_list = list.files(path='/Users/bgemily/Dropbox/DynamicSBM/Data/real_data_results/islet_20170202/',pattern = "*Nclus3",full.names = T)
-array_tmp_1 = get_composition_array(file_list, Lside=T)
-
-file_list = list.files(path='/Users/bgemily/Dropbox/DynamicSBM/Data/real_data_results/islet_20170216/',pattern = "*Nclus3",full.names = T)
-array_tmp_2 = get_composition_array(file_list, Lside=F)
-
-
-thres = 4
-
-## composition of estimated clusters: scatter plot
-plot(1,type='n',xlim=c(0,1)-0.5,ylim=c(0,1)-0.5,xlab="relative MN(%)",ylab="relative Ventral IN(%)", main="cluster composition")
-abline(h=0,lty=2,col="gray"); abline(v=0,lty=2,col="gray")
-overall_MN = sum(array_tmp_1[,2,thres])/sum(array_tmp_1[,1,thres])
-overall_VenIN = sum(array_tmp_1[,3,thres])/sum(array_tmp_1[,1,thres])
-for (q in 1:4) {
-  for (thres in thres) {
-    points(array_tmp_1[q,5,thres]-overall_MN, array_tmp_1[q,6,thres]-overall_VenIN, 
-           col=switch(q,"red","green","blue","black"),
-           cex=(array_tmp_1[q,1,thres]/10),
-           pch=21)
-  }
-}
-overall_MN = sum(array_tmp_2[,2,thres])/sum(array_tmp_2[,1,thres])
-overall_VenIN = sum(array_tmp_2[,3,thres])/sum(array_tmp_2[,1,thres])
-for (q in 1:4) {
-  for (thres in thres) {
-    points(array_tmp_2[q,5,thres]-overall_MN, array_tmp_2[q,6,thres]-overall_VenIN, 
-           col=switch(q,"red","green","blue","black"),
-           cex=(array_tmp_2[q,1,thres]/10),
-           pch=24)
-  }
-}
-
-# composition of estimated clusters: stacked barplot
-array_tmp = apply(array_tmp_1,c(1,3),function(x)x[2:4]/sum(x[2:4]))[,,thres]
-clus_size_perc = colSums(array_tmp_1[,2:4,thres])/sum(array_tmp_1[,1,thres])
-array_tmp = cbind(array_tmp,Marginal=clus_size_perc)
-# array_tmp = sweep(array_tmp,1,clus_size_perc)
-
-data = reshape2::melt(array_tmp)
-names(data) = c("Cell_type","Cluster","Percentage")
-library(ggplot2)
-ggplot(data, aes(fill=Cell_type, y=Percentage, x=Cluster)) + 
-  geom_bar(position="stack", stat="identity")
-
-array_tmp = apply(array_tmp_2,c(1,3),function(x)x[2:4]/sum(x[2:4]))[,,thres]
-clus_size_perc = colSums(array_tmp_2[,2:4,thres])/sum(array_tmp_2[,1,thres])
-array_tmp = cbind(array_tmp,Marginal=clus_size_perc)
-# array_tmp = sweep(array_tmp,1,clus_size_perc)
-
-data = reshape2::melt(array_tmp)
-names(data) = c("Cell_type","Cluster","Percentage")
-library(ggplot2)
-ggplot(data, aes(fill=Cell_type, y=Percentage, x=Cluster)) + 
-  geom_bar(position="stack", stat="identity")
-
-
-
-## composition of cell types
-array_tmp = apply(array_tmp_1,c(2,3),function(x)x/sum(x))[,2:4,thres]
-clus_size_perc = array_tmp_1[,1,thres]/sum(array_tmp_1[,1,thres])
-array_tmp = cbind(array_tmp,Marginal=clus_size_perc)
-# array_tmp = sweep(array_tmp,1,clus_size_perc)
-
-data = reshape2::melt(array_tmp)
-names(data) = c("Cluster","cell_type","percentage")
-library(ggplot2)
-ggplot(data, aes(fill=Cluster, y=percentage, x=cell_type)) + 
-  geom_bar(position="stack", stat="identity")+
-  xlab("Cell type") + ylab("Percentage")
-
-array_tmp = apply(array_tmp_2,c(2,3),function(x)x/sum(x))[,2:4,thres]
-clus_size_perc = array_tmp_2[,1,thres]/sum(array_tmp_2[,1,thres])
-array_tmp = cbind(array_tmp,Marginal=clus_size_perc)
-# array_tmp = sweep(array_tmp,1,clus_size_perc)
-
-data = reshape2::melt(array_tmp)
-names(data) = c("Cluster","cell_type","value")
-library(ggplot2)
-ggplot(data, aes(fill=Cluster, y=value, x=cell_type)) + 
-  geom_bar(position="stack", stat="identity") +
-  xlab("Cell type") + ylab("Percentage")
-
-
-array_tmp = apply(array_tmp_1+array_tmp_2,c(2,3),function(x)x/sum(x))[,2:4,thres]
-colSums((array_tmp_1+array_tmp_2)[,2:4,thres])
-clus_size_perc = (array_tmp_1+array_tmp_2)[,1,thres]/sum((array_tmp_1+array_tmp_2)[,1,thres])
-array_tmp = cbind(array_tmp,Marginal=clus_size_perc)
-# array_tmp = sweep(array_tmp,1,clus_size_perc)
-
-data = reshape2::melt(array_tmp)
-names(data) = c("Cluster","cell_type","value")
-library(ggplot2)
-ggplot(data, aes(fill=Cluster, y=value, x=cell_type)) + 
-  geom_bar(position="stack", stat="identity") +
-  xlab("Cell type") + ylab("Percentage")+
-  scale_x_discrete(labels=c("MN" = "MN(n=73)", "Ventral IN" = "Ventral IN(n=39)",
-                            "CoLA/CoSA" = "CoLA/CoSA(n=19)"))
 
 
 # plot edge time matrix heatmap (with or w/out activation time; with or w/out reordering) -----
@@ -612,8 +484,8 @@ for (k in 1:length(path.list)) {
   mins = lapply(seq(70,130,5), function(t)c(0,t))
   
   member.ship=membership
-  member.ship[membership==1]=2
-  member.ship[membership==2]=1
+  member.ship[membership==2]=3
+  member.ship[membership==3]=2
   palette("default")
   plot_network_animation(locs = cbind(locs[tmp$id,2], -locs[tmp$id,1]), edge.time = edge.time, 
                output = "animation_denoise.gif",
@@ -623,9 +495,9 @@ for (k in 1:length(path.list)) {
   
   edge.time=as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/EdgeTime.csv',sep='')))
   edge.time=edge.time[,-1]
-  plot_network(locs = locs[,], edge.time = edge_time_mat[], output = "./plots/",
-               filename = "Network2.pdf", vertex.size = 3,
-               window_list = list(0), asp=0.5, save_plots = T, delay=20, 
+  plot_network(locs = locs[,], edge.time = edge.time[,], 
+               output = "Network2.pdf", vertex.size = 3,
+               window_list = list(0), asp=0.3, save_plots = T, delay=20, 
                cols = t(col2rgb(1+member.ship[])))
   
   
@@ -636,36 +508,21 @@ for (k in 1:length(path.list)) {
 
 
 ### plot distribution of activation time ------
-tmp = R_result_new
-# path=path.list[[k]]
-# member.ship = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/MembShip.csv',sep='')))
-# member.ship=member.ship[,-1];
+tmp = L_result
+path=path.list[[k]]
+member.ship = as.matrix(read.csv(paste('../processed_FunctionalData/',path,'/MembShip.csv',sep='')))
+member.ship=member.ship[,-1];
 
 data = data.frame(value=tmp$clus_result$n0_vec*tmp$network$t_vec[2], type=clus2mem(tmp$clus_result$clusters[]))
 # data = data.frame(value=c(L_result$clus_result$n0_vec,R_result$clus_result$n0_vec)*R_result$network$t_vec[2], 
 #                   type=c(clus2mem(L_result$clus_result$clusters[]),
 #                          clus2mem(R_result$clus_result$clusters[])))
-
-data = data[which(data$type<4),]
-data$type[which(data$type==1)] = 0
-data$type[which(data$type==2)] = 1
-data$type[which(data$type==0)] = 2
-clus_size_vec = sapply(tmp$clus_result$clusters[c(2,1,3,4)], length)
-data$clus_size = clus_size_vec[data$type]
-
-
-library(ggplot2)
-ggplot(data, aes(x=value,color=as.factor(type), size=as.factor(type)))+
-  # geom_histogram( aes(y=..density..), color="#e9ecef", alpha=0.6, position = 'identity', bins=7 ) +
-  geom_density( aes(), position = 'identity', bw=20) +
-  scale_size_manual(values=clus_size_vec/10) +
+ggplot(data, aes(x=value,fill=as.factor(type)))+
+  geom_histogram( aes(y=..density..), color="#e9ecef", alpha=0.6, position = 'identity', bins=7 ) +
+  scale_fill_manual(values=2:4) +
   theme_bw() +
-  theme(legend.position = "none")+
-  xlab("Time(min)")+
-  xlim(0,250)+
-  ylab("Density")
-  # labs(fill="")#+
-  # facet_wrap(~type)
+  labs(fill="")+
+  facet_wrap(~type)
 
 
 
@@ -673,9 +530,6 @@ ggplot(data, aes(x=value,color=as.factor(type), size=as.factor(type)))+
 
 
 ### plot heatmap for neural activity traces ------
-data_folder = "../processed_FunctionalData/"
-path.list=list.files(data_folder);
-
 for (k in 1:length(path.list)) {
   path=path.list[[k]]
   
@@ -715,13 +569,11 @@ for (k in 1:length(path.list)) {
   
   tmp = load(list.files(pattern = path))
   tmp = R_result
-  fields::image.plot(t(ave_dFF[tmp$id[unlist(tmp$clus_result$clusters[1])],]),zlim=c(0,0.05), legend.shrink = 0.1,xaxt='n',yaxt='n')
+  fields::image.plot(t(ave_dFF[tmp$id[unlist(tmp$clus_result$clusters)],]),zlim=c(0,0.05), legend.shrink = 0.1,xaxt='n',yaxt='n')
   fields::image.plot(t(ave_dFF[sample(tmp$id[order(locs[tmp$id, 1], decreasing = TRUE)],10) ,]),zlim=c(0,0.05), xaxt='n',yaxt='n')
   image(t(ave_dFF[sample(tmp$id[order(locs[tmp$id, 1], decreasing = TRUE)], 10) ,]),zlim=c(0,0.05), col=fields::tim.colors(300), xaxt='n',yaxt='n')
   
 }
-
-fields::image.plot(t(ave_dFF[which(islet==1),]),zlim=c(0,0.05), legend.shrink = .5,xaxt='n',yaxt='n')
 
 
 ### plot edge times as lollipop plots -----
@@ -747,53 +599,104 @@ ggsave("~/Dropbox/DynamicSBM/Data/plots/edge_time_lollipop_4.pdf",width = 10,hei
 
 
 
-### plot all correlation curves (with some representatives with solid colors) ------
+### plot correlation curves ------
+tmp=L_result
 
-id_tmp = which(locs[,2]<0)
-plot(1, type="n", xlab="Time (min)", ylab="Correlation", xlim=c(0, 280), ylim=c(-0.1, 1))
+cor.full.ave = cor.full
+for(i in 1:(n.intervals-4)){
+  cor.full.ave[i,,]=apply(cor.full[i:(min(i+4,n.intervals)),,,drop=F], c(2,3), mean)
+}
 
-for (i in 1:(length(id_tmp)-1)) {
-  for (j in (i+1):length(id_tmp)) {
-    cor_tmp = cor.full.ave[,id_tmp[i],id_tmp[j]]
-    lines(cor_tmp, type='l',col=rgb(0,0,0,0.05),lwd=0.5) 
+plot( (1:dim(cor.full.ave)[1])*window_step/240, 
+      cor.full.ave[,sample(tmp$id[tmp$clus_result$clusters[[1]]],size = 1),
+                   sample(tmp$id[tmp$clus_result$clusters[[1]]],size = 1) ],
+      type='l',col=0,xlim=c(0,280),ylim=c(-0.2,1),ylab='',xlab='')
+abline(h=0.6,col=4,lty=3)
+
+for (. in 1:50) {
+  id_tmp = sample(tmp$id[],size = 2,replace = F)
+  cor_tmp = cor.full.ave[,id_tmp[1],id_tmp[2]]
+  lines(cor_tmp, type='l',col=ifelse(max(cor_tmp)<0.6,1,2),xlim=c(0,280),ylim=c(-0.2,1),ylab='',xlab='')
+}
+
+for (q in 1:3) {
+  for (k in q:3) {
+    for (. in 1:5) {
+      cor_tmp = cor.full.ave[,sample(tmp$id[tmp$clus_result$clusters[[q]]],size = 1),
+                             sample(tmp$id[tmp$clus_result$clusters[[k]]],size = 1) ]
+      lines(cor_tmp, type='l',col=ifelse(max(cor_tmp)<0.6,1,2),xlim=c(0,280),ylim=c(-0.2,1),ylab='',xlab='')
+    }
   }
 }
 
-for (i in 1:6) {
-  cor_tmp = cor.full.ave[, sample(id_tmp,1), sample(id_tmp,1)]
-  lines(cor_tmp, type='l',col=1,lwd=2) 
+
+### Plot similarity of memberships between various time window length (pre-processing step) ------
+
+file_list = list.files(path="real_data_results/func_20150410", pattern=c("*win240"), full.names = T)
+load(file_list[1])
+id_tmp = which(locs[,2]<0)
+ARI_mat = matrix(nrow=length(file_list), ncol=length(file_list))
+membership_mat = matrix(nrow=length(file_list), ncol=length(id_tmp))
+for (i in 1:length(file_list)) {
+  file = file_list[i]
+  load(file)
+  membership_mat[i,] = membership[id_tmp]
 }
+for (i in 1:length(file_list)) {
+  for (j in 1:length(file_list)) {
+    ARI_mat[i,j] = get_one_ARI(membership_mat[i,], membership_mat[j,])
+  }
+}
+# win = c(120,160,200,240,280,320,360,40,400,440,480,80)
+# fields::image.plot(ARI_mat[order(win), order(win)],zlim=c(0,1),axes=F)
+# mtext(text=sort(win),side=2,line=0.3, at=seq(0,1,length.out = length(win)), las=1, cex=0.8)
+# mtext(text=sort(win),side=1,line=0.3, at=seq(0,1,length.out = length(win)), las=2, cex=0.8)
+
+rho = seq(0.3,0.8,0.1)
+fields::image.plot(ARI_mat[],zlim=c(0,1),axes=F)
+mtext(text=rho,side=2,line=0.3, at=seq(0,1,length.out = length(rho)), las=1, cex=0.8)
+mtext(text=rho,side=1,line=0.3, at=seq(0,1,length.out = length(rho)), las=2, cex=0.8)
+
+
+
 
 
 ### plot maximum correlation heatmap -----
 
 max_cor_mat = apply(cor.full.ave, c(2,3), max)
-tmp = L_result_new
-id_tmp = tmp$id[unlist(tmp$clus_result$clusters[])]
+tmp = L_result
+id_tmp = tmp$id[unlist(tmp$clus_result$clusters[c(2,3,1)])]
 max_cor_mat = max_cor_mat[id_tmp,id_tmp]
-fields::image.plot(max_cor_mat,zlim=c(0,1),col = fields::tim.colors(100),xaxt='n',yaxt='n')
+fields::image.plot(max_cor_mat,zlim=c(0.3,1),col = fields::tim.colors(8))
+
+
+### plot slope of correlation heatmap -----
+
+max_cor_mat = apply(cor.full.ave, c(2,3), max)
+max_cor_time_mat = apply(cor.full.ave, c(2,3), which.max)
+
+rho_vec = seq(0.1,0.9,0.05)
+pass_rho_time_array = array(dim=c(length(rho_vec),dim(cor.full.ave)[2],dim(cor.full.ave)[3]))
+for (i in 1:length(rho_vec)) {
+  rho = rho_vec[i]
+  pass_rho_time_array[i,,] = apply(cor.full.ave, c(2,3), function(x)min(which(x>rho)))
+}
 
 
 
 
-### plot proportion vs time since passing threshold -----
+
+
+
+### explore correlation threshold -----
 
 pass_proportion = function(cor.full.ave, rho){
   exceed_time = apply(cor.full.ave, c(2,3), function(x)min(which(x>rho)))
-  # drop_time = apply(cor.full.ave, c(2,3), function(x)ifelse(max(x)>rho & rev(x)[1]<rho,
-  #                                                           max(which(x>rho)),
-  #                                                           0))
-  drop_time = exceed_time
-  for (i in 1:dim(cor.full.ave)[2]) {
-    for (j in 1:dim(cor.full.ave)[3]) {
-      cor_tmp = cor.full.ave[,i,j]
-      drop_time[i,j] = 1+min(which(cor_tmp[1:(length(cor_tmp)-1)]>=rho & cor_tmp[2:(length(cor_tmp))]<rho))
-    }
-  }
-  
-  id_tmp = which(exceed_time<Inf)
-  drop_time[id_tmp] = drop_time[id_tmp] - exceed_time[id_tmp]
-  # drop_time[drop_time<0] = Inf
+  drop_time = apply(cor.full.ave, c(2,3), function(x)ifelse(max(x)>rho & rev(x)[1]<rho,
+                                                            max(which(x>rho)),
+                                                            0))
+  drop_time = drop_time - exceed_time
+  drop_time[drop_time<0] = Inf
   total = sum(exceed_time<Inf)
   
   prop_vec = rep(0,dim(cor.full.ave)[1])
@@ -802,153 +705,47 @@ pass_proportion = function(cor.full.ave, rho){
     prop_vec[t] = prop_vec[t] / total
   }
   
-  id_2 = which(drop_time<75,arr.ind = T); # nodes that pass threshold but quickly drop back
-  id_3 = which(drop_time>75&drop_time<200,arr.ind = T) # pass, and drop back after a while
-  id_4 = which(exceed_time<Inf&drop_time==Inf,arr.ind = T) # pass, and not drop back
-  id_1 = which(exceed_time==Inf,arr.ind = T) # never pass
+  id_1 = which(drop_time<75,arr.ind = T);
+  id_2 = which(drop_time>75&drop_time<200,arr.ind = T)
   
-  return(list(prop_vec=prop_vec,id_1=id_1,id_2=id_2, id_3=id_3,id_4=id_4))
+  return(list(prop_vec=prop_vec,id_1=id_1,id_2=id_2))
 }
 
-
-### plot randomly selected correlation curves, colored by (1) never pass, (2) pass but quickly drop back,
-### (3) pass, and drop back after a while, (4) pass, not drop back.
-rho = 0.6
-id_vec_tmp = which(locs[,2]<0)
-res = pass_proportion(cor.full.ave = cor.full.ave[,id_vec_tmp,id_vec_tmp], rho=rho)
+tmp = L_result
+res = pass_proportion(cor.full.ave = cor.full.ave[,tmp$id,tmp$id], rho=0.6)
 prop_vec = res$prop_vec
-id_1 = res$id_1; id_2 = res$id_2; id_3 = res$id_3; id_4 = res$id_4
-id_list = list(id_1,id_2,id_3,id_4)
+id_1 = res$id_1; id_2 = res$id_2
+
 
 plot(1, type="n", xlab="Time", ylab="Correlation", xlim = c(0,300),ylim=c(0,1))
 for (. in 1:20) {
-  group = sample(4,1)
-  # group = 4
-  id_tmp = id_list[[group]][sample(nrow(id_list[[group]]),1), ]
-  lines(cor.full.ave[,id_vec_tmp,id_vec_tmp][,id_tmp[1],id_tmp[2]],col=group)
-  # lines(cor.full.ave[,sample(id_5,1),sample(id_5,1)],col=5)
+  group = sample(2,1)
+  if(group==1)
+    id_tmp = id_1[sample(nrow(id_1),1),]
+  else
+    id_tmp = id_2[sample(nrow(id_2),1),]
+  lines(cor.full.ave[,tmp$id,tmp$id][,id_tmp[1],id_tmp[2]],col=group)
 }
-abline(h=rho,col=4,lty=2)
-legend(x="topright",y=0.9, inset = c(-0.3,0), legend=c("Never pass","Drop quickly","Stay before drop","Never drop"),
-       col=1:4, lty=1, cex=0.8)
-#### ### ### ###
+abline(h=0.6,col=4,lty=2)
 
-tmp = L_result
 
-rho_vec = seq(0,0.9,0.1)
+rho_vec = seq(0.1,0.8,0.1)
 prop_mat = matrix(nrow=length(rho_vec),ncol=length(prop_vec))
 for (i in 1:length(rho_vec)) {
   rho = rho_vec[i]
   prop_mat[i,] = pass_proportion(cor.full.ave = cor.full.ave[,tmp$id,tmp$id], rho=rho)$prop_vec
 }
 
-# plot proportion vs time since passing threshold for various rho
-plot(1, type="n", xlab="Time since passing threshold", ylab="Proportion", xlim=c(0, 30), ylim=c(0, 1))
+plot(prop_vec,type='l',ylim = c(0,0.6), xlab="Time since passing the threshold", 
+     ylab="Proportion")
 for (i in 1:length(rho_vec)) {
   lines(prop_mat[i,],col=i)
 }
 legend(x="topright",y=0.9, legend=rho_vec,
-       col=1:(length(rho_vec)), lty=1, cex=0.8)
-
-# plot proportion vs rho for different droping time
-plot(1, type="n", xlab="rho", ylab="Proportion", xlim=c(0, 1), ylim=c(0, 1))
-for (t in seq(1,20,1)) {
-  lines(rho_vec,prop_mat[,t],col=t)
-}
-legend(x="topright",y=0.9, legend=seq(1,20,1),
-       col=1:20, lty=1, cex=0.8)
-
-
-# plot (proportion of quickly drop back nodes) vs rho for various max(cor) -------
-
-quick_drop_proportion = function(cor.full.ave,rho,cor_max){
-  max_cor_mat = apply(cor.full.ave, c(2,3), max)
-  total = sum(max_cor_mat>cor_max & max_cor_mat<cor_max+0.1)
-  N_quick_drop = 0
-  for (i in 1:dim(cor.full.ave)[2]) {
-    for (j in 1:dim(cor.full.ave)[3]) {
-      if(max_cor_mat[i,j]>cor_max & max_cor_mat[i,j]<(cor_max+0.1)){
-        exceed_time = min(which(cor.full.ave[,i,j]>rho))
-        if(min(cor.full.ave[exceed_time:min(exceed_time+10,dim(cor.full.ave)[1]),i,j])<rho){
-          N_quick_drop = N_quick_drop+1
-        }
-      }
-    }
-  }
-  return(list(prop=N_quick_drop/total, total=total))
-}
-
-id_tmp = which(locs[,2]<0)
-rho_vec = seq(0.1,0.9,0.1)
-prop_mat = matrix(nrow=length(rho_vec),ncol=30)
-total_vec = rho_vec
-for (i in 1:length(rho_vec)) {
-  cor_max = rho_vec[i]
-  for (j in seq(30)) {
-    rho = seq(0,cor_max,length.out=30)[j]
-    res = quick_drop_proportion(cor.full.ave = cor.full.ave[,id_tmp,id_tmp], rho=rho, cor_max=cor_max)
-    prop_mat[i,j] = res$prop
-  }
-  total_vec[i] = res$total
-}
-
-total_vec
-
-max_cor_mat = apply(cor.full.ave, c(2,3), max)
-hist(max_cor_mat[id_tmp,id_tmp], xlab="Maximum correlation", main = "")
-
-par(mar=c(5.1, 4.1, 4.1, 4.1), xpd=NA)
-plot(1, type="n", xlab="Threshold", ylab="Proportion of quicly drop back correlations", xlim=c(0, 1), ylim=c(0, 1))
-for (i in 1:length(rho_vec)) {
-  cor_max = rho_vec[i]
-  lines(seq(0,cor_max,length.out=30),prop_mat[i,],col=colorRamps::primary.colors(10)[i])
-}
-legend("topright", inset=c(-0.35,0), legend=rho_vec,
-       col=colorRamps::primary.colors(10)[1:9], lty=1, cex=0.8)
-
-
-autoimage::reset.par()
+       col=1:length(rho_vec), lty=1, cex=0.8)
 
 
 
-
-
-# Plot cluster memberships changes as rho grows ---------------------------
-
-file_list = list.files(path = './real_data_results/func_20150410/', pattern = "*Nclus3_win240_rho",full.names = T)
-membership_mat = c()
-for (file in file_list) {
-  load(file)
-  membership[which(membership==0)] = 4
-  membership_mat = rbind(membership_mat,membership[which(locs[,2]<0)])
-}
-
-rho_vec = seq(0.3,0.8,0.1)
-clus_label_mat = matrix(c(3,1,2,4, 3,2,1,4, 2,3,1,4, 1,2,3,4, 2,1,3,4, 1,2,3,4),ncol=4,byrow=T)
-
-
-# plot cluster membership migration using heatmap
-N_nodes_mat_collapse = matrix(0,nrow=4,ncol=4)
-for (from in 1:(length(file_list)-1)) {
-  to = from+1
-  N_nodes_mat = matrix(nrow=4,ncol=4)
-  for (q in 1:4) {
-    for (k in 1:4) {
-      N_nodes_mat[q,k] = sum(membership_mat[from,]==which(clus_label_mat[from,]==q) & membership_mat[to,]==which(clus_label_mat[to,]==k))
-    }
-  }
-  # N_nodes_mat = N_nodes_mat/rowSums(N_nodes_mat)
-  N_nodes_mat_collapse = N_nodes_mat_collapse + N_nodes_mat
-  fields::image.plot(N_nodes_mat,zlim=c(0,1), main=paste0(rho_vec[from]," to ",rho_vec[to]), xaxt="n",yaxt="n")
-  text(x = seq(0,1,length.out = 4), y = -0.25, labels = 1:4, xpd = TRUE)
-  text(y = seq(0,1,length.out = 4), x = -0.25, labels = 1:4, xpd = TRUE)
-}
-
-fields::image.plot(N_nodes_mat_collapse/rowSums(N_nodes_mat_collapse),zlim=c(0,1), main=paste0(""), xaxt="n",yaxt="n")
-text(x = seq(0,1,length.out = 4), y = -0.25, labels = 1:4, xpd = TRUE)
-text(y = seq(0,1,length.out = 4), x = -0.25, labels = 1:4, xpd = TRUE)
-text(x = 0.5, y = -0.35, labels = "From", xpd = TRUE)
-text(y = 0.5, x = -0.35, labels = "To", xpd = TRUE)
 
 
 # SBM schematic -----------------------------------------------------------

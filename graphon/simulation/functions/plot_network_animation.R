@@ -8,7 +8,6 @@ plot_network_animation = function(locs, output="./plots/gif/network.gif", edge.t
   
   T_max = max(edge.time[which(edge.time<Inf)])
   
-  .pardefault = par(no.readonly = T)
   # par(mfrow=c(2,1))
   par(mar=c(1,1,1,1))
   
@@ -20,6 +19,7 @@ plot_network_animation = function(locs, output="./plots/gif/network.gif", edge.t
   coord = layout_with_fr(network.tmp)
   
   i=100
+  time_thres = min(sapply(window_list,"[[",2))
   for (window in window_list) {
     i=i+1
     if(save_plots){
@@ -36,12 +36,21 @@ plot_network_animation = function(locs, output="./plots/gif/network.gif", edge.t
       ends = ends(network.tmp, E(network.tmp))
       if (nrow(ends)>0){
         ends = t(apply(ends, 1, as.numeric))
-        edge_cols = apply(ends,1,function(end) rgb(mean(cols[end,1]), mean(cols[end,2]),mean(cols[end,3]), 
-                                                   alpha=alpha,maxColorValue = 255))
+        edge_cols = apply(ends,1,function(end) ifelse(edge.time[end[1],end[2]]<time_thres,
+                                                      rgb(128,128,128,alpha=alpha/3,maxColorValue = 255),
+                                                      rgb(mean(cols[end,1]), mean(cols[end,2]),mean(cols[end,3]),
+                                                          alpha=alpha,maxColorValue = 255) ) )
+        
+        # edge_cols = apply(ends,1,function(end) ifelse(edge.time[end[1],end[2]]<min(sapply(window_list,"[[",2)), 
+        #                                               rgb(153,204,230,alpha=alpha/3,maxColorValue = 255), 
+        #                                               rgb(153,204,230,alpha=alpha,maxColorValue = 255) ) )
+        
       }
       else{
         edge_cols = NA
       }
+      
+      time_thres = window[2]
       
       
       plot(network.tmp, vertex.label=NA, 
@@ -71,6 +80,6 @@ plot_network_animation = function(locs, output="./plots/gif/network.gif", edge.t
     if(remove)
       file.remove(list.files(path="./plots/gif",pattern="*.png",full.names=T))
   }
-  par(.pardefault)
+
   return()
 }

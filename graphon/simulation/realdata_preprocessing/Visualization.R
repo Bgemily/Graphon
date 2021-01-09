@@ -49,7 +49,7 @@ for (k in 1:length(path.list)) {
   g.temp = gridExtra::arrangeGrob(grobs = g.temp, ncol = length(g.temp))
   grid::grid.draw(g.temp)
   ggsave(filename = paste0('./plots/',path,'_local_traces.pdf'), plot = g.temp,
-         width = 6, height = 4, units = "in")
+         width = 6, height = 3, units = "in")
 }
 
 

@@ -1,0 +1,512 @@
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.3[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.3[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.3[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.3[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.3[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.3[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.3[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.3[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.3[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
+# plot connecting patterns obtained by ppsbm ------------------------------
+tmp = results1$conn_prob_0.2[[sample(100,1)]]
+intensity_tmp = tmp$clus_result$logintensities.ql
+intensity_tmp[intensity_tmp==0] = -Inf
+intensity_tmp = exp(intensity_tmp)
+z = rbind(rep(c(1,0,0),each=30),
+rep(c(0,1,0),each=30),
+rep(c(0,0,1),each=30))
+mem_tmp = apply(tmp$clus_result$tau, 2, which.max)
+intensity_tmp = ppsbm::sortIntensities(intensity_tmp,z,tmp$clus_result$tau, directed = F)
+ind_tmp = matrix(c(1,2,3,2,4,5,3,5,6),nrow=3,byrow = T)
+for (q in 1:3) {
+for (l in 1:3) {
+hist_tmp = density(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)])
+prob_tmp = sum(tmp$network$edge_time_mat[which(mem_tmp==q),which(mem_tmp==l)]<Inf)/(sum(mem_tmp==q)*sum(mem_tmp==l))
+hist_tmp$y = hist_tmp$y * prob_tmp
+i = ind_tmp[q,l]
+plot(seq(0,200,length.out = dim(intensity_tmp)[2]),intensity_tmp[i,],type='l',col=2)
+# lines(hist_tmp,xlim = c(0,200))
+}
+}
+tmp$clus_result$clusters
