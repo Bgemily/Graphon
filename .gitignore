@@ -1,4 +1,5 @@
 *alias
+*.DS_Store
 QE/
 graphon/Zebrafish_spinal_cord_development/
 graphon/paper/
