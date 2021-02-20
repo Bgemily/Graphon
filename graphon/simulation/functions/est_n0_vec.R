@@ -1,5 +1,6 @@
 # update n0_vec
-est_n0_vec = function(edge_time_mat, clusters, center_cdf_array=NULL, L_mat=NULL, t_vec=seq(0,50,0.05), bw=1, standardize=FALSE, step_size=0.02){
+est_n0_vec = function(edge_time_mat, clusters, center_cdf_array=NULL, L_mat=NULL, 
+                      t_vec=seq(0,50,0.05), bw=1, standardize=FALSE, step_size=0.02){
   
   # step_size = 0.02
   

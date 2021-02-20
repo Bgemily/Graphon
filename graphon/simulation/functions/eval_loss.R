@@ -1,27 +1,55 @@
-eval_loss = function(edge_time_mat, n0_mat, clusters, center_cdf_array=NULL, 
-                     standardize=FALSE, t_vec=seq(0,50,0.05)){
+eval_loss = function(edge_time_mat_list, n0_vec_list, clusters_list, 
+                     t_vec=seq(0,50,0.05)){
 
-  N_node = nrow(edge_time_mat)
-  N_clus = length(clusters)
+  N_subj = length(edge_time_mat_list)
+  N_clus = length(clusters_list[[1]])
   t_unit = t_vec[2]-t_vec[1]
-  node_cdf_array = get_node_cdf_array(edge_time_mat = edge_time_mat, clusters = mem2clus(1:N_node),
-                                      n0_mat = n0_mat, t_vec = t_vec, standardize = standardize)
-  if(is.null(center_cdf_array)){
-    center_cdf_array = get_center_cdf_array(edge_time_mat = edge_time_mat, clusters = clusters, 
-                                            n0_mat = n0_mat, t_vec = t_vec, standardize = standardize)
-  }
   
+  
+  ### Evaluate loss (up to a constant)
   loss = 0
   for (q in 1:N_clus) {
-    for (l in 1:N_clus) {
-      tmp = sweep(node_cdf_array[clusters[[q]],clusters[[l]],], MARGIN = 3, STATS = center_cdf_array[q,l,])
-      loss = loss + sum(tmp^2)*t_unit
+    for (k in 1:N_clus) {
+      adjus_node_cdf_bigmat = c()
+      n0_mat_longvec = c()
+      for (m in 1:N_subj) {
+        ### V1
+        adjus_edge_time_mat = edge_time_mat_list[[m]]-n0_vec2mat(n0_vec_list[[m]])*t_unit
+        ### v2
+        # adjus_edge_time_mat = edge_time_mat_list[[m]]-n0_vec2mat(n0_vec_list[[m]])*t_unit*0
+        ### ### ###
+        clusters = clusters_list[[m]]
+        adjus_node_cdf_mat = t(sapply(adjus_edge_time_mat[clusters[[q]], clusters[[k]]],
+                                      function(t) if(!is.na(t)) ecdf(t)(t_vec)
+                                      else rep(NA,length(t_vec))) )
+        non_NA_id = which(!is.na(rowSums(adjus_node_cdf_mat)))
+        adjus_node_cdf_mat = adjus_node_cdf_mat[non_NA_id, ]
+        adjus_node_cdf_bigmat = rbind(adjus_node_cdf_bigmat, adjus_node_cdf_mat)
+        
+        ### n0_mat_longvec: length \approx M*n^2
+        n0_mat_vec = c(n0_vec2mat(n0_vec_list[[m]]))
+        n0_mat_longvec = c(n0_mat_longvec, n0_mat_vec)
+        n0_mat_longvec = round(n0_mat_longvec)
+      }
+      ### Sweep out col_means
+      loss_qk = sweep(adjus_node_cdf_bigmat, 2,
+                      apply(adjus_node_cdf_bigmat, 2, mean))
+      ### Shift back towards right
+      for (i in 1:nrow(loss_qk)) {
+        loss_qk[i,] = c( numeric(n0_mat_longvec[i]), loss_qk[i, 1:(ncol(loss_qk)-n0_mat_longvec[i])])
+      } 
+      
+      
+      loss_qk = sum(loss_qk^2)
+      loss = loss + loss_qk
     }
   }
-  loss = loss/N_node^2/max(t_vec) # loss: mean squared error, invariant to N_Node and T.
   
   return(list(loss=loss))
 }
+
+
+
 
 
 # res = results1$conn_prob_0.2[[1]]

@@ -128,8 +128,13 @@ generate_network2 = function(total_time=50, tau_max=c(10,10,10), conn_prob=1, be
   
   pairwise_dist = rdist::pdist(node_loc_mat)
   
+  ### V1
   tau_vec = c(runif(clus_size_vec[1], 0, tau_max[1]), runif(clus_size_vec[2], 0, tau_max[2]), runif(clus_size_vec[3], 0, tau_max[3]))
-  
+  ### V2
+  # tau_vec = c(tau_max[1]*rbinom(clus_size_vec[1], 1, 0.5),
+  #             tau_max[2]*rbinom(clus_size_vec[2], 1, 0.5),
+  #             tau_max[3]*rbinom(clus_size_vec[3], 1, 0.5))
+  ##########
   
   
   ################ V1
