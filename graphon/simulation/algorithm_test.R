@@ -7,6 +7,7 @@ file_path = "./functions"
 file.sources = list.files(path = file_path, pattern = "*.R$", full.names = TRUE)
 sapply(file.sources, source)
 
+
 ##### Algorithm #####
 # Input: Edge time matrix list, clusters list, step size, t_vec
 # Output: n0_vec
