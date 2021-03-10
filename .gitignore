@@ -1,6 +1,7 @@
 *alias
 *.DS_Store
 QE/
+Graphon/Archive/
 graphon/Zebrafish_spinal_cord_development/
 graphon/paper/
 graphon/AblationData/
@@ -10,6 +11,9 @@ graphon/MindMap/
 graphon/MatOpt_Simulation/
 graphon/Weekly_Report/
 graphon/simulation/plots/
+graphon/Results/
+graphon/Manuscript/
+Graphon/processed_data/
 
 Stage1/
 Stage2/
